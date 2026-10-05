@@ -1,0 +1,47 @@
+# CERT-In Directions under Section 70B(6) of the IT Act, 2000 (No. 20(3)/2022-CERT-In, 28 April 2022)
+# Guidance text is written in-house.
+# CONTENT STATUS: draft. Verify against the official directions and CERT-In FAQs before customer release.
+code: certin
+name: CERT-In Directions (April 2022)
+short_name: CERT-In
+version: "2022"
+region: India
+publisher: Indian Computer Emergency Response Team (CERT-In), MeitY
+source_url: https://www.cert-in.org.in/Directions70B.jsp
+content_version: "0.1.0"
+review_status: draft
+description: >
+  Directions on information security practices, procedures, prevention, response and reporting of
+  cyber incidents. Apply to service providers, intermediaries, data centres, body corporates and
+  government organisations.
+requirements:
+  - ref: "(i)"
+    section: Clock synchronisation
+    title: Synchronise ICT system clocks
+    guidance: Connect to the NTP servers of the National Informatics Centre (NIC) or National Physical Laboratory (NPL), or to NTP servers traceable to them. Organisations across geographies may use other accurate sources if they do not deviate from NIC/NPL.
+  - ref: "(ii)"
+    section: Incident reporting
+    title: Report cyber incidents within 6 hours
+    guidance: Report the cyber incident types listed in Annexure I to CERT-In within 6 hours of noticing them or being notified of them.
+  - ref: "(iii)"
+    section: Point of contact
+    title: Designate a Point of Contact for CERT-In
+    guidance: Designate a Point of Contact to interface with CERT-In and share their details in the prescribed format. Keep the details current.
+  - ref: "(iv)"
+    section: Information requests
+    title: Provide information and assistance when ordered
+    guidance: When CERT-In issues an order or direction, provide the requested information or assistance within the stated time.
+  - ref: "(v)"
+    section: Log retention
+    title: Maintain ICT system logs for 180 days in India
+    guidance: Enable logs of all ICT systems and keep them securely for a rolling period of 180 days within Indian jurisdiction. Provide them to CERT-In with incident reports or when ordered.
+  - ref: "(vi)"
+    section: Subscriber records
+    title: Register subscriber information (data centres, VPS, cloud, VPN providers)
+    guidance: Data centres, VPS providers, cloud service providers and VPN providers must register accurate subscriber or customer information and keep it for 5 years or longer as required by law after cancellation or withdrawal of registration.
+    condition: is_infra_provider
+  - ref: "(vii)"
+    section: Virtual asset records
+    title: KYC and transaction records (virtual asset service providers)
+    guidance: Virtual asset service providers, exchanges and custodian wallet providers must keep KYC information and records of financial transactions for 5 years.
+    condition: is_virtual_asset_provider

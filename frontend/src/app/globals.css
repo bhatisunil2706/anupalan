@@ -1,0 +1,59 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Public Sans Variable", ui-sans-serif, system-ui, sans-serif;
+
+  --color-ink: #1f2a5c;          /* indigo ink: navigation, primary actions */
+  --color-ink-700: #2a377a;
+  --color-ink-50: #eef0f8;
+  --color-paper: #f5f6fa;        /* app background */
+  --color-surface: #ffffff;
+  --color-text: #171b2e;
+  --color-muted: #5b6178;
+  --color-line: #dfe2ec;
+  --color-marigold: #e3a008;     /* reserved for the readiness seal */
+
+  --color-pass: #1f7a4d;
+  --color-pass-50: #e8f5ee;
+  --color-fail: #b42318;
+  --color-fail-50: #fdecea;
+  --color-warn: #a35c00;
+  --color-warn-50: #fdf3e2;
+  --color-prog: #2e5bdb;
+  --color-prog-50: #eaf0fd;
+  --color-idle: #6b7085;
+  --color-idle-50: #eff0f4;
+}
+
+html {
+  font-feature-settings: "tnum" 1;
+}
+
+body {
+  background: var(--color-paper);
+  color: var(--color-text);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-prog);
+  outline-offset: 2px;
+}
+
+/* Rendered policy documents */
+.prose-policy { line-height: 1.65; max-width: 72ch; }
+.prose-policy h1 { font-size: 1.6rem; font-weight: 700; margin: 0 0 1rem; letter-spacing: -0.01em; }
+.prose-policy h2 { font-size: 1.15rem; font-weight: 650; margin: 1.75rem 0 0.5rem; }
+.prose-policy p { margin: 0.6rem 0; }
+.prose-policy ul, .prose-policy ol { margin: 0.5rem 0 0.5rem 1.4rem; }
+.prose-policy ul { list-style: disc; }
+.prose-policy ol { list-style: decimal; }
+.prose-policy li { margin: 0.25rem 0; }
+.prose-policy table { border-collapse: collapse; margin: 1rem 0; font-size: 0.9rem; }
+.prose-policy th, .prose-policy td { border: 1px solid var(--color-line); padding: 0.4rem 0.7rem; text-align: left; }
+.prose-policy th { background: var(--color-paper); font-weight: 600; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}

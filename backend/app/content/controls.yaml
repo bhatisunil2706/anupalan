@@ -1,0 +1,713 @@
+# Unified control library. Each control is implemented once and mapped to every framework it satisfies.
+# The mapping set is core company IP: authored in-house, reviewed by a second person, versioned.
+# frequency: once | monthly | quarterly | semiannual | annual | continuous
+content_version: "0.1.0"
+controls:
+  # ===================== Governance =====================
+  - code: GOV-01
+    title: Information security policy
+    category: Governance
+    frequency: annual
+    description: Maintain a top-level information security policy approved by management, published to all staff and reviewed at least annually.
+    evidence_hint: Approved policy document showing version, approver and approval date.
+    maps: {iso27001: ["5.2", "A.5.1"], soc2: ["CC2.2", "CC5.3"], dpdp: ["s.8(5)"]}
+  - code: GOV-02
+    title: ISMS scope and context
+    category: Governance
+    frequency: annual
+    description: Document the organisation's context, interested parties and their requirements, and the scope and boundaries of the security programme.
+    evidence_hint: ISMS scope document and context / interested parties register.
+    maps: {iso27001: ["4.1", "4.2", "4.3", "4.4"], soc2: ["CC3.1"]}
+  - code: GOV-03
+    title: Leadership oversight and management review
+    category: Governance
+    frequency: annual
+    description: Leadership reviews the security programme at least annually, covering performance, risks, audit results and improvements, and records decisions.
+    evidence_hint: Management review minutes with attendees, inputs covered and decisions.
+    maps: {iso27001: ["5.1", "9.3.1", "9.3.2", "9.3.3"], soc2: ["CC1.2", "CC4.2"]}
+  - code: GOV-04
+    title: Security roles and responsibilities
+    category: Governance
+    frequency: annual
+    description: Define and assign security and privacy roles (security lead, DPO or privacy contact, control owners) with a documented responsibility matrix.
+    evidence_hint: Org chart and RACI showing security and privacy roles.
+    maps: {iso27001: ["5.3", "A.5.2", "A.5.4"], soc2: ["CC1.3", "CC1.5"], dpdp: ["s.8(1)"]}
+  - code: GOV-05
+    title: Segregation of duties
+    category: Governance
+    frequency: annual
+    description: Identify conflicting duties (for example, approving and deploying the same change) and separate them or add compensating review.
+    evidence_hint: Segregation of duties matrix or documented compensating controls.
+    maps: {iso27001: ["A.5.3"], soc2: ["CC5.1"]}
+  - code: GOV-06
+    title: Security objectives, resources and planning
+    category: Governance
+    frequency: annual
+    description: Set measurable security objectives with owners and deadlines, allocate resources, and plan changes to the programme.
+    evidence_hint: Security objectives with owners, budget allocation and planned changes.
+    maps: {iso27001: ["6.2", "6.3", "7.1", "8.1"], soc2: ["CC3.1"]}
+  - code: GOV-07
+    title: Document control and operating procedures
+    category: Governance
+    frequency: annual
+    description: Control security documents with versioning, approval and access rules, and document key operating procedures.
+    evidence_hint: Document register with versions and approvals; sample operating procedures.
+    maps: {iso27001: ["7.5.1", "7.5.2", "7.5.3", "A.5.37"], soc2: ["CC2.1"]}
+  - code: GOV-08
+    title: Code of conduct
+    category: Governance
+    frequency: annual
+    description: Publish a code of conduct covering ethics and integrity, acknowledged by all staff at joining and annually.
+    evidence_hint: Code of conduct and acknowledgment records.
+    maps: {soc2: ["CC1.1"]}
+  - code: GOV-09
+    title: Internal security communication
+    category: Governance
+    frequency: quarterly
+    description: Communicate security policies, objectives, changes and how to raise concerns to staff through regular channels.
+    evidence_hint: Sample communications (emails, all-hands slides, intranet posts).
+    maps: {iso27001: ["7.4"], soc2: ["CC2.2"]}
+  - code: GOV-10
+    title: External security and privacy commitments
+    category: Governance
+    frequency: annual
+    description: Communicate security commitments to customers and partners through terms, a trust page and contractual documents, and keep them consistent with practice.
+    evidence_hint: Public trust or security page, customer terms, sample security addendum.
+    maps: {iso27001: ["7.4"], soc2: ["CC2.3"]}
+  - code: GOV-11
+    title: Contact with authorities, CERT-In point of contact
+    category: Governance
+    frequency: annual
+    description: Keep a current list of authority contacts (CERT-In, Data Protection Board, sector regulator, police cyber cell), designate a CERT-In Point of Contact, and maintain memberships of security interest groups.
+    evidence_hint: Authority contact list, CERT-In PoC designation, record of PoC details shared with CERT-In.
+    maps: {iso27001: ["A.5.5", "A.5.6"], certin: ["(iii)", "(iv)"]}
+  - code: GOV-12
+    title: Legal and regulatory requirements register
+    category: Governance
+    frequency: annual
+    description: Maintain a register of applicable laws, regulations and contractual obligations (DPDP, CERT-In, IT Act, sector rules, customer contracts) and of software licences.
+    evidence_hint: Legal and regulatory register with owners and last review date.
+    maps: {iso27001: ["A.5.31", "A.5.32"], soc2: ["CC2.3"]}
+  - code: GOV-13
+    title: Internal audit and compliance checks
+    category: Governance
+    frequency: annual
+    description: Run an internal audit programme with impartial auditors, and periodically check compliance with security policies and standards.
+    evidence_hint: Internal audit plan, audit report and findings tracker.
+    maps: {iso27001: ["9.2.1", "9.2.2", "A.5.35", "A.5.36"], soc2: ["CC4.1"]}
+  - code: GOV-14
+    title: Security metrics and monitoring of the programme
+    category: Governance
+    frequency: quarterly
+    description: Define and track security metrics (open vulnerabilities, training completion, access review completion) and report them to leadership.
+    evidence_hint: Quarterly metrics report or dashboard export.
+    maps: {iso27001: ["9.1"], soc2: ["CC2.1", "CC4.1"]}
+  - code: GOV-15
+    title: Corrective action and continual improvement
+    category: Governance
+    frequency: continuous
+    description: Track nonconformities and control failures to root cause and corrective action, and verify actions are effective.
+    evidence_hint: Corrective action log with root cause, owner, due date and closure.
+    maps: {iso27001: ["10.1", "10.2"], soc2: ["CC4.2"]}
+  - code: GOV-16
+    title: Security in projects and change initiatives
+    category: Governance
+    frequency: continuous
+    description: Include a security and privacy review in project kick-off and in significant business changes.
+    evidence_hint: Project security review checklist for a sample project.
+    maps: {iso27001: ["A.5.8"], soc2: ["CC3.4"]}
+  - code: GOV-17
+    title: Competence for security roles
+    category: Governance
+    frequency: annual
+    description: Define required competence for security and privacy roles and keep records of qualifications and training.
+    evidence_hint: Role competence requirements and training or certification records.
+    maps: {iso27001: ["7.2"], soc2: ["CC1.4"]}
+
+  # ===================== Risk =====================
+  - code: RISK-01
+    title: Risk assessment
+    category: Risk
+    frequency: annual
+    description: Assess security and privacy risks at least annually and on significant change, using a documented method with risk owners and acceptance criteria.
+    evidence_hint: Risk assessment methodology and current risk register.
+    maps: {iso27001: ["6.1.1", "6.1.2", "8.2"], soc2: ["CC3.1", "CC3.2", "CC9.1"]}
+  - code: RISK-02
+    title: Risk treatment and Statement of Applicability
+    category: Risk
+    frequency: annual
+    description: Decide treatment for each risk, maintain a Statement of Applicability, and track the treatment plan to completion with risk owner approval.
+    evidence_hint: Risk treatment plan and Statement of Applicability.
+    maps: {iso27001: ["6.1.3", "8.3"], soc2: ["CC5.1"]}
+  - code: RISK-03
+    title: Fraud risk assessment
+    category: Risk
+    frequency: annual
+    description: Consider fraud scenarios (misuse of access, false reporting, payment fraud) as part of the risk assessment.
+    evidence_hint: Fraud risks recorded in the risk register.
+    maps: {soc2: ["CC3.3"]}
+  - code: RISK-04
+    title: Change impact assessment
+    category: Risk
+    frequency: continuous
+    description: Assess the security impact of significant changes to the business, technology or vendors before they happen.
+    evidence_hint: Change impact assessments for significant changes.
+    maps: {iso27001: ["6.3"], soc2: ["CC3.4"]}
+  - code: RISK-05
+    title: Threat intelligence
+    category: Risk
+    frequency: continuous
+    description: Subscribe to threat feeds (for example CERT-In advisories) and act on relevant threats.
+    evidence_hint: Advisory subscriptions and examples of actions taken.
+    maps: {iso27001: ["A.5.7"], soc2: ["CC3.2"]}
+
+  # ===================== Asset management =====================
+  - code: AST-01
+    title: Asset inventory
+    category: Asset management
+    frequency: quarterly
+    description: Maintain an inventory of hardware, software, cloud resources and information assets, each with an owner.
+    evidence_hint: Asset inventory export with owners.
+    automated: true
+    maps: {iso27001: ["A.5.9"], soc2: ["CC6.1"]}
+  - code: AST-02
+    title: Acceptable use
+    category: Asset management
+    frequency: annual
+    description: Publish acceptable use rules for company systems and data, acknowledged by staff.
+    evidence_hint: Acceptable use policy and acknowledgments.
+    maps: {iso27001: ["A.5.10"], soc2: ["CC5.3"]}
+  - code: AST-03
+    title: Information classification and handling
+    category: Asset management
+    frequency: annual
+    description: Classify information (for example Public, Internal, Confidential, Personal data) with labelling and handling and transfer rules for each level.
+    evidence_hint: Classification scheme and handling rules.
+    maps: {iso27001: ["A.5.12", "A.5.13", "A.5.14"], soc2: ["C1.1"]}
+  - code: AST-04
+    title: Media handling and secure disposal
+    category: Asset management
+    frequency: continuous
+    description: Securely wipe or destroy media and equipment before disposal or re-use, and keep disposal certificates.
+    evidence_hint: Disposal certificates or wipe logs.
+    maps: {iso27001: ["A.7.10", "A.7.14", "A.8.10"], soc2: ["CC6.5", "C1.2"]}
+  - code: AST-05
+    title: Endpoint security
+    category: Asset management
+    frequency: continuous
+    description: Manage laptops and mobile devices with MDM, full-disk encryption, screen lock, OS updates and endpoint protection.
+    evidence_hint: MDM compliance report showing encryption and screen lock.
+    automated: true
+    maps: {iso27001: ["A.8.1", "A.7.9"], soc2: ["CC6.1", "CC6.8"]}
+  - code: AST-06
+    title: Protection of records
+    category: Asset management
+    frequency: annual
+    description: Protect business records from loss, tampering and unauthorised access, and keep them for the required retention periods.
+    evidence_hint: Records retention schedule and storage controls.
+    maps: {iso27001: ["A.5.33"]}
+
+  # ===================== Access control =====================
+  - code: ACC-01
+    title: Access control policy
+    category: Access control
+    frequency: annual
+    description: Define access control rules based on least privilege and need-to-know, covering systems that hold personal data.
+    evidence_hint: Approved access control policy.
+    maps: {iso27001: ["A.5.15"], soc2: ["CC6.1"], dpdp: ["R.6(b)"]}
+  - code: ACC-02
+    title: Joiner, mover and leaver access process
+    category: Access control
+    frequency: continuous
+    description: Grant access on approved requests, adjust it on role change, and remove it within 24 hours of exit.
+    evidence_hint: Access request tickets and offboarding records showing removal time.
+    automated: true
+    maps: {iso27001: ["A.5.16", "A.5.18"], soc2: ["CC6.2", "CC6.3"]}
+  - code: ACC-03
+    title: Multi-factor authentication
+    category: Access control
+    frequency: continuous
+    description: Enforce MFA for identity provider, cloud consoles, source code, email and all remote or administrative access.
+    evidence_hint: Identity provider and cloud MFA enforcement reports.
+    automated: true
+    maps: {iso27001: ["A.5.17", "A.8.5"], soc2: ["CC6.1"]}
+  - code: ACC-04
+    title: Privileged access management
+    category: Access control
+    frequency: quarterly
+    description: Limit admin and root access to named individuals, protect root accounts with MFA, and log privileged activity.
+    evidence_hint: List of privileged users and root account MFA status.
+    automated: true
+    maps: {iso27001: ["A.8.2", "A.8.18"], soc2: ["CC6.1", "CC6.3"]}
+  - code: ACC-05
+    title: Periodic access reviews
+    category: Access control
+    frequency: quarterly
+    description: Review user access to critical systems quarterly and remove access that is no longer needed.
+    evidence_hint: Signed access review records with changes made.
+    maps: {iso27001: ["A.5.18"], soc2: ["CC6.2", "CC6.3"]}
+  - code: ACC-06
+    title: Least privilege access to data
+    category: Access control
+    frequency: continuous
+    description: Restrict access to production data and personal data to roles that need it, enforced through role-based access.
+    evidence_hint: Role definitions and access lists for production and personal data stores.
+    automated: true
+    maps: {iso27001: ["A.8.3"], soc2: ["CC6.3"], dpdp: ["s.8(5)", "R.6(b)"]}
+  - code: ACC-07
+    title: Source code access
+    category: Access control
+    frequency: quarterly
+    description: Restrict write and admin access to source code repositories and review it periodically.
+    evidence_hint: Repository access and admin lists.
+    automated: true
+    maps: {iso27001: ["A.8.4"], soc2: ["CC6.1"]}
+  - code: ACC-08
+    title: Password and secrets management
+    category: Access control
+    frequency: continuous
+    description: Enforce strong password rules, use a password manager, keep secrets out of code, and scan repositories for leaked secrets.
+    evidence_hint: Password policy settings and secret scanning status.
+    automated: true
+    maps: {iso27001: ["A.5.17"], soc2: ["CC6.1"]}
+
+  # ===================== People =====================
+  - code: HR-01
+    title: Background verification
+    category: People
+    frequency: continuous
+    description: Run background checks proportionate to the role before joining, in line with applicable law.
+    evidence_hint: Background verification records for a sample of new joiners.
+    maps: {iso27001: ["A.6.1"], soc2: ["CC1.4"]}
+  - code: HR-02
+    title: Employment terms and confidentiality agreements
+    category: People
+    frequency: continuous
+    description: Include security and confidentiality obligations in employment and contractor agreements, signed before access is granted.
+    evidence_hint: Signed offer letters or NDAs for a sample of joiners.
+    maps: {iso27001: ["A.6.2", "A.6.6"], soc2: ["CC1.1"]}
+  - code: HR-03
+    title: Security and privacy awareness training
+    category: People
+    frequency: annual
+    description: Train all staff on security and DPDP privacy obligations at joining and annually, with role-based training for engineers.
+    evidence_hint: Training completion report.
+    automated: true
+    maps: {iso27001: ["7.3", "A.6.3"], soc2: ["CC1.4", "CC2.2"], dpdp: ["s.8(4)"]}
+  - code: HR-04
+    title: Disciplinary process
+    category: People
+    frequency: annual
+    description: Maintain a communicated disciplinary process for security and privacy policy violations.
+    evidence_hint: HR policy section covering disciplinary action.
+    maps: {iso27001: ["A.6.4"], soc2: ["CC1.5"]}
+  - code: HR-05
+    title: Offboarding and return of assets
+    category: People
+    frequency: continuous
+    description: On exit, recover devices and assets, revoke access, and remind leavers of ongoing confidentiality duties.
+    evidence_hint: Offboarding checklists with asset return confirmation.
+    automated: true
+    maps: {iso27001: ["A.6.5", "A.5.11"], soc2: ["CC6.3"]}
+  - code: HR-06
+    title: Remote working security
+    category: People
+    frequency: annual
+    description: Define security rules for remote work (secure networks, device use, no printing of confidential data) and enforce them technically where possible.
+    evidence_hint: Remote working policy and technical enforcement settings.
+    maps: {iso27001: ["A.6.7"], soc2: ["CC6.7"]}
+  - code: HR-07
+    title: Security event reporting by staff
+    category: People
+    frequency: continuous
+    description: Give staff a simple channel to report suspected incidents and phishing, and make sure reports are triaged.
+    evidence_hint: Reporting channel (email or form) and sample triaged reports.
+    maps: {iso27001: ["A.6.8"], soc2: ["CC7.3"]}
+
+  # ===================== Physical =====================
+  - code: PHY-01
+    title: Physical access control
+    category: Physical
+    frequency: annual
+    description: Protect offices and secure areas with perimeter controls, badge or biometric entry, visitor logs and monitoring. For cloud-hosted systems, rely on the provider's attestations.
+    evidence_hint: Office access system records, visitor log, cloud provider SOC 2 / ISO certificate.
+    maps: {iso27001: ["A.7.1", "A.7.2", "A.7.3", "A.7.4", "A.7.6"], soc2: ["CC6.4"]}
+  - code: PHY-02
+    title: Environmental protection and equipment maintenance
+    category: Physical
+    frequency: annual
+    description: Protect equipment from fire, water, power and cabling threats, and maintain it. For cloud infrastructure, review the provider's attestation.
+    evidence_hint: Facility maintenance records or cloud provider attestation review.
+    maps: {iso27001: ["A.7.5", "A.7.8", "A.7.11", "A.7.12", "A.7.13"], soc2: ["A1.2"]}
+  - code: PHY-03
+    title: Clear desk and clear screen
+    category: Physical
+    frequency: annual
+    description: Enforce automatic screen lock and clear desk rules for confidential information.
+    evidence_hint: Screen lock MDM setting and clear desk policy.
+    maps: {iso27001: ["A.7.7"], soc2: ["CC6.1"]}
+
+  # ===================== Operations =====================
+  - code: OPS-01
+    title: Malware protection
+    category: Operations
+    frequency: continuous
+    description: Run endpoint protection or EDR on all laptops and servers, with alerts monitored.
+    evidence_hint: EDR console report showing coverage.
+    automated: true
+    maps: {iso27001: ["A.8.7"], soc2: ["CC6.8"]}
+  - code: OPS-02
+    title: Vulnerability management
+    category: Operations
+    frequency: monthly
+    description: Scan infrastructure, containers and dependencies for vulnerabilities and fix them within defined timelines (for example critical 15 days, high 30 days).
+    evidence_hint: Vulnerability scan reports and remediation SLA tracking.
+    automated: true
+    maps: {iso27001: ["A.8.8"], soc2: ["CC7.1"]}
+  - code: OPS-03
+    title: Penetration testing
+    category: Operations
+    frequency: annual
+    description: Commission an independent penetration test at least annually (CERT-In empanelled auditor where required) and track findings to closure.
+    evidence_hint: Penetration test report and remediation tracker.
+    maps: {iso27001: ["A.8.29"], soc2: ["CC4.1", "CC7.1"]}
+  - code: OPS-04
+    title: Secure configuration baselines
+    category: Operations
+    frequency: continuous
+    description: Apply hardened configuration baselines (for example CIS benchmarks) to cloud, servers and endpoints, control software installation, and detect drift.
+    evidence_hint: Configuration baseline documents and drift detection reports.
+    automated: true
+    maps: {iso27001: ["A.8.9", "A.8.19"], soc2: ["CC6.8", "CC7.1"]}
+  - code: OPS-05
+    title: Capacity management
+    category: Operations
+    frequency: continuous
+    description: Monitor capacity and performance with alerts and autoscaling to meet availability commitments.
+    evidence_hint: Monitoring dashboards and alert configuration.
+    maps: {iso27001: ["A.8.6"], soc2: ["A1.1"]}
+  - code: OPS-06
+    title: Backups and restore testing
+    category: Operations
+    frequency: quarterly
+    description: Back up critical data and systems automatically, encrypt and store backups separately, and test restores at least quarterly.
+    evidence_hint: Backup configuration and restore test records.
+    automated: true
+    maps: {iso27001: ["A.8.13"], soc2: ["A1.2", "A1.3"], dpdp: ["R.6(d)"]}
+  - code: OPS-07
+    title: Redundancy and high availability
+    category: Operations
+    frequency: annual
+    description: Design critical systems with redundancy (multi-AZ, failover) to meet availability targets.
+    evidence_hint: Architecture diagram showing redundancy.
+    maps: {iso27001: ["A.8.14"], soc2: ["A1.2"]}
+  - code: OPS-08
+    title: Data masking and test data
+    category: Operations
+    frequency: continuous
+    description: Do not use real personal data in non-production environments unless masked or synthetic.
+    evidence_hint: Test data procedure and masking tool configuration.
+    maps: {iso27001: ["A.8.11", "A.8.33"], soc2: ["C1.1"]}
+  - code: OPS-09
+    title: Data leakage prevention
+    category: Operations
+    frequency: continuous
+    description: Apply controls to prevent leakage of sensitive data, such as email and cloud storage sharing restrictions and DLP rules.
+    evidence_hint: DLP or sharing restriction settings.
+    maps: {iso27001: ["A.8.12"], soc2: ["CC6.7"]}
+  - code: OPS-10
+    title: Web filtering
+    category: Operations
+    frequency: continuous
+    description: Block access to known malicious websites through DNS or endpoint filtering.
+    evidence_hint: Web filtering configuration.
+    maps: {iso27001: ["A.8.23"], soc2: ["CC6.8"]}
+
+  # ===================== Logging and monitoring =====================
+  - code: LOG-01
+    title: Centralised logging with retention in India
+    category: Logging and monitoring
+    frequency: continuous
+    description: Collect security and access logs from all ICT systems centrally, protect them from tampering, and retain them for at least one year within India (meets CERT-In 180 days and DPDP one year).
+    evidence_hint: Logging architecture, retention settings and storage region.
+    automated: true
+    maps: {iso27001: ["A.8.15"], soc2: ["CC7.2"], dpdp: ["s.8(5)", "R.6(c)", "R.6(e)"], certin: ["(v)"]}
+  - code: LOG-02
+    title: Security monitoring and alerting
+    category: Logging and monitoring
+    frequency: continuous
+    description: Monitor logs and systems for suspicious activity with defined alerts, triage and escalation.
+    evidence_hint: Alert rules, threat detection service status, sample triaged alerts.
+    automated: true
+    maps: {iso27001: ["A.8.16"], soc2: ["CC7.2", "CC7.3"], dpdp: ["R.6(c)"]}
+  - code: LOG-03
+    title: Clock synchronisation (NIC / NPL NTP)
+    category: Logging and monitoring
+    frequency: annual
+    description: Synchronise all system clocks to NTP sources traceable to NIC or NPL (for example time.nplindia.org or samay1.nic.in) so log timestamps are reliable.
+    evidence_hint: NTP configuration on servers and cloud time service documentation.
+    maps: {iso27001: ["A.8.17"], soc2: ["CC7.2"], certin: ["(i)"]}
+
+  # ===================== Network and cryptography =====================
+  - code: NET-01
+    title: Network security and segmentation
+    category: Network and cryptography
+    frequency: continuous
+    description: Restrict inbound access with firewalls or security groups, segment production from other networks, and block public exposure of storage and databases.
+    evidence_hint: Security group rules, network diagram, public access block settings.
+    automated: true
+    maps: {iso27001: ["A.8.20", "A.8.21", "A.8.22"], soc2: ["CC6.6"]}
+  - code: NET-02
+    title: Encryption in transit
+    category: Network and cryptography
+    frequency: continuous
+    description: Encrypt data in transit with TLS 1.2 or higher for external and internal traffic carrying personal or confidential data.
+    evidence_hint: TLS configuration and SSL Labs or scanner report.
+    maps: {iso27001: ["A.5.14", "A.8.24"], soc2: ["CC6.7"], dpdp: ["R.6(a)"]}
+  - code: CRY-01
+    title: Encryption at rest and key management
+    category: Network and cryptography
+    frequency: continuous
+    description: Encrypt databases, storage volumes, backups and object storage at rest, with managed keys and documented key rotation.
+    evidence_hint: Encryption settings for databases, volumes and buckets; key management policy.
+    automated: true
+    maps: {iso27001: ["A.8.24"], soc2: ["CC6.1", "C1.1"], dpdp: ["s.8(5)", "R.6(a)"]}
+
+  # ===================== Secure development =====================
+  - code: SDL-01
+    title: Secure development lifecycle
+    category: Secure development
+    frequency: annual
+    description: Define secure development rules, including security requirements, threat modelling for major features, and secure architecture principles.
+    evidence_hint: SDLC policy and a sample threat model.
+    maps: {iso27001: ["A.8.25", "A.8.26", "A.8.27"], soc2: ["CC5.2"]}
+  - code: SDL-02
+    title: Code review and branch protection
+    category: Secure development
+    frequency: continuous
+    description: Require peer review and passing checks before merging to main branches, enforced through branch protection.
+    evidence_hint: Branch protection settings and sample reviewed pull requests.
+    automated: true
+    maps: {iso27001: ["A.8.28"], soc2: ["CC8.1"]}
+  - code: SDL-03
+    title: Automated security testing
+    category: Secure development
+    frequency: continuous
+    description: Run dependency scanning, static analysis and secret scanning in CI, and fix findings by severity.
+    evidence_hint: CI pipeline configuration and scanner results.
+    automated: true
+    maps: {iso27001: ["A.8.29"], soc2: ["CC7.1"]}
+  - code: SDL-04
+    title: Environment separation
+    category: Secure development
+    frequency: annual
+    description: Separate development, staging and production environments and accounts, with restricted production access.
+    evidence_hint: Account or project structure showing separate environments.
+    maps: {iso27001: ["A.8.31"], soc2: ["CC8.1"]}
+  - code: SDL-05
+    title: Change management
+    category: Secure development
+    frequency: continuous
+    description: Track, test and approve changes to production, with emergency change procedures and rollback.
+    evidence_hint: Change tickets or merged pull requests with approvals and deployment logs.
+    automated: true
+    maps: {iso27001: ["8.1", "A.8.32"], soc2: ["CC5.2", "CC8.1"]}
+  - code: SDL-06
+    title: Outsourced development oversight
+    category: Secure development
+    frequency: annual
+    description: Apply the same security requirements, reviews and testing to code built by contractors and agencies.
+    evidence_hint: Contractor agreements with security clauses and code review records.
+    maps: {iso27001: ["A.8.30"], soc2: ["CC9.2"]}
+  - code: SDL-07
+    title: Audit testing on production systems
+    category: Secure development
+    frequency: annual
+    description: Plan and approve audit and security tests on production systems to avoid disruption.
+    evidence_hint: Approved test plan for the latest audit or pen test.
+    maps: {iso27001: ["A.8.34"], soc2: ["CC4.1"]}
+
+  # ===================== Vendors =====================
+  - code: VEN-01
+    title: Vendor risk management
+    category: Vendors
+    frequency: annual
+    description: Keep a vendor inventory with risk tiers, assess vendors before onboarding and periodically by tier, and track their security posture.
+    evidence_hint: Vendor inventory with tiers and completed assessments.
+    maps: {iso27001: ["A.5.19", "A.5.22"], soc2: ["CC9.2"], dpdp: ["s.8(1)"]}
+  - code: VEN-02
+    title: Vendor contracts and data processing agreements
+    category: Vendors
+    frequency: continuous
+    description: Sign contracts with security requirements and a data processing agreement before sharing personal data with a processor, including breach notice, erasure and security safeguard obligations.
+    evidence_hint: Signed DPAs and security addenda for vendors handling personal data.
+    maps: {iso27001: ["A.5.20", "A.5.21"], soc2: ["CC9.2"], dpdp: ["s.8(2)", "R.6(f)"]}
+  - code: VEN-03
+    title: Cloud service security
+    category: Vendors
+    frequency: annual
+    description: Define how cloud services are selected, configured, monitored and exited, including shared responsibility and data location.
+    evidence_hint: Cloud usage policy and review of the cloud providers' attestations.
+    maps: {iso27001: ["A.5.23"], soc2: ["CC9.2"]}
+
+  # ===================== Incidents =====================
+  - code: INC-01
+    title: Incident response plan
+    category: Incident management
+    frequency: annual
+    description: Maintain and test an incident response plan with roles, severity levels, triage, containment, communication and regulator reporting steps.
+    evidence_hint: Incident response plan and tabletop exercise record.
+    maps: {iso27001: ["A.5.24", "A.5.25", "A.5.26"], soc2: ["CC7.3", "CC7.4"]}
+  - code: INC-02
+    title: CERT-In reporting within 6 hours
+    category: Incident management
+    frequency: continuous
+    description: Report reportable cyber incidents to CERT-In within 6 hours of noticing them, using the prescribed format, and keep proof of submission.
+    evidence_hint: Incident records with CERT-In report timestamps.
+    maps: {iso27001: ["A.5.26"], soc2: ["CC7.4"], certin: ["(ii)"]}
+  - code: INC-03
+    title: Personal data breach notification
+    category: Incident management
+    frequency: continuous
+    description: On a personal data breach, inform affected Data Principals and the Data Protection Board without delay, and submit the detailed report to the Board within 72 hours.
+    evidence_hint: Breach records with notification timestamps and copies of notices.
+    maps: {soc2: ["CC7.4"], dpdp: ["s.8(6)", "R.7(1)", "R.7(2)"]}
+  - code: INC-04
+    title: Post-incident review
+    category: Incident management
+    frequency: continuous
+    description: Run a post-incident review for significant incidents and track improvement actions.
+    evidence_hint: Post-incident review documents and action tracking.
+    maps: {iso27001: ["A.5.27"], soc2: ["CC4.2", "CC7.5"]}
+  - code: INC-05
+    title: Evidence preservation
+    category: Incident management
+    frequency: continuous
+    description: Preserve logs and forensic evidence during incidents with chain of custody.
+    evidence_hint: Evidence handling procedure.
+    maps: {iso27001: ["A.5.28"], soc2: ["CC7.4"]}
+
+  # ===================== Business continuity =====================
+  - code: BCP-01
+    title: Business continuity and disaster recovery
+    category: Business continuity
+    frequency: annual
+    description: Maintain a business continuity and DR plan with RTO and RPO targets, keep security in place during disruption, and test the plan annually.
+    evidence_hint: BCP/DR plan and test report.
+    maps: {iso27001: ["A.5.29", "A.5.30"], soc2: ["CC7.5", "CC9.1", "A1.3"], dpdp: ["R.6(d)"]}
+
+  # ===================== Privacy (DPDP) =====================
+  - code: PRV-01
+    title: Personal data inventory (record of processing)
+    category: Privacy
+    frequency: semiannual
+    description: Maintain an inventory of personal data processing activities with data categories, purposes, lawful ground, systems, processors, retention and transfers.
+    evidence_hint: Data inventory export from the DPDP module.
+    maps: {iso27001: ["A.5.9", "A.5.34"], dpdp: ["s.4", "s.8(1)"]}
+  - code: PRV-02
+    title: Privacy notice
+    category: Privacy
+    frequency: annual
+    description: Publish a standalone, itemised privacy notice in English and relevant Scheduled languages, with links to withdraw consent, exercise rights and complain to the Board, and notify pre-Act users.
+    evidence_hint: Published notice, versions, and language availability.
+    maps: {iso27001: ["A.5.34"], dpdp: ["s.5(1)", "s.5(2)", "s.5(3)", "R.3"]}
+  - code: PRV-03
+    title: Consent capture and records
+    category: Privacy
+    frequency: continuous
+    description: Capture specific, informed consent through a clear affirmative action, limited to necessary data, and keep records of notice version, purpose and timestamp.
+    evidence_hint: Consent flow screenshots and sample consent records.
+    maps: {dpdp: ["s.6(1)", "s.6(10)"]}
+  - code: PRV-04
+    title: Consent withdrawal
+    category: Privacy
+    frequency: continuous
+    description: Let users withdraw consent as easily as they gave it, and stop processing (including by processors) within a defined time.
+    evidence_hint: Withdrawal mechanism and propagation procedure to processors.
+    maps: {dpdp: ["s.6(4)", "s.6(6)"]}
+  - code: PRV-05
+    title: Consent Manager integration
+    category: Privacy
+    frequency: annual
+    description: Where users use a registered Consent Manager, integrate with it and honour consent actions received through it.
+    evidence_hint: Integration documentation and test records.
+    maps: {dpdp: ["s.6(7)", "R.4"]}
+  - code: PRV-06
+    title: Legitimate use register
+    category: Privacy
+    frequency: annual
+    description: For processing without consent, record which legitimate use under Section 7 applies and the justification.
+    evidence_hint: Legitimate use entries in the data inventory.
+    maps: {dpdp: ["s.4", "s.7"]}
+  - code: PRV-07
+    title: Data accuracy
+    category: Privacy
+    frequency: annual
+    description: Keep personal data accurate and complete where used for decisions or disclosed, with ways for users to update it.
+    evidence_hint: Data quality checks and profile update features.
+    maps: {dpdp: ["s.8(3)"]}
+  - code: PRV-08
+    title: Retention and erasure
+    category: Privacy
+    frequency: quarterly
+    description: Define retention periods per purpose, erase data (and have processors erase it) when the purpose ends or consent is withdrawn, and give 48 hours' notice before erasure where the Rules require.
+    evidence_hint: Retention schedule and erasure job logs.
+    maps: {iso27001: ["A.8.10"], soc2: ["C1.2"], dpdp: ["s.8(7)", "s.8(8)", "R.8"]}
+  - code: PRV-09
+    title: DPO or privacy contact published
+    category: Privacy
+    frequency: annual
+    description: Publish the contact details of the DPO or designated privacy person on the website and app, and include them in every response to a Data Principal.
+    evidence_hint: Website or app screenshot showing contact details.
+    maps: {dpdp: ["s.8(9)", "R.9"]}
+  - code: PRV-10
+    title: Data principal rights and grievance handling
+    category: Privacy
+    frequency: continuous
+    description: Publish how to make requests, verify identity, and handle access, correction, erasure, nomination and grievance requests within the response time (maximum 90 days for grievances).
+    evidence_hint: Rights request log from the DPDP module with response times.
+    maps: {dpdp: ["s.8(10)", "s.11", "s.12", "s.13", "s.14", "R.14"]}
+  - code: PRV-11
+    title: Children's data protections
+    category: Privacy
+    frequency: annual
+    description: Verify parental (or lawful guardian) consent before processing children's data, and do not track, behaviourally monitor or target ads at children.
+    evidence_hint: Age gating and parental consent flow; ad and analytics settings for child users.
+    maps: {dpdp: ["s.9(1)", "s.9(2)", "s.9(3)", "R.10", "R.11"]}
+  - code: PRV-12
+    title: Significant Data Fiduciary obligations
+    category: Privacy
+    frequency: annual
+    description: Appoint a DPO based in India and an independent data auditor, carry out an annual DPIA and audit, report observations to the Board, and assess algorithmic risks.
+    evidence_hint: DPO appointment, auditor engagement, DPIA and audit reports.
+    maps: {dpdp: ["s.10(2)(a)", "s.10(2)(b)", "s.10(2)(c)", "R.13"]}
+  - code: PRV-13
+    title: Cross-border transfer assessment
+    category: Privacy
+    frequency: semiannual
+    description: Track where personal data is stored and accessed outside India, check against restricted country notifications and sectoral localisation rules.
+    evidence_hint: Transfer register with destination countries and review date.
+    maps: {dpdp: ["s.16", "R.15"]}
+  - code: PRV-14
+    title: Privacy by design and organisational measures
+    category: Privacy
+    frequency: annual
+    description: Embed privacy review in product design and maintain organisational measures (owners, procedures, reviews) that make DPDP obligations work in practice.
+    evidence_hint: Privacy review checklist for new features and privacy programme documentation.
+    maps: {iso27001: ["A.5.34"], dpdp: ["s.8(4)", "R.6(g)"]}
+
+  # ===================== CERT-In sector-specific =====================
+  - code: CIN-01
+    title: Subscriber records (data centre, VPS, cloud, VPN providers)
+    category: Compliance
+    frequency: annual
+    description: Collect and retain validated subscriber information for at least 5 years after the subscription ends.
+    evidence_hint: Subscriber data fields and retention configuration.
+    maps: {certin: ["(vi)"]}
+  - code: CIN-02
+    title: KYC and transaction records (virtual asset providers)
+    category: Compliance
+    frequency: annual
+    description: Maintain KYC and financial transaction records for at least 5 years.
+    evidence_hint: KYC records retention configuration.
+    maps: {certin: ["(vii)"]}

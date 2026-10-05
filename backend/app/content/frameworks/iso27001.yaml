@@ -1,0 +1,145 @@
+# ISO/IEC 27001:2022 — clause and Annex A control identifiers with in-house guidance.
+# The ISO standard text is copyrighted and is NOT reproduced here. Customers need their own copy of the standard.
+# CONTENT STATUS: draft. Review by an ISO 27001 Lead Auditor before customer release.
+code: iso27001
+name: ISO/IEC 27001:2022
+short_name: ISO 27001
+version: "2022"
+region: Global
+publisher: ISO/IEC
+source_url: https://www.iso.org/standard/27001
+content_version: "0.1.0"
+review_status: draft
+description: >
+  International standard for an Information Security Management System (ISMS). Certification
+  requires the management system clauses (4 to 10) plus the applicable Annex A controls, justified
+  in a Statement of Applicability.
+requirements:
+  # ---- Management system clauses ----
+  - {ref: "4.1", section: "Clause 4 Context", title: "Understanding the organisation and its context", guidance: "List internal and external issues that affect your ability to achieve ISMS outcomes."}
+  - {ref: "4.2", section: "Clause 4 Context", title: "Needs of interested parties", guidance: "Identify customers, regulators, staff and others, their security requirements, and which you will address."}
+  - {ref: "4.3", section: "Clause 4 Context", title: "ISMS scope", guidance: "Document the scope: locations, teams, products, systems and interfaces covered by the ISMS."}
+  - {ref: "4.4", section: "Clause 4 Context", title: "Information security management system", guidance: "Establish, implement, maintain and continually improve the ISMS and its processes."}
+  - {ref: "5.1", section: "Clause 5 Leadership", title: "Leadership and commitment", guidance: "Top management shows commitment: approves policy and objectives, provides resources, and reviews performance."}
+  - {ref: "5.2", section: "Clause 5 Leadership", title: "Information security policy", guidance: "Publish a top-level security policy that includes objectives and a commitment to meet requirements and improve."}
+  - {ref: "5.3", section: "Clause 5 Leadership", title: "Roles, responsibilities and authorities", guidance: "Assign and communicate ISMS responsibilities, including who reports ISMS performance to management."}
+  - {ref: "6.1.1", section: "Clause 6 Planning", title: "Actions to address risks and opportunities", guidance: "Plan how the ISMS addresses risks and opportunities identified from context and interested parties."}
+  - {ref: "6.1.2", section: "Clause 6 Planning", title: "Information security risk assessment", guidance: "Define and apply a repeatable risk assessment method with risk owners and acceptance criteria."}
+  - {ref: "6.1.3", section: "Clause 6 Planning", title: "Information security risk treatment", guidance: "Choose treatment options, compare controls with Annex A, produce a Statement of Applicability and a treatment plan approved by risk owners."}
+  - {ref: "6.2", section: "Clause 6 Planning", title: "Information security objectives", guidance: "Set measurable security objectives with owners, resources and deadlines."}
+  - {ref: "6.3", section: "Clause 6 Planning", title: "Planning of changes", guidance: "Make changes to the ISMS in a planned way."}
+  - {ref: "7.1", section: "Clause 7 Support", title: "Resources", guidance: "Provide people, budget and tools needed for the ISMS."}
+  - {ref: "7.2", section: "Clause 7 Support", title: "Competence", guidance: "Define required competence for ISMS roles and keep evidence of it."}
+  - {ref: "7.3", section: "Clause 7 Support", title: "Awareness", guidance: "Staff know the policy, their contribution, and the consequences of not following requirements."}
+  - {ref: "7.4", section: "Clause 7 Support", title: "Communication", guidance: "Decide what, when, with whom and how to communicate about security, internally and externally."}
+  - {ref: "7.5.1", section: "Clause 7 Support", title: "Documented information: general", guidance: "Keep the documented information the standard and your ISMS need."}
+  - {ref: "7.5.2", section: "Clause 7 Support", title: "Creating and updating documents", guidance: "Documents have identification, review and approval."}
+  - {ref: "7.5.3", section: "Clause 7 Support", title: "Control of documented information", guidance: "Control distribution, access, storage, version and retention of documents."}
+  - {ref: "8.1", section: "Clause 8 Operation", title: "Operational planning and control", guidance: "Plan and control the processes that meet security requirements, including outsourced processes and changes."}
+  - {ref: "8.2", section: "Clause 8 Operation", title: "Information security risk assessment (performed)", guidance: "Run risk assessments at planned intervals and on significant change, and keep the results."}
+  - {ref: "8.3", section: "Clause 8 Operation", title: "Information security risk treatment (performed)", guidance: "Implement the risk treatment plan and keep the results."}
+  - {ref: "9.1", section: "Clause 9 Performance evaluation", title: "Monitoring, measurement, analysis and evaluation", guidance: "Decide what to measure, how and when, and evaluate ISMS effectiveness."}
+  - {ref: "9.2.1", section: "Clause 9 Performance evaluation", title: "Internal audit: general", guidance: "Run internal audits at planned intervals to check the ISMS conforms and is effective."}
+  - {ref: "9.2.2", section: "Clause 9 Performance evaluation", title: "Internal audit programme", guidance: "Plan the audit programme with criteria, scope, impartial auditors and reporting to management."}
+  - {ref: "9.3.1", section: "Clause 9 Performance evaluation", title: "Management review: general", guidance: "Top management reviews the ISMS at planned intervals."}
+  - {ref: "9.3.2", section: "Clause 9 Performance evaluation", title: "Management review inputs", guidance: "Cover previous actions, changes, performance, feedback, risk results and improvement opportunities."}
+  - {ref: "9.3.3", section: "Clause 9 Performance evaluation", title: "Management review results", guidance: "Record decisions on improvements and changes to the ISMS."}
+  - {ref: "10.1", section: "Clause 10 Improvement", title: "Continual improvement", guidance: "Continually improve the suitability, adequacy and effectiveness of the ISMS."}
+  - {ref: "10.2", section: "Clause 10 Improvement", title: "Nonconformity and corrective action", guidance: "React to nonconformities, find root causes, take corrective action and keep records."}
+  # ---- Annex A: Organisational controls ----
+  - {ref: "A.5.1", section: "A.5 Organisational", title: "Policies for information security", guidance: "Approved, published, communicated and reviewed security policies and topic-specific policies."}
+  - {ref: "A.5.2", section: "A.5 Organisational", title: "Information security roles and responsibilities", guidance: "Define and allocate security roles."}
+  - {ref: "A.5.3", section: "A.5 Organisational", title: "Segregation of duties", guidance: "Separate conflicting duties to reduce fraud and error."}
+  - {ref: "A.5.4", section: "A.5 Organisational", title: "Management responsibilities", guidance: "Managers require staff and contractors to follow security policies."}
+  - {ref: "A.5.5", section: "A.5 Organisational", title: "Contact with authorities", guidance: "Maintain contacts with regulators and authorities such as CERT-In and law enforcement."}
+  - {ref: "A.5.6", section: "A.5 Organisational", title: "Contact with special interest groups", guidance: "Maintain contacts with security forums and professional groups."}
+  - {ref: "A.5.7", section: "A.5 Organisational", title: "Threat intelligence", guidance: "Collect and analyse threat information relevant to your organisation."}
+  - {ref: "A.5.8", section: "A.5 Organisational", title: "Information security in project management", guidance: "Integrate security into project management."}
+  - {ref: "A.5.9", section: "A.5 Organisational", title: "Inventory of information and other associated assets", guidance: "Maintain an inventory of information and assets with owners."}
+  - {ref: "A.5.10", section: "A.5 Organisational", title: "Acceptable use of information and other associated assets", guidance: "Document rules for acceptable use."}
+  - {ref: "A.5.11", section: "A.5 Organisational", title: "Return of assets", guidance: "Recover organisational assets when employment or contracts end."}
+  - {ref: "A.5.12", section: "A.5 Organisational", title: "Classification of information", guidance: "Classify information by confidentiality, integrity, availability and legal needs."}
+  - {ref: "A.5.13", section: "A.5 Organisational", title: "Labelling of information", guidance: "Label information according to its classification."}
+  - {ref: "A.5.14", section: "A.5 Organisational", title: "Information transfer", guidance: "Have rules and agreements for transferring information internally and externally."}
+  - {ref: "A.5.15", section: "A.5 Organisational", title: "Access control", guidance: "Define access control rules based on business and security requirements."}
+  - {ref: "A.5.16", section: "A.5 Organisational", title: "Identity management", guidance: "Manage the full lifecycle of identities."}
+  - {ref: "A.5.17", section: "A.5 Organisational", title: "Authentication information", guidance: "Control allocation and management of passwords and other authentication information."}
+  - {ref: "A.5.18", section: "A.5 Organisational", title: "Access rights", guidance: "Provision, review, modify and remove access rights according to policy."}
+  - {ref: "A.5.19", section: "A.5 Organisational", title: "Information security in supplier relationships", guidance: "Manage security risks from suppliers' products and services."}
+  - {ref: "A.5.20", section: "A.5 Organisational", title: "Addressing information security within supplier agreements", guidance: "Agree security requirements with each supplier in contracts."}
+  - {ref: "A.5.21", section: "A.5 Organisational", title: "Managing information security in the ICT supply chain", guidance: "Manage security risks in the ICT product and service supply chain."}
+  - {ref: "A.5.22", section: "A.5 Organisational", title: "Monitoring, review and change management of supplier services", guidance: "Monitor and review supplier security and manage changes."}
+  - {ref: "A.5.23", section: "A.5 Organisational", title: "Information security for use of cloud services", guidance: "Define how cloud services are acquired, used, managed and exited."}
+  - {ref: "A.5.24", section: "A.5 Organisational", title: "Incident management planning and preparation", guidance: "Plan incident management with defined processes, roles and responsibilities."}
+  - {ref: "A.5.25", section: "A.5 Organisational", title: "Assessment and decision on information security events", guidance: "Assess events and decide whether they are incidents."}
+  - {ref: "A.5.26", section: "A.5 Organisational", title: "Response to information security incidents", guidance: "Respond to incidents according to documented procedures."}
+  - {ref: "A.5.27", section: "A.5 Organisational", title: "Learning from information security incidents", guidance: "Use lessons from incidents to strengthen controls."}
+  - {ref: "A.5.28", section: "A.5 Organisational", title: "Collection of evidence", guidance: "Identify, collect and preserve evidence related to security events."}
+  - {ref: "A.5.29", section: "A.5 Organisational", title: "Information security during disruption", guidance: "Maintain security at an appropriate level during disruption."}
+  - {ref: "A.5.30", section: "A.5 Organisational", title: "ICT readiness for business continuity", guidance: "Plan, implement, maintain and test ICT readiness for continuity objectives."}
+  - {ref: "A.5.31", section: "A.5 Organisational", title: "Legal, statutory, regulatory and contractual requirements", guidance: "Identify and keep current your legal, regulatory and contractual security requirements."}
+  - {ref: "A.5.32", section: "A.5 Organisational", title: "Intellectual property rights", guidance: "Protect intellectual property rights, including software licensing."}
+  - {ref: "A.5.33", section: "A.5 Organisational", title: "Protection of records", guidance: "Protect records from loss, destruction, falsification and unauthorised access or release."}
+  - {ref: "A.5.34", section: "A.5 Organisational", title: "Privacy and protection of PII", guidance: "Meet privacy and personal data protection requirements, including DPDP."}
+  - {ref: "A.5.35", section: "A.5 Organisational", title: "Independent review of information security", guidance: "Have the security approach reviewed independently at planned intervals or on major change."}
+  - {ref: "A.5.36", section: "A.5 Organisational", title: "Compliance with policies, rules and standards", guidance: "Regularly check compliance with security policies and standards."}
+  - {ref: "A.5.37", section: "A.5 Organisational", title: "Documented operating procedures", guidance: "Document operating procedures and make them available to those who need them."}
+  # ---- Annex A: People controls ----
+  - {ref: "A.6.1", section: "A.6 People", title: "Screening", guidance: "Run background verification checks proportionate to the role and the law."}
+  - {ref: "A.6.2", section: "A.6 People", title: "Terms and conditions of employment", guidance: "Employment contracts state security responsibilities."}
+  - {ref: "A.6.3", section: "A.6 People", title: "Information security awareness, education and training", guidance: "Provide regular, role-appropriate security training."}
+  - {ref: "A.6.4", section: "A.6 People", title: "Disciplinary process", guidance: "Have a communicated disciplinary process for policy violations."}
+  - {ref: "A.6.5", section: "A.6 People", title: "Responsibilities after termination or change of employment", guidance: "Security duties that remain after leaving are defined and communicated."}
+  - {ref: "A.6.6", section: "A.6 People", title: "Confidentiality or non-disclosure agreements", guidance: "Use NDAs that reflect your protection needs, reviewed regularly."}
+  - {ref: "A.6.7", section: "A.6 People", title: "Remote working", guidance: "Protect information accessed or processed when working remotely."}
+  - {ref: "A.6.8", section: "A.6 People", title: "Information security event reporting", guidance: "Give staff a clear way to report security events quickly."}
+  # ---- Annex A: Physical controls ----
+  - {ref: "A.7.1", section: "A.7 Physical", title: "Physical security perimeters", guidance: "Define perimeters protecting areas with information and assets."}
+  - {ref: "A.7.2", section: "A.7 Physical", title: "Physical entry", guidance: "Protect secure areas with entry controls."}
+  - {ref: "A.7.3", section: "A.7 Physical", title: "Securing offices, rooms and facilities", guidance: "Design and implement physical security for offices and facilities."}
+  - {ref: "A.7.4", section: "A.7 Physical", title: "Physical security monitoring", guidance: "Monitor premises for unauthorised physical access."}
+  - {ref: "A.7.5", section: "A.7 Physical", title: "Protecting against physical and environmental threats", guidance: "Protect against fire, flood, power and other physical threats."}
+  - {ref: "A.7.6", section: "A.7 Physical", title: "Working in secure areas", guidance: "Define rules for working in secure areas."}
+  - {ref: "A.7.7", section: "A.7 Physical", title: "Clear desk and clear screen", guidance: "Enforce clear desk and clear screen rules."}
+  - {ref: "A.7.8", section: "A.7 Physical", title: "Equipment siting and protection", guidance: "Site and protect equipment securely."}
+  - {ref: "A.7.9", section: "A.7 Physical", title: "Security of assets off-premises", guidance: "Protect laptops and other assets used outside the office."}
+  - {ref: "A.7.10", section: "A.7 Physical", title: "Storage media", guidance: "Manage storage media through acquisition, use, transport and disposal."}
+  - {ref: "A.7.11", section: "A.7 Physical", title: "Supporting utilities", guidance: "Protect against power and other utility failures."}
+  - {ref: "A.7.12", section: "A.7 Physical", title: "Cabling security", guidance: "Protect power and data cabling from interception and damage."}
+  - {ref: "A.7.13", section: "A.7 Physical", title: "Equipment maintenance", guidance: "Maintain equipment correctly."}
+  - {ref: "A.7.14", section: "A.7 Physical", title: "Secure disposal or re-use of equipment", guidance: "Wipe or destroy data before disposing of or re-using equipment."}
+  # ---- Annex A: Technological controls ----
+  - {ref: "A.8.1", section: "A.8 Technological", title: "User endpoint devices", guidance: "Protect information on laptops and mobile devices."}
+  - {ref: "A.8.2", section: "A.8 Technological", title: "Privileged access rights", guidance: "Restrict and manage privileged access."}
+  - {ref: "A.8.3", section: "A.8 Technological", title: "Information access restriction", guidance: "Restrict access to information according to the access control policy."}
+  - {ref: "A.8.4", section: "A.8 Technological", title: "Access to source code", guidance: "Manage read and write access to source code and development tools."}
+  - {ref: "A.8.5", section: "A.8 Technological", title: "Secure authentication", guidance: "Use secure authentication such as MFA based on access restrictions."}
+  - {ref: "A.8.6", section: "A.8 Technological", title: "Capacity management", guidance: "Monitor and adjust resources to meet capacity needs."}
+  - {ref: "A.8.7", section: "A.8 Technological", title: "Protection against malware", guidance: "Protect against malware, supported by user awareness."}
+  - {ref: "A.8.8", section: "A.8 Technological", title: "Management of technical vulnerabilities", guidance: "Find, evaluate and fix technical vulnerabilities in a timely way."}
+  - {ref: "A.8.9", section: "A.8 Technological", title: "Configuration management", guidance: "Define, implement and monitor secure configurations."}
+  - {ref: "A.8.10", section: "A.8 Technological", title: "Information deletion", guidance: "Delete information when no longer required."}
+  - {ref: "A.8.11", section: "A.8 Technological", title: "Data masking", guidance: "Mask data according to access policy and legal requirements."}
+  - {ref: "A.8.12", section: "A.8 Technological", title: "Data leakage prevention", guidance: "Apply measures to prevent data leakage."}
+  - {ref: "A.8.13", section: "A.8 Technological", title: "Information backup", guidance: "Back up information and test restores regularly."}
+  - {ref: "A.8.14", section: "A.8 Technological", title: "Redundancy of information processing facilities", guidance: "Build enough redundancy to meet availability requirements."}
+  - {ref: "A.8.15", section: "A.8 Technological", title: "Logging", guidance: "Produce, store, protect and analyse logs of activities and events."}
+  - {ref: "A.8.16", section: "A.8 Technological", title: "Monitoring activities", guidance: "Monitor networks and systems for anomalous behaviour and act on it."}
+  - {ref: "A.8.17", section: "A.8 Technological", title: "Clock synchronisation", guidance: "Synchronise system clocks to approved time sources."}
+  - {ref: "A.8.18", section: "A.8 Technological", title: "Use of privileged utility programs", guidance: "Restrict and control utilities that can override system controls."}
+  - {ref: "A.8.19", section: "A.8 Technological", title: "Installation of software on operational systems", guidance: "Control software installation on production systems."}
+  - {ref: "A.8.20", section: "A.8 Technological", title: "Networks security", guidance: "Secure, manage and control networks and devices."}
+  - {ref: "A.8.21", section: "A.8 Technological", title: "Security of network services", guidance: "Define and monitor security of network services."}
+  - {ref: "A.8.22", section: "A.8 Technological", title: "Segregation of networks", guidance: "Segregate groups of services, users and systems on networks."}
+  - {ref: "A.8.23", section: "A.8 Technological", title: "Web filtering", guidance: "Manage access to external websites to reduce exposure to malicious content."}
+  - {ref: "A.8.24", section: "A.8 Technological", title: "Use of cryptography", guidance: "Define and apply rules for cryptography and key management."}
+  - {ref: "A.8.25", section: "A.8 Technological", title: "Secure development life cycle", guidance: "Establish rules for secure development of software and systems."}
+  - {ref: "A.8.26", section: "A.8 Technological", title: "Application security requirements", guidance: "Identify and approve security requirements when building or buying applications."}
+  - {ref: "A.8.27", section: "A.8 Technological", title: "Secure system architecture and engineering principles", guidance: "Document and apply secure engineering principles."}
+  - {ref: "A.8.28", section: "A.8 Technological", title: "Secure coding", guidance: "Apply secure coding principles."}
+  - {ref: "A.8.29", section: "A.8 Technological", title: "Security testing in development and acceptance", guidance: "Define and run security testing in the development lifecycle."}
+  - {ref: "A.8.30", section: "A.8 Technological", title: "Outsourced development", guidance: "Direct, monitor and review outsourced development."}
+  - {ref: "A.8.31", section: "A.8 Technological", title: "Separation of development, test and production environments", guidance: "Separate and secure development, test and production environments."}
+  - {ref: "A.8.32", section: "A.8 Technological", title: "Change management", guidance: "Control changes to systems and facilities through change management."}
+  - {ref: "A.8.33", section: "A.8 Technological", title: "Test information", guidance: "Select, protect and manage test data appropriately."}
+  - {ref: "A.8.34", section: "A.8 Technological", title: "Protection of information systems during audit testing", guidance: "Plan audit tests on operational systems to minimise disruption."}

@@ -114,6 +114,14 @@ def send_email(to: list[str], subject: str, text: str) -> None:
         smtp.send_message(msg)
 
 
+def send_email_safely(to: list[str], subject: str, text: str) -> None:
+    """Send now, logging (not raising) on failure. Used for security emails sent from request handlers."""
+    try:
+        send_email(to, subject, text)
+    except Exception:  # noqa: BLE001
+        log.exception("failed to send email: %s", subject)
+
+
 def post_slack(url: str, title: str, body: str, link: str) -> None:
     text = f"*{title}*" + (f"\n{body}" if body else "")
     if link:

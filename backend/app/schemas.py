@@ -18,13 +18,40 @@ Role = Literal["owner", "admin", "member", "auditor"]
 class SignupIn(BaseModel):
     full_name: str = Field(min_length=1, max_length=200)
     email: EmailStr
-    password: str = Field(min_length=10, max_length=200)
+    password: str = Field(min_length=12, max_length=200)
     org_name: str = Field(min_length=1, max_length=200)
 
 
 class LoginIn(BaseModel):
     email: EmailStr
-    password: str
+    password: str = Field(max_length=200)
+
+
+class MfaCodeIn(BaseModel):
+    code: str = Field(min_length=6, max_length=20)
+
+
+class PasswordConfirmIn(BaseModel):
+    password: str = Field(max_length=200)
+    code: str = Field(default="", max_length=20)
+
+
+class ForgotPasswordIn(BaseModel):
+    email: EmailStr
+
+
+class ResetPasswordIn(BaseModel):
+    token: str = Field(max_length=200)
+    password: str = Field(min_length=12, max_length=200)
+
+
+class ChangePasswordIn(BaseModel):
+    current_password: str = Field(max_length=200)
+    new_password: str = Field(min_length=12, max_length=200)
+
+
+class TokenIn(BaseModel):
+    token: str = Field(max_length=200)
 
 
 class UserBrief(ORM):
@@ -45,6 +72,12 @@ class MeOut(BaseModel):
     role: Role | None
     memberships: list[MembershipOut]
     onboarded: bool
+    email_verified: bool = False
+    mfa_enabled: bool = False
+    # The current organisation requires MFA and this session doesn't satisfy it yet.
+    mfa_setup_required: bool = False
+    auth_method: str = "password"
+    access_expires_at: datetime | None = None
 
 
 class SwitchOrgIn(BaseModel):
@@ -54,12 +87,14 @@ class SwitchOrgIn(BaseModel):
 class InviteIn(BaseModel):
     email: EmailStr
     role: Role = "member"
+    # Time-limited access, e.g. 30 days for an external auditor. Required for auditors.
+    access_days: int | None = Field(default=None, ge=1, le=365)
 
 
 class AcceptInviteIn(BaseModel):
     token: str
     full_name: str | None = None
-    password: str | None = Field(default=None, min_length=10, max_length=200)
+    password: str | None = Field(default=None, min_length=12, max_length=200)
 
 
 class MemberOut(BaseModel):

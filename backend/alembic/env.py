@@ -10,7 +10,10 @@ from app.db import Base
 config = context.config
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
-config.set_main_option("sqlalchemy.url", get_settings().database_url.replace("%", "%%"))
+_settings = get_settings()
+# Migrations need an owner role (DDL, RLS policies, grants); the app itself runs with a restricted role.
+config.set_main_option("sqlalchemy.url",
+                       (_settings.migration_database_url or _settings.database_url).replace("%", "%%"))
 target_metadata = Base.metadata
 
 

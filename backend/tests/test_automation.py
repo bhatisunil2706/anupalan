@@ -31,9 +31,9 @@ from tests.conftest import make_client, onboard, signup
 
 @pytest.fixture(autouse=True)
 def reset_rate_limits():
-    from app.api.routes import portal
+    from app import ratelimit
 
-    portal._HITS.clear()
+    ratelimit.store().clear()
     yield
 
 
@@ -211,7 +211,7 @@ def test_access_review_flow(owner, db, monkeypatch):
     inv = owner.post("/api/org/invitations", json={"email": "mgr@acme.in", "role": "member"}).json()
     mgr = make_client()
     mgr.post("/api/auth/invitations/accept", json={"token": inv["invite_url"].rsplit("/", 1)[1],
-                                                   "full_name": "Manager", "password": "manager-pass-1"})
+                                                   "full_name": "Manager", "password": "Copper-Kettle-Meadow-58"})
     owner.post("/api/people/upload", files={"file": ("people.csv", ROSTER.encode(), "text/csv")})
     integ = _connect_fake_google(db, monkeypatch, lambda: gws_users())
     sync_integration(db, integ)
@@ -341,7 +341,7 @@ def test_public_portal_flow(owner, db):
 
 
 @pytest.fixture
-def pii_table(db):
+def pii_table(admin_engine):
     from app.services.pii import _VERHOEFF_D, _VERHOEFF_P
 
     def aadhaar(base):
@@ -351,6 +351,9 @@ def pii_table(db):
             c = _VERHOEFF_D[c][_VERHOEFF_P[(i + 1) % 8][int(ch)]]
         return base + str(inv[c])
 
+    from sqlalchemy.orm import Session
+
+    db = Session(admin_engine)
     db.execute(text("DROP SCHEMA IF EXISTS crm CASCADE"))
     db.execute(text("CREATE SCHEMA crm"))
     db.execute(text("CREATE TABLE crm.customers (id serial, full_name text, contact text, kyc_doc text, "
@@ -365,14 +368,15 @@ def pii_table(db):
     yield
     db.execute(text("DROP SCHEMA crm CASCADE"))
     db.commit()
+    db.close()
 
 
 def test_database_scan_finds_masked_pii(owner, db, pii_table):
     from sqlalchemy.engine import make_url
 
-    from app.config import get_settings
+    from tests.conftest import ADMIN_URL
 
-    url = make_url(get_settings().database_url)
+    url = make_url(ADMIN_URL)
     src = owner.post("/api/discovery/sources", json={
         "name": "Prod CRM", "kind": "postgres",
         "config": {"host": url.query.get("host") or url.host or "localhost", "port": str(url.port or 5432),

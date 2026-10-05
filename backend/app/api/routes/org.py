@@ -136,6 +136,10 @@ def list_invitations(db: DB, ctx: AdminCtx):
 def invite(body: InviteIn, db: DB, ctx: AdminCtx):
     if body.role == "owner" and ctx.role != "owner":
         raise HTTPException(status.HTTP_403_FORBIDDEN, "Only owners can invite owners")
+    if not ctx.user.email_verified_at:
+        raise HTTPException(status.HTTP_403_FORBIDDEN, "Confirm your own email address before inviting others")
+    if body.role == "auditor" and not body.access_days:
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, "Set how many days the auditor should have access")
     email = body.email.lower()
     existing_user = db.scalar(select(User).where(func.lower(User.email) == email))
     if existing_user and db.scalar(
@@ -143,8 +147,10 @@ def invite(body: InviteIn, db: DB, ctx: AdminCtx):
     ):
         raise HTTPException(status.HTTP_409_CONFLICT, "This person is already a member")
     token, token_hash = new_token()
+    access_until = (datetime.now(timezone.utc) + timedelta(days=body.access_days)) if body.access_days else None
     inv = Invitation(org_id=ctx.org_id, email=email, role=body.role, token_hash=token_hash,
-                     invited_by_id=ctx.user.id, expires_at=datetime.now(timezone.utc) + timedelta(days=7))
+                     invited_by_id=ctx.user.id, expires_at=datetime.now(timezone.utc) + timedelta(days=7),
+                     access_expires_at=access_until)
     db.add(inv)
     audit.record(db, ctx, "member.invited", inv, email=email, role=body.role)
     db.commit()
@@ -173,12 +179,15 @@ def revoke_invitation(inv_id: uuid.UUID, db: DB, ctx: AdminCtx):
 
 
 @router.get("/audit-log")
-def audit_log(db: DB, ctx: AdminCtx, limit: int = 100):
+def audit_log(db: DB, ctx: Ctx, limit: int = 100):
+    if not (ctx.is_admin or ctx.role == "auditor"):
+        raise HTTPException(status.HTTP_403_FORBIDDEN, "Admin or auditor access required")
     rows = db.scalars(
-        select(AuditLog).where(AuditLog.org_id == ctx.org_id).order_by(AuditLog.at.desc()).limit(min(limit, 500))
+        select(AuditLog).where(AuditLog.org_id == ctx.org_id).order_by(AuditLog.seq.desc()).limit(min(limit, 1000))
     )
     return [
-        {"id": r.id, "at": r.at, "action": r.action, "entity_type": r.entity_type, "entity_id": r.entity_id,
-         "detail": r.detail, "user": r.user.full_name if r.user else "System"}
+        {"id": r.id, "seq": r.seq, "at": r.at, "action": r.action, "entity_type": r.entity_type,
+         "entity_id": r.entity_id, "detail": r.detail, "user": r.user.full_name if r.user else "System",
+         "ip": r.ip, "hash": r.hash}
         for r in rows
     ]

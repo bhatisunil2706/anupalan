@@ -4,7 +4,7 @@ from sqlalchemy import func, select
 
 from app.models import Control, Requirement
 from app.services.content import read_controls, read_frameworks, validate_content
-from tests.conftest import make_client, onboard, signup
+from tests.conftest import PASSWORD, make_client, onboard, signup
 
 
 def test_content_is_fully_mapped():
@@ -22,14 +22,14 @@ def test_signup_login_logout(client):
     client.post("/api/auth/logout")
     assert client.get("/api/auth/me").status_code == 401
     assert client.post("/api/auth/login", json={"email": "owner@acme.in", "password": "nope-nope-nope"}).status_code == 401
-    r = client.post("/api/auth/login", json={"email": "OWNER@acme.in", "password": "correct-horse-1"})
+    r = client.post("/api/auth/login", json={"email": "OWNER@acme.in", "password": PASSWORD})
     assert r.status_code == 200
 
 
 def test_duplicate_signup_and_weak_password(client):
     signup(client)
     r = make_client().post("/api/auth/signup", json={"full_name": "X", "email": "owner@acme.in",
-                                                     "password": "correct-horse-1", "org_name": "Y"})
+                                                     "password": PASSWORD, "org_name": "Y"})
     assert r.status_code == 409
     r = make_client().post("/api/auth/signup", json={"full_name": "X", "email": "x@y.in", "password": "short",
                                                      "org_name": "Y"})
@@ -39,9 +39,9 @@ def test_duplicate_signup_and_weak_password(client):
 def test_login_rate_limited(client):
     signup(client)
     other = make_client()
-    for _ in range(5):
-        other.post("/api/auth/login", json={"email": "owner@acme.in", "password": "wrong-password"})
-    r = other.post("/api/auth/login", json={"email": "owner@acme.in", "password": "correct-horse-1"})
+    for _ in range(10):
+        assert other.post("/api/auth/login", json={"email": "owner@acme.in", "password": "wrong-password"}).status_code == 401
+    r = other.post("/api/auth/login", json={"email": "owner@acme.in", "password": PASSWORD})
     assert r.status_code == 429
 
 
@@ -127,19 +127,19 @@ def test_tenant_isolation():
 
 
 def test_invitation_and_roles(owner):
-    inv = owner.post("/api/org/invitations", json={"email": "aud@acme.in", "role": "auditor"}).json()
+    inv = owner.post("/api/org/invitations", json={"email": "aud@acme.in", "role": "auditor", "access_days": 30}).json()
     token = inv["invite_url"].rsplit("/", 1)[1]
     auditor = make_client()
     assert auditor.get(f"/api/auth/invitations/{token}").json()["org_name"] == "Acme"
     r = auditor.post("/api/auth/invitations/accept",
-                     json={"token": token, "full_name": "Auditor", "password": "auditor-pass-1"})
+                     json={"token": token, "full_name": "Auditor", "password": "Quartz-Lantern-Harbor-42"})
     assert r.status_code == 200 and r.json()["role"] == "auditor"
     ctl = auditor.get("/api/controls").json()[0]
     assert auditor.patch(f"/api/controls/{ctl['id']}", json={"status": "implemented"}).status_code == 403
     assert auditor.post("/api/risks", json={"title": "x"}).status_code == 403
     # Invitation cannot be reused.
     assert make_client().post("/api/auth/invitations/accept", json={
-        "token": token, "full_name": "X", "password": "auditor-pass-1"}).status_code == 404
+        "token": token, "full_name": "X", "password": "Quartz-Lantern-Harbor-42"}).status_code == 404
     # Last owner cannot be demoted.
     me = owner.get("/api/auth/me").json()["user"]["id"]
     assert owner.patch(f"/api/org/members/{me}", json={"role": "member"}).status_code == 400

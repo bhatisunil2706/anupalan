@@ -3,7 +3,7 @@
 import { useState } from "react";
 
 import { useSession } from "@/components/session";
-import { Badge, Button, Drawer, Field, FormError, Input, LoadError, Loading, PageHeader, useToast } from "@/components/ui";
+import { Badge, Button, Drawer, Field, FormError, Input, LoadError, Loading, PageHeader, Textarea, useToast } from "@/components/ui";
 import { api, useApi } from "@/lib/api";
 import { fmtDateTime } from "@/lib/format";
 import type { IntegrationItem } from "@/lib/types";
@@ -17,7 +17,7 @@ interface TestRow {
   summary: string;
 }
 
-const PLANNED = ["Google Workspace", "Microsoft 365 / Entra ID", "Azure", "Google Cloud", "GitLab", "Jira", "Keka", "Darwinbox"];
+const PLANNED = ["Azure", "Google Cloud", "GitLab", "Jira", "Okta", "Jamf / Intune", "Darwinbox", "Slack audit logs"];
 
 export default function IntegrationsPage() {
   const { isAdmin } = useSession();
@@ -84,17 +84,22 @@ export default function IntegrationsPage() {
     <>
       <PageHeader
         title="Integrations"
-        description="Connect read-only access to your tools. Checks run on connect, then every 6 hours. Passing checks become evidence; failing checks create tasks."
+        description="Connect read-only access to your tools. Checks run on connect, then every 6 hours. Passing checks become evidence; failing checks create tasks and alert the control owner."
       />
       <div className="grid gap-4 md:grid-cols-2">
         {data.map((item) => {
           const conn = item.connection;
-          const rows = (tests.data ?? []).filter((t) => t.key.startsWith(`${item.provider}.`));
+          const keys = new Set(item.tests.map((t) => t.key));
+          const rows = (tests.data ?? []).filter((t) => keys.has(t.key));
           return (
             <section key={item.provider} className="flex flex-col rounded-lg border border-line bg-surface">
               <div className="flex items-start justify-between gap-3 border-b border-line p-4">
                 <div>
-                  <h2 className="font-semibold">{item.name}</h2>
+                  <h2 className="flex items-center gap-2 font-semibold">
+                    {item.name}
+                    <span className="text-xs font-normal text-muted">{item.category}</span>
+                    {item.beta && <Badge tone="warn">Beta</Badge>}
+                  </h2>
                   <p className="mt-0.5 text-sm text-muted">{item.description}</p>
                 </div>
                 {conn ? <Badge tone={conn.status === "error" ? "fail" : "pass"}>{conn.status === "error" ? "Error" : "Connected"}</Badge> : <Badge>Not connected</Badge>}
@@ -118,11 +123,18 @@ export default function IntegrationsPage() {
                     {item.tests.map((t) => <li key={t.key}>{t.title}</li>)}
                   </ul>
                 )}
+                {(item.provides_accounts || item.provides_people) && (
+                  <p className="mt-3 text-xs text-muted">
+                    {item.provides_people
+                      ? "Imports your employee list for leaver checks and access reviews."
+                      : "Also syncs user accounts for leaver checks and access reviews."}
+                  </p>
+                )}
               </div>
-              <div className="flex items-center justify-between gap-2 border-t border-line px-4 py-3">
+              <div className="flex flex-wrap items-center justify-between gap-2 border-t border-line px-4 py-3">
                 <span className="text-xs text-muted">{conn?.last_synced_at ? `Last checked ${fmtDateTime(conn.last_synced_at)}` : ""}</span>
                 {isAdmin && (
-                  <div className="flex gap-2">
+                  <div className="ml-auto flex flex-wrap justify-end gap-2">
                     {conn ? (
                       <>
                         <Button size="sm" variant="ghost" onClick={() => disconnect(item)}>Disconnect</Button>
@@ -153,7 +165,15 @@ export default function IntegrationsPage() {
             <FormError error={formError} />
             {connecting.fields.map((f) => (
               <Field key={f.name} label={f.label} hint={f.help || (f.secret ? "Encrypted at rest. Never shown again after saving." : undefined)}>
-                {(id) => (
+                {(id) => f.multiline ? (
+                  <Textarea
+                    id={id}
+                    value={values[f.name] ?? ""}
+                    onChange={(e) => setValues({ ...values, [f.name]: e.target.value })}
+                    className="min-h-[140px] font-mono text-xs"
+                    spellCheck={false}
+                  />
+                ) : (
                   <Input
                     id={id}
                     type={f.secret ? "password" : "text"}

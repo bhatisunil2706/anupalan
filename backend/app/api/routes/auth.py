@@ -8,10 +8,10 @@ from sqlalchemy import func, select
 
 from app.config import get_settings
 from app.deps import DB, CurrentUser, get_token_payload
-from app.models import Invitation, Membership, Organization, User
+from app.models import Invitation, Membership, Organization, Policy, User
 from app.schemas import AcceptInviteIn, LoginIn, MembershipOut, MeOut, SignupIn, SwitchOrgIn, UserBrief
 from app.security import create_access_token, hash_password, hash_token, verify_password
-from app.services import audit
+from app.services import audit, notify
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
@@ -145,6 +145,12 @@ def accept_invitation(body: AcceptInviteIn, request: Request, response: Response
             raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Sign in with the invited email to accept")
     if not db.scalar(select(Membership).where(Membership.user_id == user.id, Membership.org_id == inv.org_id)):
         db.add(Membership(user_id=user.id, org_id=inv.org_id, role=inv.role))
+        approved = db.scalar(select(func.count()).select_from(Policy).where(
+            Policy.org_id == inv.org_id, Policy.status == "approved"))
+        if approved:
+            notify.queue(db, inv.org_id, key=f"welcome:{user.id}", event="policy_approved", to=[user.email],
+                         title=f"Welcome! Please read and acknowledge {approved} company policies",
+                         link="/policies")
     inv.accepted_at = datetime.now(timezone.utc)
     db.commit()
     _set_session(response, user.id, inv.org_id)

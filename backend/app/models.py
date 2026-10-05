@@ -145,6 +145,16 @@ class Organization(TimestampMixin, Base):
     # Internal target for responding to data principal requests (law caps grievances at 90 days).
     rights_request_sla_days: Mapped[int] = mapped_column(Integer, default=30)
 
+    # Notifications. Webhook URLs are secrets, stored encrypted as JSON {"slack": url, "teams": url}.
+    notify_email: Mapped[bool] = mapped_column(Boolean, default=True)
+    notify_webhooks_encrypted: Mapped[str] = mapped_column(Text, default="")
+
+    # Public DPDP rights-request portal.
+    portal_enabled: Mapped[bool] = mapped_column(Boolean, default=False)
+    portal_slug: Mapped[str | None] = mapped_column(String(60), unique=True, nullable=True)
+    privacy_contact_name: Mapped[str] = mapped_column(String(200), default="")
+    privacy_contact_email: Mapped[str] = mapped_column(String(320), default="")
+
     memberships: Mapped[list["Membership"]] = relationship(back_populates="organization")
 
 
@@ -222,7 +232,7 @@ class Evidence(TimestampMixin, Base):
     title: Mapped[str] = mapped_column(String(300))
     description: Mapped[str] = mapped_column(Text, default="")
     kind: Mapped[str] = mapped_column(String(20))  # file | link | note | automated | policy
-    source: Mapped[str] = mapped_column(String(50), default="manual")  # manual | integration:<provider> | policy
+    source: Mapped[str] = mapped_column(String(200), default="manual")  # manual | test:<key> | policy:<id> | ...
     url: Mapped[str] = mapped_column(String(1000), default="")
     file_key: Mapped[str] = mapped_column(String(500), default="")
     file_name: Mapped[str] = mapped_column(String(300), default="")
@@ -250,7 +260,7 @@ class Task(TimestampMixin, Base):
     due_date: Mapped[date | None] = mapped_column(Date, nullable=True)
     status: Mapped[str] = mapped_column(String(20), default="open")
     priority: Mapped[str] = mapped_column(String(10), default="medium")
-    source: Mapped[str] = mapped_column(String(50), default="manual")  # manual | test:<key>
+    source: Mapped[str] = mapped_column(String(200), default="manual", index=True)  # manual | test:<key> | ...
     completed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
     control: Mapped[Control | None] = relationship()
@@ -459,7 +469,10 @@ class TestResult(Base):
     __tablename__ = "test_results"
     id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uid)
     org_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("organizations.id", ondelete="CASCADE"), index=True)
-    integration_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("integrations.id", ondelete="CASCADE"))
+    # Null for platform checks computed across sources (e.g. leaver access).
+    integration_id: Mapped[uuid.UUID | None] = mapped_column(
+        ForeignKey("integrations.id", ondelete="CASCADE"), nullable=True
+    )
     test_key: Mapped[str] = mapped_column(String(100))
     title: Mapped[str] = mapped_column(String(300))
     status: Mapped[str] = mapped_column(String(10))  # pass | fail | error
@@ -486,3 +499,162 @@ class AuditLog(Base):
     at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow, index=True)
 
     user: Mapped[User | None] = relationship()
+
+
+# --------------------------------------------------------------------------------------
+# Notifications (also the delivery outbox)
+# --------------------------------------------------------------------------------------
+
+
+class Notification(Base):
+    __tablename__ = "notifications"
+    __table_args__ = (UniqueConstraint("org_id", "dedupe_key"),)
+    id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uid)
+    org_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("organizations.id", ondelete="CASCADE"), index=True)
+    dedupe_key: Mapped[str] = mapped_column(String(200))
+    event: Mapped[str] = mapped_column(String(50))
+    title: Mapped[str] = mapped_column(String(300))
+    body: Mapped[str] = mapped_column(Text, default="")
+    link: Mapped[str] = mapped_column(String(500), default="")
+    recipients: Mapped[list] = mapped_column(JSON, default=list)  # email addresses
+    broadcast: Mapped[bool] = mapped_column(Boolean, default=False)  # also post to Slack / Teams
+    status: Mapped[str] = mapped_column(String(20), default="pending", index=True)  # pending | sent | failed
+    attempts: Mapped[int] = mapped_column(Integer, default=0)
+    last_error: Mapped[str] = mapped_column(Text, default="")
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+    sent_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+
+
+# --------------------------------------------------------------------------------------
+# People (HR roster) and accounts (identity inventory)
+# --------------------------------------------------------------------------------------
+
+
+class Person(TimestampMixin, Base):
+    __tablename__ = "people"
+    __table_args__ = (UniqueConstraint("org_id", "email"),)
+    id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uid)
+    org_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("organizations.id", ondelete="CASCADE"), index=True)
+    source: Mapped[str] = mapped_column(String(20), default="csv")  # csv | keka
+    employee_id: Mapped[str] = mapped_column(String(100), default="")
+    email: Mapped[str] = mapped_column(String(320))
+    full_name: Mapped[str] = mapped_column(String(200), default="")
+    department: Mapped[str] = mapped_column(String(200), default="")
+    title: Mapped[str] = mapped_column(String(200), default="")
+    manager_email: Mapped[str] = mapped_column(String(320), default="")
+    status: Mapped[str] = mapped_column(String(20), default="active")  # active | exited
+    join_date: Mapped[date | None] = mapped_column(Date, nullable=True)
+    exit_date: Mapped[date | None] = mapped_column(Date, nullable=True)
+
+
+class Account(Base):
+    __tablename__ = "accounts"
+    __table_args__ = (UniqueConstraint("org_id", "provider", "external_id"),)
+    id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uid)
+    org_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("organizations.id", ondelete="CASCADE"), index=True)
+    integration_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("integrations.id", ondelete="CASCADE"))
+    provider: Mapped[str] = mapped_column(String(50))
+    external_id: Mapped[str] = mapped_column(String(300))
+    email: Mapped[str] = mapped_column(String(320), default="", index=True)
+    name: Mapped[str] = mapped_column(String(300), default="")
+    is_admin: Mapped[bool] = mapped_column(Boolean, default=False)
+    is_active: Mapped[bool] = mapped_column(Boolean, default=True)
+    mfa_enabled: Mapped[bool | None] = mapped_column(Boolean, nullable=True)
+    last_login_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    synced_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+
+
+# --------------------------------------------------------------------------------------
+# Access reviews
+# --------------------------------------------------------------------------------------
+
+
+class AccessReview(TimestampMixin, Base):
+    __tablename__ = "access_reviews"
+    id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uid)
+    org_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("organizations.id", ondelete="CASCADE"), index=True)
+    title: Mapped[str] = mapped_column(String(200))
+    providers: Mapped[list] = mapped_column(JSON, default=list)
+    status: Mapped[str] = mapped_column(String(20), default="open")  # open | completed
+    due_date: Mapped[date | None] = mapped_column(Date, nullable=True)
+    created_by_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("users.id", ondelete="SET NULL"))
+    completed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+
+    created_by: Mapped[User | None] = relationship()
+    items: Mapped[list["AccessReviewItem"]] = relationship(back_populates="review", cascade="all, delete-orphan")
+
+
+class AccessReviewItem(Base):
+    __tablename__ = "access_review_items"
+    id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uid)
+    review_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("access_reviews.id", ondelete="CASCADE"), index=True)
+    org_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("organizations.id", ondelete="CASCADE"), index=True)
+    account_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("accounts.id", ondelete="SET NULL"))
+    provider: Mapped[str] = mapped_column(String(50))
+    external_id: Mapped[str] = mapped_column(String(300))
+    email: Mapped[str] = mapped_column(String(320), default="")
+    name: Mapped[str] = mapped_column(String(300), default="")
+    is_admin: Mapped[bool] = mapped_column(Boolean, default=False)
+    person_status: Mapped[str] = mapped_column(String(20), default="unknown")  # active | exited | unknown
+    reviewer_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("users.id", ondelete="SET NULL"))
+    decision: Mapped[str] = mapped_column(String(20), default="pending")  # pending | keep | revoke
+    note: Mapped[str] = mapped_column(Text, default="")
+    decided_by_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("users.id", ondelete="SET NULL"))
+    decided_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    removal_verified_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+
+    review: Mapped[AccessReview] = relationship(back_populates="items")
+    reviewer: Mapped[User | None] = relationship(foreign_keys=[reviewer_id])
+    decided_by: Mapped[User | None] = relationship(foreign_keys=[decided_by_id])
+
+
+# --------------------------------------------------------------------------------------
+# Public portal verification
+# --------------------------------------------------------------------------------------
+
+
+class PortalVerification(Base):
+    __tablename__ = "portal_verifications"
+    id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uid)
+    org_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("organizations.id", ondelete="CASCADE"), index=True)
+    token_hash: Mapped[str] = mapped_column(String(128), unique=True)
+    email: Mapped[str] = mapped_column(String(320))
+    payload: Mapped[dict] = mapped_column(JSON, default=dict)
+    ip: Mapped[str] = mapped_column(String(64), default="")
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+    expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    used_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+
+
+# --------------------------------------------------------------------------------------
+# Personal data discovery
+# --------------------------------------------------------------------------------------
+
+
+class DataSource(TimestampMixin, Base):
+    __tablename__ = "data_sources"
+    id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uid)
+    org_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("organizations.id", ondelete="CASCADE"), index=True)
+    name: Mapped[str] = mapped_column(String(200))
+    kind: Mapped[str] = mapped_column(String(20))  # postgres | mysql | s3
+    config: Mapped[dict] = mapped_column(JSON, default=dict)
+    secret_encrypted: Mapped[str] = mapped_column(Text, default="")
+    status: Mapped[str] = mapped_column(String(20), default="new")  # new | scanned | error
+    last_scan_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    last_error: Mapped[str] = mapped_column(Text, default="")
+    stats: Mapped[dict] = mapped_column(JSON, default=dict)
+
+
+class PiiFinding(Base):
+    __tablename__ = "pii_findings"
+    id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uid)
+    org_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("organizations.id", ondelete="CASCADE"), index=True)
+    source_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("data_sources.id", ondelete="CASCADE"), index=True)
+    container: Mapped[str] = mapped_column(String(500))  # schema.table or s3 key
+    field: Mapped[str] = mapped_column(String(300), default="")  # column name ("" for files)
+    category: Mapped[str] = mapped_column(String(50))
+    matches: Mapped[int] = mapped_column(Integer, default=0)
+    sampled: Mapped[int] = mapped_column(Integer, default=0)
+    by_name_only: Mapped[bool] = mapped_column(Boolean, default=False)
+    examples: Mapped[list] = mapped_column(JSON, default=list)  # masked values only, never raw
+    scanned_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)

@@ -17,7 +17,13 @@ India-first compliance automation. One set of controls, mapped to the **DPDP Act
 | DPDP | Processing inventory with lawful ground and transfers (CSV export), rights requests with internal SLA and the 90-day legal cap |
 | Incidents | CERT-In 6-hour clock, DPDP "without delay" steps and 72-hour Board report, investigation notes |
 | Risk / vendors | 5x5 risk register with heat map; vendor tiers, DPA tracking, data location, review dates |
-| Integrations | GitHub and AWS connectors (read-only). Passing checks become evidence; failing checks create tasks that auto-close when fixed. Credentials encrypted at rest. Worker re-runs every 6 hours |
+| Integrations | Google Workspace, Microsoft 365 / Entra ID, AWS, GitHub and Keka HR (beta), all read-only. Passing checks become evidence; failing checks create tasks that auto-close when fixed and alert the control owner. Credentials encrypted at rest |
+| People & accounts | Employee list from Keka or a CSV export of any HRMS, matched to accounts synced from identity systems. Leavers with active access fail a check (ACC-02, HR-05) within a day of exit |
+| Access reviews | One click snapshots accounts, routes each to the person's manager, records keep/remove with reasons, verifies removals on the next sync, and files the signed-off CSV as ACC-05 evidence. A reminder task appears each quarter |
+| Alerts | Email, Slack and Microsoft Teams: failing checks, CERT-In and DPDP deadlines, rights requests, task assignments and due dates, evidence and review renewals |
+| Recurring work | Tasks created automatically before evidence expires, and for vendor reviews, policy reviews and quarterly access reviews |
+| DPDP portal | Public page per company (`/p/<name>`) for access, correction, erasure, consent withdrawal, nomination and grievance requests. Email-verified requests land in Rights requests with deadlines set |
+| Data discovery | Scans PostgreSQL, MySQL and S3 for Aadhaar (checksum-validated), PAN, phone, email, UPI, card (Luhn), IFSC, GSTIN and sensitive field names. Stores only masked examples; one click adds findings to the data inventory |
 
 ## Run it
 
@@ -46,7 +52,7 @@ export DATABASE_URL="postgresql+psycopg://$USER@localhost:5432/app"
 alembic upgrade head
 uvicorn app.main:app --reload
 
-# Integration worker (separate terminal, optional)
+# Worker: integration syncs, reminders, recurring tasks and alert delivery (separate terminal)
 python -m app.worker
 
 # Frontend (http://localhost:3000), separate terminal
@@ -62,7 +68,7 @@ The frontend proxies `/api/*` to the backend (`BACKEND_URL`, default `http://loc
 ```bash
 createdb app_test
 cd backend
-DATABASE_URL="postgresql+psycopg://$USER@localhost:5432/app_test" pytest -q   # 21 tests
+DATABASE_URL="postgresql+psycopg://$USER@localhost:5432/app_test" pytest -q   # 33 tests
 ruff check app tests
 python -m app.cli check-content                                               # mapping coverage only
 
@@ -104,14 +110,16 @@ Subclass `Connector` in `backend/app/integrations/`, declare `fields` and `tests
 These are known gaps, ordered roughly by priority:
 
 1. **Content review.** All framework guidance is written in-house and marked `review_status: draft`. Have a privacy lawyer verify the DPDP and CERT-In references against the Gazette text, and an ISO 27001 Lead Auditor review the control mappings. ISO and AICPA text is intentionally not reproduced; keep it that way.
-2. **Email.** Invitations return a copyable link. Add an email provider (SES Mumbai, Postmark) for invites, password reset (not built yet), deadline reminders and task notifications.
-3. **MFA and SSO** for user accounts (TOTP, then SAML/OIDC). Password reset flow.
+2. **Email provider and password reset.** Email works through SMTP (set `SMTP_*`); pick a provider (SES Mumbai, Postmark). Password reset is not built yet.
+3. **MFA and SSO** for user accounts (TOTP, then SAML/OIDC).
 4. **Storage.** Evidence is stored on local disk. Switch `services/storage.py` to S3 in `ap-south-1` with per-tenant prefixes and KMS keys.
 5. **Rate limiting** is in-process; move to Redis for more than one API instance.
 6. **Database-level tenant isolation.** Isolation is enforced in the API (`get_owned`, `ensure_member`) and covered by tests. Add PostgreSQL row-level security as a second layer.
-7. **More connectors**: Google Workspace, Microsoft 365 / Entra ID, Azure, GCP, an Indian HRMS (Keka or Darwinbox), MDM.
-8. **AI assistant** (policy drafting, gap analysis, questionnaire answers) and **auditor workspace** (scoped auditor access, evidence requests, SoA export).
-9. **Sector packs**: RBI, SEBI CSCRF, IRDAI.
+7. **Verify connectors against real tenants.** Google Workspace, Microsoft 365 and Keka are built from the official API docs and tested with simulated responses. Test each with a real account (Microsoft 365 developer tenant, Google Workspace trial, Keka sandbox) before customers use them. Keka's employee fields are mapped defensively because Keka doesn't publish the full schema.
+8. **Data discovery in production.** Scanning customer databases from a multi-tenant SaaS needs network access into their environment. Private addresses are blocked in production by default; offer a small self-hosted scanner that reports masked findings back.
+9. **More connectors**: Azure, GCP, GitLab, Jira, Okta, MDM (Jamf, Intune), Darwinbox.
+10. **AI assistant** (policy drafting, gap analysis, questionnaire answers) and **auditor workspace** (scoped auditor access, evidence requests, SoA export).
+11. **Sector packs**: RBI, SEBI CSCRF, IRDAI.
 
 ## Licence and IP
 

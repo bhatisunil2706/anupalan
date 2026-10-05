@@ -1,6 +1,6 @@
 import httpx
 
-from app.integrations.base import CheckResult, Connector, ConnectorError, Field, TestDef
+from app.integrations.base import AccountRecord, CheckResult, Connector, ConnectorError, Field, TestDef
 
 API = "https://api.github.com"
 
@@ -29,6 +29,7 @@ class GitHubConnector(Connector):
     ]
 
     max_repos = 200
+    provides_accounts = True
 
     def __init__(self, config: dict, secrets: dict, client: httpx.Client | None = None):
         super().__init__(config, secrets)
@@ -126,3 +127,21 @@ class GitHubConnector(Connector):
         else:
             out.append(CheckResult("github.admin_count", "error", "Could not list organisation admins"))
         return out
+
+    def _members(self, role: str) -> list[dict]:
+        out, page = [], 1
+        while True:
+            r = self._get(f"/orgs/{self.org}/members", role=role, per_page=100, page=page)
+            if r.status_code != 200:
+                return out
+            batch = r.json()
+            out.extend(batch)
+            if len(batch) < 100:
+                return out
+            page += 1
+
+    def list_accounts(self) -> list[AccountRecord]:
+        admins = {m["login"] for m in self._members("admin")}
+        # GitHub hides member emails; access reviews show the login. Map logins to people by name if needed.
+        return [AccountRecord(external_id=str(m["id"]), name=m["login"], is_admin=m["login"] in admins)
+                for m in self._members("all")]

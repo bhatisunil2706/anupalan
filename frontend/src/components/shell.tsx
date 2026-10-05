@@ -5,6 +5,9 @@ import {
   CheckSquare,
   ClipboardCheck,
   Database,
+  ScanSearch,
+  UserCheck,
+  Users,
   FileText,
   Gauge,
   Inbox,
@@ -43,13 +46,21 @@ const NAV: { group: string; items: { href: string; label: string; icon: typeof G
       { href: "/frameworks", label: "Frameworks", icon: LayoutGrid },
       { href: "/controls", label: "Controls", icon: ClipboardCheck },
       { href: "/policies", label: "Policies", icon: FileText },
+    ],
+  },
+  {
+    group: "Automation",
+    items: [
       { href: "/integrations", label: "Integrations", icon: Plug },
+      { href: "/people", label: "People & accounts", icon: Users },
+      { href: "/access-reviews", label: "Access reviews", icon: UserCheck },
     ],
   },
   {
     group: "DPDP",
     items: [
       { href: "/dpdp/inventory", label: "Data inventory", icon: Database },
+      { href: "/dpdp/discovery", label: "Data discovery", icon: ScanSearch },
       { href: "/dpdp/requests", label: "Rights requests", icon: Inbox },
       { href: "/incidents", label: "Incidents", icon: AlertOctagon },
     ],

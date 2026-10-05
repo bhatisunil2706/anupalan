@@ -5,7 +5,18 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
-from app.api.routes import auth, controls, dashboard, dpdp, frameworks, integrations, org, work
+from app.api.routes import (
+    auth,
+    automation,
+    controls,
+    dashboard,
+    dpdp,
+    frameworks,
+    integrations,
+    org,
+    portal,
+    work,
+)
 from app.config import get_settings
 from app.db import SessionLocal
 
@@ -61,7 +72,7 @@ def create_app() -> FastAPI:
         response.headers.setdefault("Referrer-Policy", "strict-origin-when-cross-origin")
         return response
 
-    for r in (auth, org, frameworks, controls, work, dpdp, integrations, dashboard):
+    for r in (auth, org, frameworks, controls, work, dpdp, integrations, dashboard, automation, portal):
         app.include_router(r.router, prefix="/api")
 
     @app.get("/api/health")

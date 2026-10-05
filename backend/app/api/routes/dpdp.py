@@ -17,7 +17,7 @@ from app.schemas import (
     RightsRequestOut,
     RightsRequestUpdate,
 )
-from app.services import audit
+from app.services import audit, notify
 
 router = APIRouter()
 
@@ -141,6 +141,13 @@ def create_incident(body: IncidentIn, db: DB, ctx: WriterCtx):
     db.flush()
     audit.record(db, ctx, "incident.created", i, severity=i.severity, certin=i.certin_reportable,
                  breach=i.personal_data_breach)
+    clocks = [c for c, on in (("CERT-In report within 6 hours", i.certin_reportable),
+                              ("DPDP Board report within 72 hours", i.personal_data_breach)) if on]
+    notify.queue(db, ctx.org_id, key=f"inc:{i.id}:created", event="incident", broadcast=True,
+                 to=notify.admin_emails(db, ctx.org_id),
+                 title=f"Incident reported: INC-{i.number} {i.title} ({i.severity.upper()})",
+                 body=("Clocks running: " + "; ".join(clocks)) if clocks else f"Reported by {ctx.user.full_name}.",
+                 link=f"/incidents/{i.id}")
     db.commit()
     db.refresh(i)
     return i

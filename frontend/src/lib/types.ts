@@ -249,6 +249,7 @@ export interface IntegrationField {
   required: boolean;
   help: string;
   default: string;
+  multiline: boolean;
 }
 
 export interface IntegrationItem {
@@ -257,6 +258,9 @@ export interface IntegrationItem {
   description: string;
   category: string;
   setup_help: string;
+  beta: boolean;
+  provides_accounts: boolean;
+  provides_people: boolean;
   fields: IntegrationField[];
   tests: { key: string; title: string; control_codes: string[] }[];
   connection: {
@@ -266,4 +270,21 @@ export interface IntegrationItem {
     last_synced_at: string | null;
     last_error: string;
   } | null;
+}
+
+export interface ReviewSummary {
+  id: string;
+  title: string;
+  status: "open" | "completed";
+  due_date: string | null;
+  providers: { provider: string; name: string }[];
+  created_by: string | null;
+  created_at: string;
+  completed_at: string | null;
+  total: number;
+  pending: number;
+  revoked: number;
+  kept: number;
+  my_pending: number;
+  removals_unverified: number;
 }

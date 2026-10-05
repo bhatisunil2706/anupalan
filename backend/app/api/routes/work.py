@@ -6,7 +6,17 @@ from fastapi import APIRouter, HTTPException, status
 from sqlalchemy import func, select
 
 from app.deps import DB, AdminCtx, Ctx, WriterCtx, ensure_member, get_owned
-from app.models import Control, Membership, Policy, PolicyAcknowledgment, PolicyTemplate, Risk, Task, Vendor
+from app.models import (
+    Control,
+    Membership,
+    Policy,
+    PolicyAcknowledgment,
+    PolicyTemplate,
+    Risk,
+    Task,
+    User,
+    Vendor,
+)
 from app.schemas import (
     FromTemplateIn,
     PolicyIn,
@@ -20,7 +30,7 @@ from app.schemas import (
     VendorIn,
     VendorOut,
 )
-from app.services import audit
+from app.services import audit, notify
 from app.services.policies import approve_policy, create_policy_from_template
 
 router = APIRouter()
@@ -48,6 +58,14 @@ def list_tasks(db: DB, ctx: Ctx, status_filter: str | None = None, mine: bool = 
     return [_task_out(t) for t in db.scalars(q.limit(500))]
 
 
+def _notify_assignee(db, ctx, t: Task) -> None:
+    if t.assignee_id and t.assignee_id != ctx.user.id:
+        email = db.scalar(select(User.email).where(User.id == t.assignee_id))
+        notify.queue(db, ctx.org_id, key=f"task:{t.id}:assigned:{t.assignee_id}", event="task_assigned",
+                     to=[email], title=f"{ctx.user.full_name} assigned you a task: {t.title}",
+                     body=t.description, link="/tasks")
+
+
 def _check_control(db, ctx, control_id):
     if control_id is not None:
         get_owned(db, Control, control_id, ctx)
@@ -60,6 +78,7 @@ def create_task(body: TaskIn, db: DB, ctx: WriterCtx):
     t = Task(org_id=ctx.org_id, **body.model_dump())
     db.add(t)
     db.flush()
+    _notify_assignee(db, ctx, t)
     audit.record(db, ctx, "task.created", t, title=t.title)
     db.commit()
     db.refresh(t)
@@ -74,6 +93,8 @@ def update_task(task_id: uuid.UUID, body: TaskUpdate, db: DB, ctx: WriterCtx):
         ensure_member(db, ctx, data["assignee_id"])
     for k, v in data.items():
         setattr(t, k, v)
+    if "assignee_id" in data:
+        _notify_assignee(db, ctx, t)
     if data.get("status") == "done" and not t.completed_at:
         t.completed_at = datetime.now(timezone.utc)
     elif data.get("status") in ("open", "in_progress"):
@@ -171,6 +192,11 @@ def update_policy(policy_id: uuid.UUID, body: PolicyUpdate, db: DB, ctx: WriterC
 def approve(policy_id: uuid.UUID, db: DB, ctx: AdminCtx):
     p = get_owned(db, Policy, policy_id, ctx)
     approve_policy(db, ctx, p)
+    emails = list(db.scalars(select(User.email).join(Membership, Membership.user_id == User.id)
+                             .where(Membership.org_id == ctx.org_id)))
+    notify.queue(db, ctx.org_id, key=f"policy:{p.id}:v{p.version}:approved", event="policy_approved", to=emails,
+                 title=f"Please read and acknowledge: {p.title} (version {p.version})",
+                 link=f"/policies/{p.id}")
     audit.record(db, ctx, "policy.approved", p, version=p.version)
     db.commit()
     db.refresh(p)

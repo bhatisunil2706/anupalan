@@ -9,7 +9,7 @@ from app.deps import DB, AdminCtx, Ctx
 from app.models import AuditLog, Framework, Invitation, Membership, OrgFramework, User
 from app.schemas import InviteIn, MemberOut, OnboardingIn, OrgOut, OrgUpdate, RoleIn, UserBrief
 from app.security import new_token
-from app.services import audit
+from app.services import audit, notify
 from app.services.compliance import PROFILE_FLAGS, provision_controls
 from app.services.policies import create_policy_from_template
 
@@ -148,10 +148,16 @@ def invite(body: InviteIn, db: DB, ctx: AdminCtx):
     db.add(inv)
     audit.record(db, ctx, "member.invited", inv, email=email, role=body.role)
     db.commit()
-    base = get_settings().cors_origins[0] if get_settings().cors_origins else ""
-    # No email service yet: the admin copies this link and shares it.
-    return {"id": inv.id, "email": email, "role": body.role, "invite_url": f"{base}/invite/{token}",
-            "expires_at": inv.expires_at}
+    url = f"{get_settings().public_url.rstrip('/')}/invite/{token}"
+    emailed = True
+    try:
+        notify.send_email([email], f"{ctx.user.full_name} invited you to {ctx.org.name}",
+                          f"You've been invited to join {ctx.org.name}'s compliance workspace as {body.role}.\n\n"
+                          f"Accept the invitation (valid for 7 days):\n{url}")
+    except Exception:  # noqa: BLE001 - the admin can still copy the link
+        emailed = False
+    return {"id": inv.id, "email": email, "role": body.role, "invite_url": url, "expires_at": inv.expires_at,
+            "emailed": emailed and bool(get_settings().smtp_host)}
 
 
 @router.delete("/invitations/{inv_id}", status_code=204)

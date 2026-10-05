@@ -28,6 +28,21 @@ class Settings(BaseSettings):
 
     load_content_on_startup: bool = True
 
+    # Public URL of the web app, used in emails and notification links.
+    public_url: str = "http://localhost:3000"
+
+    # Outgoing email (SMTP). If smtp_host is empty, emails are logged instead of sent.
+    smtp_host: str = ""
+    smtp_port: int = 587
+    smtp_user: str = ""
+    smtp_password: str = ""
+    smtp_from: str = "Anupalan <no-reply@localhost>"
+    smtp_starttls: bool = True
+
+    # Personal data scanner: allow connecting to private / loopback addresses.
+    # Blocked by default in production (SSRF protection); customers can run a self-hosted instance instead.
+    allow_private_scan_targets: bool | None = None  # None = allowed in development, blocked in production
+
     @property
     def is_production(self) -> bool:
         return self.environment == "production"

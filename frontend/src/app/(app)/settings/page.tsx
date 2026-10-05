@@ -8,7 +8,7 @@ import { api, useApi } from "@/lib/api";
 import { fmtDate, fmtDateTime, humanize } from "@/lib/format";
 import type { Org, Role } from "@/lib/types";
 
-type Tab = "org" | "team" | "audit";
+type Tab = "org" | "team" | "notifications" | "portal" | "audit";
 
 export default function SettingsPage() {
   const { isAdmin } = useSession();
@@ -20,13 +20,21 @@ export default function SettingsPage() {
         tabs={[
           { value: "org", label: "Organisation" },
           { value: "team", label: "Team" },
-          ...(isAdmin ? [{ value: "audit" as Tab, label: "Audit log" }] : []),
+          ...(isAdmin
+            ? [
+                { value: "notifications" as Tab, label: "Notifications" },
+                { value: "portal" as Tab, label: "Privacy request page" },
+                { value: "audit" as Tab, label: "Audit log" },
+              ]
+            : []),
         ]}
         value={tab}
         onChange={setTab}
       />
       {tab === "org" && <OrgSettings />}
       {tab === "team" && <Team />}
+      {tab === "notifications" && isAdmin && <Notifications />}
+      {tab === "portal" && isAdmin && <Portal />}
       {tab === "audit" && isAdmin && <AuditLog />}
     </>
   );
@@ -239,6 +247,137 @@ function AuditLog() {
           </tbody>
         </table>
       </div>
+    </div>
+  );
+}
+
+function Notifications() {
+  const toast = useToast();
+  const { data, error, loading, reload } = useApi<{ notify_email: boolean; slack_configured: boolean; teams_configured: boolean }>("/org/notifications");
+  const [slack, setSlack] = useState("");
+  const [teams, setTeams] = useState("");
+  const [formError, setFormError] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
+
+  if (loading && !data) return <Loading />;
+  if (error || !data) return <LoadError error={error ?? "Could not load"} retry={reload} />;
+
+  async function save(body: Record<string, unknown>, msg = "Notification settings saved") {
+    setBusy(true);
+    setFormError(null);
+    try {
+      await api("/org/notifications", { method: "PUT", json: body });
+      toast(msg);
+      setSlack("");
+      setTeams("");
+      reload();
+    } catch (e) {
+      setFormError(e instanceof Error ? e.message : "Failed");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function test() {
+    const r = await api<Record<string, string>>("/org/notifications/test", { method: "POST" });
+    toast(Object.entries(r).map(([k, v]) => `${k}: ${v}`).join(", "), Object.values(r).every((v) => v === "sent") ? "ok" : "error");
+  }
+
+  return (
+    <div className="max-w-2xl space-y-6">
+      <Panel title="What gets sent">
+        <ul className="list-disc space-y-1 pl-5 text-sm text-muted">
+          <li>Failing integration checks and leavers who still have access, to the control owner and your channel.</li>
+          <li>CERT-In and DPDP deadlines: 2 hours before the 6-hour CERT-In deadline, 24 hours before the 72-hour Board report, and when overdue.</li>
+          <li>New and overdue rights requests, task assignments, tasks due tomorrow and overdue.</li>
+          <li>Evidence about to expire, vendor and policy reviews coming up, and access reviews waiting for a decision.</li>
+        </ul>
+      </Panel>
+      <Panel title="Channels">
+        <div className="space-y-5">
+          <FormError error={formError} />
+          <Checkbox label="Email people directly (task owners, reviewers, admins)" checked={data.notify_email} onChange={(v) => save({ notify_email: v })} />
+          <Field label="Slack incoming webhook" hint={data.slack_configured ? "Connected. Paste a new URL to replace it, or clear below." : "Slack > Apps > Incoming Webhooks > Add to a channel, then paste the URL."}>
+            {(id) => <Input id={id} type="password" autoComplete="off" placeholder={data.slack_configured ? "Connected" : "https://hooks.slack.com/services/..."} value={slack} onChange={(e) => setSlack(e.target.value)} />}
+          </Field>
+          <Field label="Microsoft Teams workflow webhook" hint={data.teams_configured ? "Connected. Paste a new URL to replace it." : "In Teams, add the 'Post to a channel when a webhook request is received' workflow and paste its URL."}>
+            {(id) => <Input id={id} type="password" autoComplete="off" placeholder={data.teams_configured ? "Connected" : "https://..."} value={teams} onChange={(e) => setTeams(e.target.value)} />}
+          </Field>
+          <div className="flex flex-wrap justify-end gap-2">
+            {(data.slack_configured || data.teams_configured) && (
+              <Button variant="ghost" onClick={() => save({ slack_webhook_url: "", teams_webhook_url: "" }, "Channels disconnected")}>Disconnect channels</Button>
+            )}
+            <Button variant="secondary" onClick={test}>Send test</Button>
+            <Button busy={busy} disabled={!slack && !teams} onClick={() => save({ ...(slack ? { slack_webhook_url: slack } : {}), ...(teams ? { teams_webhook_url: teams } : {}) })}>Save channels</Button>
+          </div>
+        </div>
+      </Panel>
+    </div>
+  );
+}
+
+function Portal() {
+  const toast = useToast();
+  const { data, error, loading, reload } = useApi<{ portal_enabled: boolean; portal_slug: string; privacy_contact_name: string; privacy_contact_email: string; public_url: string }>("/org/portal");
+  const [form, setForm] = useState({ portal_enabled: false, portal_slug: "", privacy_contact_name: "", privacy_contact_email: "" });
+  const [formError, setFormError] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
+  const { me } = useSession();
+
+  useEffect(() => {
+    if (data) {
+      const orgName = me.memberships.find((m) => m.org_id === me.org_id)?.org_name ?? "";
+      setForm({
+        portal_enabled: data.portal_enabled,
+        portal_slug: data.portal_slug || orgName.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, ""),
+        privacy_contact_name: data.privacy_contact_name,
+        privacy_contact_email: data.privacy_contact_email,
+      });
+    }
+  }, [data, me]);
+
+  if (loading && !data) return <Loading />;
+  if (error || !data) return <LoadError error={error ?? "Could not load"} retry={reload} />;
+
+  async function save() {
+    setBusy(true);
+    setFormError(null);
+    try {
+      await api("/org/portal", { method: "PUT", json: form });
+      toast("Privacy request page saved");
+      reload();
+    } catch (e) {
+      setFormError(e instanceof Error ? e.message : "Failed");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <div className="max-w-2xl space-y-6">
+      <Panel title="Public privacy request page">
+        <div className="space-y-4">
+          <p className="text-sm text-muted">
+            A page you link from your privacy notice and app. People choose a request type, confirm their email, and the request arrives in Rights requests with
+            its deadline set. The page shows your privacy contact, as the DPDP Rules require.
+          </p>
+          <FormError error={formError} />
+          <Checkbox label="Page is live" checked={form.portal_enabled} onChange={(v) => setForm({ ...form, portal_enabled: v })} />
+          <Field label="Page address" hint={`${typeof window !== "undefined" ? window.location.origin : ""}/p/${form.portal_slug || "your-company"}`}>
+            {(id) => <Input id={id} value={form.portal_slug} onChange={(e) => setForm({ ...form, portal_slug: e.target.value.toLowerCase() })} />}
+          </Field>
+          <div className="grid gap-3 sm:grid-cols-2">
+            <Field label="Privacy contact or DPO name">{(id) => <Input id={id} value={form.privacy_contact_name} onChange={(e) => setForm({ ...form, privacy_contact_name: e.target.value })} />}</Field>
+            <Field label="Privacy contact email">{(id) => <Input id={id} type="email" value={form.privacy_contact_email} onChange={(e) => setForm({ ...form, privacy_contact_email: e.target.value })} />}</Field>
+          </div>
+          <div className="flex flex-wrap items-center justify-end gap-2">
+            {data.portal_enabled && data.portal_slug && (
+              <a href={`/p/${data.portal_slug}`} target="_blank" rel="noreferrer" className="mr-auto text-sm font-medium text-ink underline">Open the live page</a>
+            )}
+            <Button onClick={save} busy={busy}>Save</Button>
+          </div>
+        </div>
+      </Panel>
     </div>
   );
 }

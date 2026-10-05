@@ -1,15 +1,16 @@
-"""Run integration checks and turn results into evidence and remediation tasks."""
-from datetime import date, datetime, timedelta, timezone
+"""Run integrations: checks, account inventory and HR roster, then cross-source platform checks."""
+from datetime import datetime, timezone
 
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.integrations import REGISTRY
 from app.integrations.base import CheckResult, Connector, ConnectorError
-from app.models import Control, Evidence, Integration, Task, TestResult
+from app.models import Account, Integration, Organization
 from app.security import decrypt_json
-
-AUTOMATED_EVIDENCE_DAYS = 7  # automated evidence expires if syncs stop
+from app.services.checks import record_check
+from app.services.people import upsert_people
+from app.services.platform_checks import run_platform_checks, verify_review_removals
 
 
 def build_connector(integration: Integration) -> Connector:
@@ -19,50 +20,44 @@ def build_connector(integration: Integration) -> Connector:
 
 def apply_results(db: Session, integration: Integration, results: list[CheckResult]) -> None:
     cls = REGISTRY[integration.provider]
-    org_id = integration.org_id
-    now = datetime.now(timezone.utc)
-    controls = {c.code: c for c in db.scalars(select(Control).where(Control.org_id == org_id))}
-
     for res in results:
         tdef = cls.test_def(res.key)
-        db.add(TestResult(org_id=org_id, integration_id=integration.id, test_key=res.key, title=tdef.title,
-                          status=res.status, control_codes=tdef.control_codes,
-                          details={"summary": res.summary, **res.details}, run_at=now))
-        source = f"test:{res.key}"
-        for code in tdef.control_codes:
-            control = controls.get(code)
-            if control is None:
-                continue
-            ev = db.scalar(select(Evidence).where(Evidence.control_id == control.id, Evidence.source == source))
-            if res.status == "pass":
-                ev = ev or Evidence(org_id=org_id, control_id=control.id, kind="automated", source=source)
-                ev.title = f"{cls.name}: {tdef.title}"
-                ev.description = res.summary
-                ev.data = {"status": res.status, **res.details}
-                ev.collected_at = now
-                ev.valid_until = date.today() + timedelta(days=AUTOMATED_EVIDENCE_DAYS)
-                db.add(ev)
-            elif ev is not None:
-                ev.valid_until = date.today() - timedelta(days=1)  # failing check invalidates prior evidence
+        record_check(db, integration.org_id, integration_id=integration.id, source_name=cls.name, key=res.key,
+                     title=tdef.title, control_codes=tdef.control_codes, status=res.status, summary=res.summary,
+                     details=res.details)
 
-        open_task = db.scalar(
-            select(Task).where(Task.org_id == org_id, Task.source == source, Task.status != "done")
-        )
-        if res.status == "fail" and open_task is None:
-            first = next((controls[c] for c in tdef.control_codes if c in controls), None)
-            db.add(Task(org_id=org_id, title=f"Fix: {tdef.title}", description=res.summary, source=source,
-                        control_id=first.id if first else None, assignee_id=first.owner_id if first else None,
-                        priority="high", due_date=date.today() + timedelta(days=14)))
-        elif res.status == "pass" and open_task is not None:
-            open_task.status = "done"
-            open_task.completed_at = now
-            open_task.description += "\n\nAutomatically resolved: the check now passes."
+
+def sync_accounts(db: Session, integration: Integration, records) -> int:
+    now = datetime.now(timezone.utc)
+    existing = {a.external_id: a for a in db.scalars(select(Account).where(
+        Account.org_id == integration.org_id, Account.provider == integration.provider))}
+    seen = set()
+    for r in records:
+        acc = existing.get(r.external_id) or Account(org_id=integration.org_id, integration_id=integration.id,
+                                                     provider=integration.provider, external_id=r.external_id)
+        acc.integration_id = integration.id
+        acc.email = (r.email or "").lower()
+        acc.name = r.name or ""
+        acc.is_admin = r.is_admin
+        acc.is_active = r.is_active
+        acc.mfa_enabled = r.mfa_enabled
+        acc.last_login_at = r.last_login_at
+        acc.synced_at = now
+        db.add(acc)
+        seen.add(r.external_id)
+    for ext_id, acc in existing.items():
+        if ext_id not in seen:
+            db.delete(acc)  # account removed in the source system
+    db.flush()
+    return len(seen)
 
 
 def sync_integration(db: Session, integration: Integration) -> list[CheckResult]:
     connector = build_connector(integration)
     try:
         results = connector.run()
+        accounts = connector.list_accounts() if connector.provides_accounts else None
+        people = connector.list_people() if connector.provides_people else None
     except ConnectorError as e:
         integration.status = "error"
         integration.last_error = str(e)
@@ -73,7 +68,16 @@ def sync_integration(db: Session, integration: Integration) -> list[CheckResult]
         integration.last_error = f"{type(e).__name__}: {e}"[:1000]
         db.commit()
         raise ConnectorError(integration.last_error) from e
+
     apply_results(db, integration, results)
+    if accounts is not None:
+        sync_accounts(db, integration, accounts)
+    if people is not None:
+        upsert_people(db, integration.org_id, people, source=integration.provider)
+    org = db.get(Organization, integration.org_id)
+    run_platform_checks(db, org)
+    verify_review_removals(db, org.id)
+
     integration.status = "connected"
     integration.last_error = ""
     integration.last_synced_at = datetime.now(timezone.utc)

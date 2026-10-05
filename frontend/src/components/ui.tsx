@@ -42,7 +42,7 @@ export const Button = forwardRef<
       ref={ref}
       disabled={disabled || busy}
       className={cx(
-        "inline-flex items-center justify-center gap-1.5 rounded-md font-medium transition-colors disabled:cursor-not-allowed",
+        "inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md font-medium transition-colors disabled:cursor-not-allowed",
         size === "sm" ? "h-8 px-3 text-[13px]" : "h-9 px-4 text-sm",
         VARIANTS[variant],
         className,

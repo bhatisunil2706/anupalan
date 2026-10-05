@@ -23,7 +23,7 @@ def _out(i: Integration | None) -> dict | None:
 @router.get("")
 def list_integrations(db: DB, ctx: Ctx):
     connected = {i.provider: i for i in db.scalars(select(Integration).where(Integration.org_id == ctx.org_id))}
-    return [{**cls.describe(), "connection": _out(connected.get(p))} for p, cls in sorted(REGISTRY.items())]
+    return [{**cls.describe(), "connection": _out(connected.get(p))} for p, cls in REGISTRY.items()]
 
 
 def _connector_cls(provider: str):

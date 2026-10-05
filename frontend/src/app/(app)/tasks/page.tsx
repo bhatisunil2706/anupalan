@@ -79,7 +79,7 @@ export default function TasksPage() {
                         </td>
                         <td className={tbl.td}>
                           <p className={t.status === "done" ? "text-muted line-through" : "font-medium"}>{t.title}</p>
-                          {t.description && <p className="mt-0.5 line-clamp-2 max-w-[60ch] text-xs text-muted">{t.description}</p>}
+                          {t.description && <p className="mt-0.5 line-clamp-3 max-w-[60ch] whitespace-pre-line text-xs text-muted">{t.description}</p>}
                           {t.source.startsWith("test:") && <p className="mt-1 text-xs text-prog">From an automated check</p>}
                         </td>
                         <td className={tbl.td}>

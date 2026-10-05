@@ -58,3 +58,13 @@ def path_for(org_id: uuid.UUID, key: str) -> Path:
 def delete(key: str) -> None:
     if key:
         (_root() / key).unlink(missing_ok=True)
+
+
+def save_bytes(org_id: uuid.UUID, name: str, data: bytes) -> tuple[str, str, int]:
+    """Store generated content (e.g. an access review export). Returns (key, safe name, size)."""
+    name = safe_filename(name)
+    key = f"{org_id}/{uuid.uuid4().hex}_{name}"
+    path = _root() / key
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_bytes(data)
+    return key, name, len(data)

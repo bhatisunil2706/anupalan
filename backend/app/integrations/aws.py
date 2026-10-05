@@ -1,4 +1,4 @@
-from app.integrations.base import CheckResult, Connector, ConnectorError, Field, TestDef
+from app.integrations.base import AccountRecord, CheckResult, Connector, ConnectorError, Field, TestDef
 
 
 class AWSConnector(Connector):
@@ -8,7 +8,7 @@ class AWSConnector(Connector):
     description = "Checks root MFA, password policy, CloudTrail, S3 public access, encryption, backups and GuardDuty."
     setup_help = (
         "Create an IAM user (or role) with the AWS managed 'SecurityAudit' read-only policy "
-        "and paste its access key. "
+        "and paste its access key. Tag IAM users with 'email' so they can be matched to employees. "
         "Use the region where your production workloads run, e.g. ap-south-1 (Mumbai)."
     )
     fields = [
@@ -26,6 +26,9 @@ class AWSConnector(Connector):
         TestDef("aws.rds_backups", "RDS automated backups retained 7+ days", ["OPS-06"]),
         TestDef("aws.guardduty", "GuardDuty threat detection is enabled", ["LOG-02"]),
     ]
+
+    provides_accounts = True
+    max_users = 300
 
     def __init__(self, config: dict, secrets: dict, session=None):
         super().__init__(config, secrets)
@@ -132,3 +135,24 @@ class AWSConnector(Connector):
                   ("aws.ebs_default_encryption", ebs), ("aws.rds_encryption", rds_enc),
                   ("aws.rds_backups", rds_backup), ("aws.guardduty", guardduty)]
         return [self._check(k, fn) for k, fn in checks]
+
+    def list_accounts(self) -> list[AccountRecord]:
+        iam = self.session.client("iam")
+        out = []
+        for page in iam.get_paginator("list_users").paginate():
+            for u in page["Users"]:
+                if len(out) >= self.max_users:
+                    return out
+                name = u["UserName"]
+                tags = {t["Key"].lower(): t["Value"] for t in iam.list_user_tags(UserName=name).get("Tags", [])}
+                policies = {p["PolicyName"] for p in iam.list_attached_user_policies(UserName=name)["AttachedPolicies"]}
+                for g in iam.list_groups_for_user(UserName=name)["Groups"]:
+                    policies |= {p["PolicyName"] for p in
+                                 iam.list_attached_group_policies(GroupName=g["GroupName"])["AttachedPolicies"]}
+                out.append(AccountRecord(
+                    external_id=u["UserId"], email=tags.get("email", "").lower(), name=name,
+                    is_admin="AdministratorAccess" in policies, is_active=True,
+                    mfa_enabled=bool(iam.list_mfa_devices(UserName=name)["MFADevices"]),
+                    last_login_at=u.get("PasswordLastUsed"),
+                ))
+        return out

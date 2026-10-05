@@ -13,7 +13,7 @@ import time
 
 from sqlalchemy import select
 
-from app.db import SessionLocal
+from app.db import system_session
 from app.integrations.base import ConnectorError
 from app.models import Integration
 from app.services.integrations import sync_integration
@@ -27,10 +27,10 @@ DELIVER_EVERY = 60
 
 
 def sync_all() -> None:
-    with SessionLocal() as db:
+    with system_session() as db:
         ids = list(db.scalars(select(Integration.id).where(Integration.status != "disabled")))
     for integration_id in ids:
-        with SessionLocal() as db:
+        with system_session() as db:
             integration = db.get(Integration, integration_id)
             try:
                 results = sync_integration(db, integration)
@@ -40,12 +40,12 @@ def sync_all() -> None:
 
 
 def reminders() -> None:
-    with SessionLocal() as db:
+    with system_session() as db:
         run_reminders(db)
 
 
 def deliver() -> None:
-    with SessionLocal() as db:
+    with system_session() as db:
         n = deliver_pending(db)
         if n:
             log.info("processed %d notifications", n)

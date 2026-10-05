@@ -1,14 +1,14 @@
 """Public DPDP rights-request portal (no login) and its admin settings."""
 import re
-import time
-from collections import defaultdict, deque
 from datetime import datetime, timedelta, timezone
 
 from fastapi import APIRouter, HTTPException, Request, status
 from pydantic import BaseModel, EmailStr, Field
 from sqlalchemy import func, select
 
+from app import ratelimit
 from app.config import get_settings
+from app.db import set_tenant
 from app.deps import DB, AdminCtx
 from app.models import Organization, PortalVerification, RightsRequest
 from app.security import hash_token, new_token
@@ -25,19 +25,8 @@ REQUEST_TYPES = {
     "grievance": "Raise a grievance",
 }
 VERIFY_HOURS = 24
-_HITS: dict[str, deque] = defaultdict(deque)
 LIMIT_PER_HOUR = 5
 SLUG_RE = re.compile(r"^[a-z0-9](?:[a-z0-9-]{1,58}[a-z0-9])$")
-
-
-def _rate_limited(key: str) -> bool:
-    q, now = _HITS[key], time.monotonic()
-    while q and now - q[0] > 3600:
-        q.popleft()
-    if len(q) >= LIMIT_PER_HOUR:
-        return True
-    q.append(now)
-    return False
 
 
 # ---------------------------------------------------------------- admin settings
@@ -66,7 +55,9 @@ def update_portal(body: PortalSettingsIn, db: DB, ctx: AdminCtx):
     slug = body.portal_slug.strip().lower()
     if not SLUG_RE.match(slug):
         raise HTTPException(status.HTTP_400_BAD_REQUEST, "Use lowercase letters, numbers and dashes for the address")
+    set_tenant(db, rls_bypass=True)  # uniqueness across organisations
     taken = db.scalar(select(Organization.id).where(Organization.portal_slug == slug, Organization.id != ctx.org_id))
+    set_tenant(db, rls_bypass=False)
     if taken:
         raise HTTPException(status.HTTP_409_CONFLICT, "That address is already taken")
     org = ctx.org
@@ -81,9 +72,13 @@ def update_portal(body: PortalSettingsIn, db: DB, ctx: AdminCtx):
 
 
 def _org(db, slug: str) -> Organization:
+    """Resolve a public page to its organisation, then scope this request's RLS context to it."""
+    set_tenant(db, rls_bypass=True)
     org = db.scalar(select(Organization).where(Organization.portal_slug == slug.lower()))
+    set_tenant(db, rls_bypass=False)
     if not org or not org.portal_enabled:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "This privacy request page is not available")
+    set_tenant(db, org_id=org.id)
     return org
 
 
@@ -108,7 +103,8 @@ def submit_request(slug: str, body: PublicRequestIn, request: Request, db: DB):
     if body.request_type not in REQUEST_TYPES:
         raise HTTPException(status.HTTP_400_BAD_REQUEST, "Choose a request type")
     ip = request.client.host if request.client else ""
-    if body.website or _rate_limited(f"{ip}|{slug}") or _rate_limited(f"{body.email.lower()}|{slug}"):
+    if body.website or ratelimit.hit("portal-ip", f"{ip}|{slug}", LIMIT_PER_HOUR, 3600) or ratelimit.hit(
+            "portal-email", f"{body.email.lower()}|{slug}", LIMIT_PER_HOUR, 3600):
         raise HTTPException(status.HTTP_429_TOO_MANY_REQUESTS, "Too many requests. Please try again later.")
     token, token_hash = new_token()
     db.add(PortalVerification(

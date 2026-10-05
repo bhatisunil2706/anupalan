@@ -5,14 +5,14 @@ python -m app.cli check-content    Validate content mapping coverage without tou
 """
 import sys
 
-from app.db import SessionLocal
+from app.db import system_session
 from app.services.content import load_content, read_controls, read_frameworks, validate_content
 
 
 def main() -> None:
     cmd = sys.argv[1] if len(sys.argv) > 1 else ""
     if cmd == "load-content":
-        with SessionLocal() as db:
+        with system_session() as db:
             print(load_content(db))
     elif cmd == "check-content":
         validate_content(read_frameworks(), read_controls())

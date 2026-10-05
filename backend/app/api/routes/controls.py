@@ -3,7 +3,6 @@ from collections import defaultdict
 from datetime import date
 
 from fastapi import APIRouter, File, Form, HTTPException, UploadFile, status
-from fastapi.responses import FileResponse
 from sqlalchemy import select
 from sqlalchemy.orm import selectinload
 
@@ -144,7 +143,7 @@ def add_evidence(
         if not file:
             raise HTTPException(status.HTTP_400_BAD_REQUEST, "A file is required")
         ev.file_key, ev.file_name, ev.size_bytes = storage.save_upload(ctx.org_id, file)
-        ev.content_type = file.content_type or "application/octet-stream"
+        ev.content_type = storage.content_type_for(ev.file_name)
     elif kind == "link":
         if not url.startswith(("https://", "http://")):
             raise HTTPException(status.HTTP_400_BAD_REQUEST, "A valid http(s) URL is required")
@@ -171,8 +170,9 @@ def download_evidence(evidence_id: uuid.UUID, db: DB, ctx: Ctx):
     ev = get_owned(db, Evidence, evidence_id, ctx)
     if not ev.file_key:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "No file attached")
-    return FileResponse(storage.path_for(ctx.org_id, ev.file_key), filename=ev.file_name,
-                        media_type=ev.content_type or "application/octet-stream")
+    audit.record(db, ctx, "evidence.downloaded", ev, title=ev.title)
+    db.commit()
+    return storage.download_response(ctx.org_id, ev.file_key, ev.file_name)
 
 
 @router.delete("/evidence/{evidence_id}", status_code=204)
@@ -180,7 +180,7 @@ def delete_evidence(evidence_id: uuid.UUID, db: DB, ctx: WriterCtx):
     ev = get_owned(db, Evidence, evidence_id, ctx)
     if ev.kind in ("automated", "policy"):
         raise HTTPException(status.HTTP_400_BAD_REQUEST, "System-generated evidence cannot be deleted")
-    storage.delete(ev.file_key)
+    storage.delete(ctx.org_id, ev.file_key)
     audit.record(db, ctx, "evidence.deleted", ev, title=ev.title)
     db.delete(ev)
     db.commit()

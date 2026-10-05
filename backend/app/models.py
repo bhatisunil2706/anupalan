@@ -127,6 +127,13 @@ class User(TimestampMixin, Base):
     password_hash: Mapped[str] = mapped_column(String(300))
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
     last_login_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    email_verified_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    password_changed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    # TOTP multi-factor authentication. The secret is Fernet-encrypted; last_timestep blocks code replay.
+    mfa_enabled: Mapped[bool] = mapped_column(Boolean, default=False)
+    mfa_secret_encrypted: Mapped[str] = mapped_column(Text, default="")
+    mfa_last_timestep: Mapped[int] = mapped_column(Integer, default=0)
+    mfa_enabled_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
     memberships: Mapped[list["Membership"]] = relationship(back_populates="user")
 
@@ -155,6 +162,10 @@ class Organization(TimestampMixin, Base):
     privacy_contact_name: Mapped[str] = mapped_column(String(200), default="")
     privacy_contact_email: Mapped[str] = mapped_column(String(320), default="")
 
+    # Security policy
+    require_mfa: Mapped[bool] = mapped_column(Boolean, default=False)
+    session_idle_minutes: Mapped[int] = mapped_column(Integer, default=120)
+
     memberships: Mapped[list["Membership"]] = relationship(back_populates="organization")
 
 
@@ -168,6 +179,8 @@ class Membership(TimestampMixin, Base):
     user_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"))
     org_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("organizations.id", ondelete="CASCADE"), index=True)
     role: Mapped[str] = mapped_column(String(20), default="member")
+    # Time-limited access (used for external auditors). Null = no expiry.
+    expires_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
     user: Mapped[User] = relationship(back_populates="memberships")
     organization: Mapped[Organization] = relationship(back_populates="memberships")
@@ -183,6 +196,8 @@ class Invitation(TimestampMixin, Base):
     invited_by_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("users.id", ondelete="SET NULL"))
     expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
     accepted_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    # For time-limited roles such as external auditors: membership expires at this time.
+    access_expires_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
 
 class OrgFramework(TimestampMixin, Base):
@@ -496,7 +511,12 @@ class AuditLog(Base):
     entity_id: Mapped[str] = mapped_column(String(64), default="")
     detail: Mapped[dict] = mapped_column(JSON, default=dict)
     ip: Mapped[str] = mapped_column(String(64), default="")
+    user_agent: Mapped[str] = mapped_column(String(300), default="")
     at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow, index=True)
+    # Tamper evidence: each entry's hash covers its content and the previous entry's hash (per organisation).
+    seq: Mapped[int] = mapped_column(Integer, default=0)
+    prev_hash: Mapped[str] = mapped_column(String(64), default="")
+    hash: Mapped[str] = mapped_column(String(64), default="")
 
     user: Mapped[User | None] = relationship()
 
@@ -658,3 +678,108 @@ class PiiFinding(Base):
     by_name_only: Mapped[bool] = mapped_column(Boolean, default=False)
     examples: Mapped[list] = mapped_column(JSON, default=list)  # masked values only, never raw
     scanned_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+
+
+class AuditChainHead(Base):
+    """Latest sequence number and hash per audit chain (one per organisation, plus "system").
+
+    Holds no sensitive data, so it is outside row-level security and serialises writers with FOR UPDATE.
+    """
+
+    __tablename__ = "audit_chain_heads"
+    chain_key: Mapped[str] = mapped_column(String(64), primary_key=True)
+    seq: Mapped[int] = mapped_column(Integer, default=0)
+    hash: Mapped[str] = mapped_column(String(64))
+
+
+# --------------------------------------------------------------------------------------
+# Authentication and account security
+# --------------------------------------------------------------------------------------
+
+
+class UserSession(Base):
+    """Server-side session. The cookie holds a random token; only its SHA-256 is stored."""
+
+    __tablename__ = "user_sessions"
+    id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uid)
+    user_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), index=True)
+    token_hash: Mapped[str] = mapped_column(String(64), unique=True)
+    org_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("organizations.id", ondelete="SET NULL"))
+    stage: Mapped[str] = mapped_column(String(20), default="full")  # mfa | full
+    auth_method: Mapped[str] = mapped_column(String(20), default="password")  # password | sso
+    mfa_verified: Mapped[bool] = mapped_column(Boolean, default=False)
+    mfa_attempts: Mapped[int] = mapped_column(Integer, default=0)
+    ip: Mapped[str] = mapped_column(String(64), default="")
+    user_agent: Mapped[str] = mapped_column(String(300), default="")
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+    last_seen_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+    expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    revoked_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+
+    user: Mapped[User] = relationship()
+
+
+class AuthToken(Base):
+    """Single-use tokens: email verification, password reset, SSO state. Only the hash is stored."""
+
+    __tablename__ = "auth_tokens"
+    id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uid)
+    purpose: Mapped[str] = mapped_column(String(30), index=True)
+    token_hash: Mapped[str] = mapped_column(String(64), unique=True)
+    user_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), nullable=True)
+    org_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("organizations.id", ondelete="CASCADE"),
+                                                     nullable=True)
+    data: Mapped[dict] = mapped_column(JSON, default=dict)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+    expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    used_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+
+
+class RecoveryCode(Base):
+    __tablename__ = "mfa_recovery_codes"
+    id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uid)
+    user_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), index=True)
+    code_hash: Mapped[str] = mapped_column(String(64))
+    used_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+
+
+class OrgDomain(TimestampMixin, Base):
+    """Email domain claimed by an organisation; must be proven with a DNS TXT record before SSO can use it."""
+
+    __tablename__ = "org_domains"
+    id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uid)
+    org_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("organizations.id", ondelete="CASCADE"), index=True)
+    domain: Mapped[str] = mapped_column(String(253))
+    verification_token: Mapped[str] = mapped_column(String(64))
+    verified_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+
+
+class SsoConfig(TimestampMixin, Base):
+    __tablename__ = "sso_configs"
+    id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uid)
+    org_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("organizations.id", ondelete="CASCADE"), unique=True)
+    provider: Mapped[str] = mapped_column(String(20))  # google | microsoft | okta | oidc
+    issuer: Mapped[str] = mapped_column(String(500))
+    client_id: Mapped[str] = mapped_column(String(300))
+    client_secret_encrypted: Mapped[str] = mapped_column(Text, default="")
+    enabled: Mapped[bool] = mapped_column(Boolean, default=False)
+    enforced: Mapped[bool] = mapped_column(Boolean, default=False)  # block password sign-in (owners exempt)
+    jit_provisioning: Mapped[bool] = mapped_column(Boolean, default=False)
+    default_role: Mapped[str] = mapped_column(String(20), default="member")
+
+
+class ApiKey(Base):
+    """Organisation API key for machine access (consent API, self-hosted scanner)."""
+
+    __tablename__ = "api_keys"
+    id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uid)
+    org_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("organizations.id", ondelete="CASCADE"), index=True)
+    name: Mapped[str] = mapped_column(String(100))
+    prefix: Mapped[str] = mapped_column(String(20))
+    key_hash: Mapped[str] = mapped_column(String(64), unique=True)
+    scopes: Mapped[list] = mapped_column(JSON, default=list)
+    created_by_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("users.id", ondelete="SET NULL"))
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+    last_used_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    expires_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    revoked_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)

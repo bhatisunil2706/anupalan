@@ -166,6 +166,9 @@ class Organization(TimestampMixin, Base):
     require_mfa: Mapped[bool] = mapped_column(Boolean, default=False)
     session_idle_minutes: Mapped[int] = mapped_column(Integer, default=120)
 
+    # AI assistant: off until an admin opts in (workspace text is sent to the configured AI provider).
+    ai_enabled: Mapped[bool] = mapped_column(Boolean, default=False)
+
     memberships: Mapped[list["Membership"]] = relationship(back_populates="organization")
 
 
@@ -277,6 +280,8 @@ class Task(TimestampMixin, Base):
     priority: Mapped[str] = mapped_column(String(10), default="medium")
     source: Mapped[str] = mapped_column(String(200), default="manual", index=True)  # manual | test:<key> | ...
     completed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    external_ref: Mapped[str] = mapped_column(String(100), default="", server_default="")  # e.g. Jira issue key
+    external_url: Mapped[str] = mapped_column(String(500), default="", server_default="")
 
     control: Mapped[Control | None] = relationship()
     assignee: Mapped[User | None] = relationship()
@@ -783,3 +788,207 @@ class ApiKey(Base):
     last_used_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     expires_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     revoked_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+
+
+# --------------------------------------------------------------------------------------
+# DPDP consent records
+# --------------------------------------------------------------------------------------
+
+
+class ConsentNotice(TimestampMixin, Base):
+    """A versioned privacy notice / consent request shown to data principals. Published versions are immutable."""
+
+    __tablename__ = "consent_notices"
+    __table_args__ = (UniqueConstraint("org_id", "key", "version"),)
+    id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uid)
+    org_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("organizations.id", ondelete="CASCADE"), index=True)
+    key: Mapped[str] = mapped_column(String(60))
+    version: Mapped[int] = mapped_column(Integer, default=1)
+    title: Mapped[str] = mapped_column(String(200))
+    body_md: Mapped[str] = mapped_column(Text, default="")
+    # [{"id": "marketing", "label": "...", "description": "...", "required": false}]
+    purposes: Mapped[list] = mapped_column(JSON, default=list)
+    languages: Mapped[list] = mapped_column(JSON, default=list)
+    status: Mapped[str] = mapped_column(String(20), default="draft")  # draft | published | retired
+    published_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+
+
+class ConsentEvent(Base):
+    """Append-only log of consent given, updated or withdrawn by a data principal (DPDP s.6)."""
+
+    __tablename__ = "consent_events"
+    __table_args__ = (UniqueConstraint("org_id", "event_id"),)
+    id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uid)
+    org_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("organizations.id", ondelete="CASCADE"), index=True)
+    event_id: Mapped[str] = mapped_column(String(100))  # idempotency key from the caller
+    principal_id: Mapped[str] = mapped_column(String(200), index=True)  # the customer's own user identifier
+    notice_key: Mapped[str] = mapped_column(String(60))
+    notice_version: Mapped[int] = mapped_column(Integer)
+    action: Mapped[str] = mapped_column(String(20))  # granted | withdrawn
+    purposes: Mapped[list] = mapped_column(JSON, default=list)
+    source: Mapped[str] = mapped_column(String(30), default="api")  # web | app | api | import | consent_manager
+    language: Mapped[str] = mapped_column(String(10), default="en")
+    consent_manager_ref: Mapped[str] = mapped_column(String(200), default="")
+    metadata_: Mapped[dict] = mapped_column("metadata", JSON, default=dict)
+    occurred_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    received_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow, index=True)
+
+
+# --------------------------------------------------------------------------------------
+# Security awareness training
+# --------------------------------------------------------------------------------------
+
+
+class TrainingCourse(Base):
+    """Built-in course (global content)."""
+
+    __tablename__ = "training_courses"
+    id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uid)
+    slug: Mapped[str] = mapped_column(String(80), unique=True)
+    title: Mapped[str] = mapped_column(String(200))
+    summary: Mapped[str] = mapped_column(Text, default="")
+    minutes: Mapped[int] = mapped_column(Integer, default=10)
+    body_md: Mapped[str] = mapped_column(Text)
+    quiz: Mapped[list] = mapped_column(JSON, default=list)  # [{"q", "options": [...], "answer": index}]
+    pass_mark: Mapped[int] = mapped_column(Integer, default=80)
+    control_codes: Mapped[list] = mapped_column(JSON, default=list)
+
+
+class TrainingAssignment(TimestampMixin, Base):
+    __tablename__ = "training_assignments"
+    __table_args__ = (UniqueConstraint("org_id", "course_slug"),)
+    id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uid)
+    org_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("organizations.id", ondelete="CASCADE"), index=True)
+    course_slug: Mapped[str] = mapped_column(String(80))
+    required: Mapped[bool] = mapped_column(Boolean, default=True)
+    renew_months: Mapped[int] = mapped_column(Integer, default=12)
+    due_days: Mapped[int] = mapped_column(Integer, default=30)
+
+
+class TrainingCompletion(Base):
+    __tablename__ = "training_completions"
+    id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uid)
+    org_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("organizations.id", ondelete="CASCADE"), index=True)
+    course_slug: Mapped[str] = mapped_column(String(80))
+    user_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("users.id", ondelete="SET NULL"), nullable=True)
+    email: Mapped[str] = mapped_column(String(320), index=True)
+    score: Mapped[int] = mapped_column(Integer, default=0)
+    passed: Mapped[bool] = mapped_column(Boolean, default=False)
+    source: Mapped[str] = mapped_column(String(20), default="platform")  # platform | import
+    completed_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+
+
+# --------------------------------------------------------------------------------------
+# Vendor due diligence
+# --------------------------------------------------------------------------------------
+
+
+class QuestionnaireTemplate(Base):
+    """Built-in vendor questionnaire (global content)."""
+
+    __tablename__ = "questionnaire_templates"
+    id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uid)
+    slug: Mapped[str] = mapped_column(String(80), unique=True)
+    title: Mapped[str] = mapped_column(String(200))
+    description: Mapped[str] = mapped_column(Text, default="")
+    # [{"id", "section", "text", "type": "yes_no"|"text", "weight", "good": "yes"|"no", "evidence": bool}]
+    questions: Mapped[list] = mapped_column(JSON, default=list)
+
+
+class VendorAssessment(TimestampMixin, Base):
+    __tablename__ = "vendor_assessments"
+    id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uid)
+    org_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("organizations.id", ondelete="CASCADE"), index=True)
+    vendor_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("vendors.id", ondelete="CASCADE"), index=True)
+    template_slug: Mapped[str] = mapped_column(String(80))
+    token_hash: Mapped[str] = mapped_column(String(64), unique=True)
+    sent_to_email: Mapped[str] = mapped_column(String(320))
+    status: Mapped[str] = mapped_column(String(20), default="sent")  # sent | in_progress | submitted | reviewed
+    answers: Mapped[dict] = mapped_column(JSON, default=dict)
+    respondent_name: Mapped[str] = mapped_column(String(200), default="")
+    score: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    rating: Mapped[str] = mapped_column(String(10), default="")  # low | medium | high (risk)
+    expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    submitted_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    reviewed_by_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("users.id", ondelete="SET NULL"))
+    reviewed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    reviewer_notes: Mapped[str] = mapped_column(Text, default="")
+    created_by_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("users.id", ondelete="SET NULL"))
+
+
+class VendorDocument(Base):
+    __tablename__ = "vendor_documents"
+    id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uid)
+    org_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("organizations.id", ondelete="CASCADE"), index=True)
+    vendor_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("vendors.id", ondelete="CASCADE"), index=True)
+    kind: Mapped[str] = mapped_column(String(30))  # iso27001 | soc2 | dpa | pentest | insurance | other
+    title: Mapped[str] = mapped_column(String(300))
+    file_key: Mapped[str] = mapped_column(String(500))
+    file_name: Mapped[str] = mapped_column(String(300))
+    size_bytes: Mapped[int] = mapped_column(Integer, default=0)
+    valid_until: Mapped[date | None] = mapped_column(Date, nullable=True)
+    uploaded_via: Mapped[str] = mapped_column(String(20), default="staff")  # staff | vendor_portal
+    uploaded_by_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("users.id", ondelete="SET NULL"))
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+
+
+# --------------------------------------------------------------------------------------
+# Auditor workspace
+# --------------------------------------------------------------------------------------
+
+
+class EvidenceRequest(TimestampMixin, Base):
+    __tablename__ = "evidence_requests"
+    __table_args__ = (UniqueConstraint("org_id", "number"),)
+    id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uid)
+    org_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("organizations.id", ondelete="CASCADE"), index=True)
+    number: Mapped[int] = mapped_column(Integer)
+    title: Mapped[str] = mapped_column(String(300))
+    description: Mapped[str] = mapped_column(Text, default="")
+    framework_code: Mapped[str] = mapped_column(String(50), default="")
+    requirement_ref: Mapped[str] = mapped_column(String(50), default="")
+    control_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("controls.id", ondelete="SET NULL"))
+    requested_by_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("users.id", ondelete="SET NULL"))
+    assignee_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("users.id", ondelete="SET NULL"))
+    due_date: Mapped[date | None] = mapped_column(Date, nullable=True)
+    status: Mapped[str] = mapped_column(String(20), default="open")  # open | submitted | accepted | rejected
+    evidence_ids: Mapped[list] = mapped_column(JSON, default=list)
+
+    control: Mapped[Control | None] = relationship()
+    requested_by: Mapped[User | None] = relationship(foreign_keys=[requested_by_id])
+    assignee: Mapped[User | None] = relationship(foreign_keys=[assignee_id])
+
+
+class RequestComment(Base):
+    __tablename__ = "request_comments"
+    id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uid)
+    org_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("organizations.id", ondelete="CASCADE"), index=True)
+    request_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("evidence_requests.id", ondelete="CASCADE"), index=True)
+    user_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("users.id", ondelete="SET NULL"))
+    body: Mapped[str] = mapped_column(Text)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+
+    user: Mapped[User | None] = relationship()
+
+
+# --------------------------------------------------------------------------------------
+# AI assistant
+# --------------------------------------------------------------------------------------
+
+
+class AiJob(TimestampMixin, Base):
+    __tablename__ = "ai_jobs"
+    id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uid)
+    org_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("organizations.id", ondelete="CASCADE"), index=True)
+    kind: Mapped[str] = mapped_column(String(30))  # policy_draft | gap_analysis | questionnaire
+    title: Mapped[str] = mapped_column(String(300), default="")
+    status: Mapped[str] = mapped_column(String(20), default="pending", index=True)  # pending|running|done|failed
+    input: Mapped[dict] = mapped_column(JSON, default=dict)
+    output: Mapped[dict] = mapped_column(JSON, default=dict)
+    error: Mapped[str] = mapped_column(Text, default="")
+    tokens_in: Mapped[int] = mapped_column(Integer, default=0)
+    tokens_out: Mapped[int] = mapped_column(Integer, default=0)
+    created_by_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("users.id", ondelete="SET NULL"))
+    finished_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+
+    created_by: Mapped[User | None] = relationship()

@@ -8,7 +8,6 @@ import time
 import httpx
 
 from app.integrations.base import Connector, ConnectorError, Field, PersonRecord
-from app.services.people import infer_status, parse_date
 
 
 def _first(d: dict, *keys):
@@ -95,6 +94,8 @@ class KekaConnector(Connector):
 
     @staticmethod
     def to_person(e: dict) -> PersonRecord | None:
+        from app.services.people import infer_status, parse_date  # avoid an import cycle
+
         email = str(_first(e, "email", "workEmail", "officialEmail", "emailAddress") or "").strip().lower()
         if not email:
             return None

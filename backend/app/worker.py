@@ -28,7 +28,8 @@ DELIVER_EVERY = 60
 
 def sync_all() -> None:
     with system_session() as db:
-        ids = list(db.scalars(select(Integration.id).where(Integration.status != "disabled")))
+        ids = [i.id for i in db.scalars(select(Integration).where(Integration.status != "disabled"))
+               if not (i.config or {}).get("demo")]
     for integration_id in ids:
         with system_session() as db:
             integration = db.get(Integration, integration_id)
@@ -51,12 +52,21 @@ def deliver() -> None:
             log.info("processed %d notifications", n)
 
 
+def ai_jobs() -> None:
+    from app.services.ai import process_pending
+
+    with system_session() as db:
+        n = process_pending(db)
+        if n:
+            log.info("processed %d ai jobs", n)
+
+
 def main() -> None:
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s %(message)s")
     parser = argparse.ArgumentParser()
     parser.add_argument("--once", action="store_true")
     args = parser.parse_args()
-    jobs = [(sync_all, SYNC_EVERY), (reminders, REMIND_EVERY), (deliver, DELIVER_EVERY)]
+    jobs = [(sync_all, SYNC_EVERY), (reminders, REMIND_EVERY), (deliver, DELIVER_EVERY), (ai_jobs, 15)]
     last = {fn: 0.0 for fn, _ in jobs}
     while True:
         for fn, every in jobs:

@@ -8,13 +8,16 @@ from urllib.parse import urlparse
 
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, PlainTextResponse
 from sqlalchemy import text
 
-from app import ratelimit
+from app import metrics, ratelimit
 from app.api.routes import (
+    ai,
+    auditor,
     auth,
     automation,
+    consent,
     controls,
     dashboard,
     dpdp,
@@ -22,7 +25,10 @@ from app.api.routes import (
     integrations,
     org,
     portal,
+    scanner_api,
     security_admin,
+    training,
+    vendor_dd,
     work,
 )
 from app.config import get_settings
@@ -149,15 +155,18 @@ def create_app() -> FastAPI:
             if length and length.isdigit() and int(length) > limit:
                 return JSONResponse({"detail": "Request too large"}, status_code=413)
             if path.startswith("/api/") and ratelimit.hit("global-ip", client_ip.get(), 900, 60):
+                metrics.event("rate_limited")
                 return JSONResponse({"detail": "Too many requests"}, status_code=429)
             if request.method in UNSAFE_METHODS:
                 if not _origin_allowed(request, settings.cors_origins):
+                    metrics.event("origin_blocked")
                     return JSONResponse({"detail": "Cross-origin request blocked"}, status_code=403)
                 session_cookie = request.cookies.get(settings.cookie_name)
                 if session_cookie and path not in CSRF_EXEMPT:
                     expected = request.cookies.get(settings.csrf_cookie_name, "")
                     sent = request.headers.get("x-csrf-token", "")
                     if not expected or not secrets.compare_digest(expected, sent):
+                        metrics.event("csrf_blocked")
                         return JSONResponse({"detail": "Security check failed. Refresh the page and try again."},
                                             status_code=403)
             started = time.monotonic()
@@ -175,7 +184,10 @@ def create_app() -> FastAPI:
                 h.setdefault("Cache-Control", "no-store")
             if settings.cookie_secure:
                 h.setdefault("Strict-Transport-Security", "max-age=63072000; includeSubDomains")
-            if time.monotonic() - started > 5:
+            elapsed = time.monotonic() - started
+            route = request.scope.get("route")
+            metrics.observe(request.method, getattr(route, "path", "unmatched"), response.status_code, elapsed)
+            if elapsed > 5:
                 log.warning("slow request %s %s", request.method, path)
             return response
         finally:
@@ -189,12 +201,21 @@ def create_app() -> FastAPI:
                             status_code=500)
 
     for r in (auth, org, security_admin, frameworks, controls, work, dpdp, integrations, dashboard, automation,
-              portal):
+              portal, consent, training, vendor_dd, auditor, ai, scanner_api):
         app.include_router(r.router, prefix="/api")
 
     @app.get("/api/health")
     def health():
         return {"status": "ok"}
+
+    @app.get("/metrics", include_in_schema=False)
+    def metrics_endpoint(request: Request):
+        token = get_settings().metrics_token
+        if token and not secrets.compare_digest(request.headers.get("authorization", ""), f"Bearer {token}"):
+            return JSONResponse({"detail": "Not found"}, status_code=404)
+        with system_session() as db:
+            body = metrics.render(db)
+        return PlainTextResponse(body, media_type="text/plain; version=0.0.4")
 
     @app.get("/api/ready")
     def ready():

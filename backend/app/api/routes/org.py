@@ -67,6 +67,9 @@ def onboarding(body: OnboardingIn, db: DB, ctx: AdminCtx):
         for tpl in db.scalars(select(PolicyTemplate)):
             if create_policy_from_template(db, ctx, tpl, skip_existing=True):
                 policies += 1
+    from app.api.routes.training import ensure_assignments
+
+    ensure_assignments(db, org.id)
     org.onboarded_at = org.onboarded_at or datetime.now(timezone.utc)
     audit.record(db, ctx, "org.onboarded", org, frameworks=body.framework_codes, controls=created, policies=policies)
     db.commit()

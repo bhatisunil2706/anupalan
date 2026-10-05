@@ -284,6 +284,8 @@ def remove_source(source_id: uuid.UUID, db: DB, ctx: AdminCtx):
 @router.post("/discovery/sources/{source_id}/scan", tags=["discovery"])
 def scan(source_id: uuid.UUID, db: DB, ctx: AdminCtx):
     s = get_owned(db, DataSource, source_id, ctx)
+    if s.kind == "agent":
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, "This source is scanned by your self-hosted agent")
     try:
         n = scan_source(db, s)
     except ScanError as e:

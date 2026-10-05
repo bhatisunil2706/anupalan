@@ -213,7 +213,7 @@ def complete(db: Session, state: str, code: str, client: httpx.Client | None = N
         raise SsoError("You don't have access yet. Ask an administrator to invite you.")
     if user is None:
         name = claims.get("name") or email.split("@")[0]
-        user = User(email=email, full_name=str(name)[:200], password_hash="!sso-only", email_verified_at=now)
+        user = User(email=email, full_name=str(name)[:200], password_hash="!sso-only", email_verified_at=now)  # nosec B106 - unusable hash marker for SSO-only users
         db.add(user)
         db.flush()
     elif not user.is_active:

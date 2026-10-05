@@ -1,5 +1,37 @@
-# Local / single-server setup. For production, put a TLS reverse proxy in front of `web`,
-# set strong secrets in .env, and set COOKIE_SECURE=true.
+# Local / single-server setup. For production add docker-compose.prod.yml (TLS, backups, hardening):
+#   docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+#
+# Database roles: `migrate` runs schema changes as the owner role (POSTGRES_USER) and creates the restricted
+# `app_runtime` role. `backend` and `worker` connect as app_runtime, which is subject to row-level security.
+x-backend-env: &backend-env
+  ENVIRONMENT: ${ENVIRONMENT:-development}
+  DATABASE_URL: postgresql+psycopg://app_runtime:${RUNTIME_DB_PASSWORD:-runtime-dev-only}@db:5432/app
+  RUNTIME_DB_PASSWORD: ${RUNTIME_DB_PASSWORD:-runtime-dev-only}
+  SECRET_KEY: ${SECRET_KEY:-dev-only-insecure-secret-change-me}
+  ENCRYPTION_KEY: ${ENCRYPTION_KEY:-q8B2o0p7ihyc7m0Kp0b2xH4bW8mE5Sgo3JpS5qYz2Xw=}
+  COOKIE_SECURE: ${COOKIE_SECURE:-false}
+  CORS_ORIGINS: '["${PUBLIC_URL:-http://localhost:3000}"]'
+  STORAGE_DIR: /app/storage
+  STORAGE_BACKEND: ${STORAGE_BACKEND:-local}
+  S3_BUCKET: ${S3_BUCKET:-}
+  S3_REGION: ${S3_REGION:-ap-south-1}
+  S3_KMS_KEY_ID: ${S3_KMS_KEY_ID:-}
+  PUBLIC_URL: ${PUBLIC_URL:-http://localhost:3000}
+  REDIS_URL: redis://redis:6379/0
+  LOAD_CONTENT_ON_STARTUP: "false"
+  LOG_FORMAT: ${LOG_FORMAT:-plain}
+  CLAMAV_ADDRESS: ${CLAMAV_ADDRESS:-}
+  METRICS_TOKEN: ${METRICS_TOKEN:-}
+  ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+  AI_MODEL: ${AI_MODEL:-claude-sonnet-5-5}
+  # Email. Without SMTP_HOST, emails are written to the worker log instead (see also the mailpit service).
+  SMTP_HOST: ${SMTP_HOST:-}
+  SMTP_PORT: ${SMTP_PORT:-587}
+  SMTP_USER: ${SMTP_USER:-}
+  SMTP_PASSWORD: ${SMTP_PASSWORD:-}
+  SMTP_FROM: ${SMTP_FROM:-Anupalan <no-reply@localhost>}
+  SMTP_STARTTLS: ${SMTP_STARTTLS:-true}
+
 services:
   db:
     image: postgres:16-alpine
@@ -14,28 +46,37 @@ services:
       interval: 5s
       retries: 10
 
-  backend:
+  redis:
+    image: redis:7-alpine
+    command: ["redis-server", "--save", "", "--appendonly", "no"]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      retries: 10
+
+  migrate:
     build: ./backend
-    environment: &backend-env
-      ENVIRONMENT: ${ENVIRONMENT:-development}
+    command: ["sh", "-c", "alembic upgrade head && python -m app.cli load-content"]
+    environment:
+      <<: *backend-env
+      MIGRATION_DATABASE_URL: postgresql+psycopg://app:${POSTGRES_PASSWORD:-app}@db:5432/app
       DATABASE_URL: postgresql+psycopg://app:${POSTGRES_PASSWORD:-app}@db:5432/app
-      SECRET_KEY: ${SECRET_KEY:-dev-only-insecure-secret-change-me}
-      ENCRYPTION_KEY: ${ENCRYPTION_KEY:-q8B2o0p7ihyc7m0Kp0b2xH4bW8mE5Sgo3JpS5qYz2Xw=}
-      COOKIE_SECURE: ${COOKIE_SECURE:-false}
-      CORS_ORIGINS: '["${PUBLIC_URL:-http://localhost:3000}"]'
-      STORAGE_DIR: /app/storage
-      PUBLIC_URL: ${PUBLIC_URL:-http://localhost:3000}
-      # Email (optional). Without SMTP_HOST, emails are written to the worker log instead.
-      SMTP_HOST: ${SMTP_HOST:-}
-      SMTP_PORT: ${SMTP_PORT:-587}
-      SMTP_USER: ${SMTP_USER:-}
-      SMTP_PASSWORD: ${SMTP_PASSWORD:-}
-      SMTP_FROM: ${SMTP_FROM:-Anupalan <no-reply@localhost>}
-    volumes:
-      - evidence:/app/storage
     depends_on:
       db:
         condition: service_healthy
+    restart: "no"
+
+  backend:
+    build: ./backend
+    environment: *backend-env
+    volumes:
+      - evidence:/app/storage
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
 
   worker:
     build: ./backend
@@ -44,7 +85,9 @@ services:
     volumes:
       - evidence:/app/storage
     depends_on:
-      - backend
+      migrate:
+        condition: service_completed_successfully
+    restart: unless-stopped
 
   web:
     build:
@@ -55,6 +98,14 @@ services:
       - "${WEB_PORT:-3000}:3000"
     depends_on:
       - backend
+    restart: unless-stopped
+
+  # Local email catcher: set SMTP_HOST=mailpit SMTP_PORT=1025 SMTP_STARTTLS=false and open http://localhost:8025
+  mailpit:
+    image: axllent/mailpit:latest
+    profiles: ["mail"]
+    ports:
+      - "8025:8025"
 
 volumes:
   pgdata:

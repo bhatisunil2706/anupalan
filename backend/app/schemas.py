@@ -225,6 +225,8 @@ class TaskOut(ORM):
     source: str
     created_at: datetime
     completed_at: datetime | None
+    external_ref: str = ""
+    external_url: str = ""
 
 
 # ---------------------------------------------------------------- policies

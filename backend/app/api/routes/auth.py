@@ -9,7 +9,7 @@ from fastapi.responses import RedirectResponse
 from pydantic import BaseModel, EmailStr
 from sqlalchemy import func, select
 
-from app import ratelimit
+from app import metrics, ratelimit
 from app.config import get_settings
 from app.db import set_tenant
 from app.deps import (
@@ -178,6 +178,9 @@ def login(body: LoginIn, response: Response, background: BackgroundTasks, db: DB
     user = db.scalar(select(User).where(func.lower(User.email) == email))
     if not user or not user.is_active or not verify_password(body.password, user.password_hash if user else None):
         failures = ratelimit.increment("login-fail-acct", email, LOCK_WINDOW)
+        metrics.event("login_failed")
+        if failures == LOCK_THRESHOLD:
+            metrics.event("account_locked")
         audit.write(db, org_id=None, user_id=user.id if user else None, action="auth.login_failed",
                     detail={"email": email})
         db.commit()

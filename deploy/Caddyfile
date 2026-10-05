@@ -1,0 +1,23 @@
+{
+	email {$ACME_EMAIL}
+	servers {
+		# Caddy replaces any client-supplied X-Forwarded-For; only Caddy's view of the client IP reaches the app.
+		protocols h1 h2 h3
+	}
+}
+
+{$DOMAIN} {
+	encode zstd gzip
+	header {
+		Strict-Transport-Security "max-age=63072000; includeSubDomains; preload"
+		-Server
+	}
+	# Internal endpoints are never exposed through the public site.
+	@internal path /metrics /metrics/*
+	respond @internal 404
+	reverse_proxy web:3000
+	log {
+		output stdout
+		format json
+	}
+}

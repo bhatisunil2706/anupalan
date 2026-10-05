@@ -1,0 +1,81 @@
+slug: secure-development
+title: Secure development for engineers
+minutes: 15
+pass_mark: 80
+control_codes: [HR-03, SDL-01]
+summary: Role-based training for engineers on secrets, dependencies, access, logging and personal data in code.
+body_md: |
+  ## Secrets
+
+  - Never commit secrets (API keys, passwords, tokens, private keys) to source control, even in private repositories.
+    Use the secrets manager and environment configuration.
+  - If a secret is committed, **rotate it immediately**. Deleting the commit doesn't help; the history and any forks
+    still contain it.
+  - Secret scanning runs on our repositories. Treat its alerts as incidents.
+
+  ## Common vulnerabilities
+
+  - **Injection**: build database queries with parameters, never by concatenating user input.
+  - **Broken access control**: check on the server that the signed-in user may access *this* record, not just that
+    they are signed in. Most serious bugs we see are missing authorisation checks.
+  - **Cross-site scripting**: let the framework escape output; avoid rendering raw HTML from users.
+  - **Server-side request forgery**: don't fetch URLs supplied by users without validating the destination.
+
+  ## Dependencies
+
+  Keep dependencies updated, review Dependabot (or equivalent) alerts, and fix critical vulnerabilities within our
+  SLA. Prefer well-maintained libraries and check their licences before adding them.
+
+  ## Code review and changes
+
+  Every change to production goes through a pull request reviewed by someone else, with passing automated checks.
+  Emergency changes still get a review afterwards.
+
+  ## Personal data in code and logs
+
+  - Don't log personal data such as names, phone numbers, Aadhaar or PAN, or full request bodies.
+  - Use masked or synthetic data in development and testing. Copying production personal data to laptops or test
+    environments needs explicit approval.
+  - Design new features with data minimisation: collect only what the feature needs and decide when it's deleted.
+
+  ## Logging and time
+
+  Security-relevant events (sign-ins, permission changes, data exports) must be logged. Logs are kept for at least
+  one year in India, and servers synchronise their clocks to NIC/NPL time sources so timestamps hold up during an
+  investigation.
+quiz:
+  - q: You accidentally pushed an API key to a private repository. What's the first thing to do?
+    options:
+      - Rewrite the git history and move on
+      - Rotate the key immediately, then clean up and report
+      - Nothing, because the repository is private
+      - Make the repository read-only
+    answer: 1
+  - q: Which approach prevents SQL injection?
+    options:
+      - Escaping quotes by hand
+      - Parameterised queries
+      - Validating input length
+      - Using a long database password
+    answer: 1
+  - q: An endpoint returns an invoice by ID for any signed-in user. What's the risk?
+    options:
+      - None, users must be signed in
+      - Broken access control; users could read other customers' invoices
+      - Cross-site scripting
+      - Slow performance
+    answer: 1
+  - q: Which of these is acceptable to write to application logs?
+    options:
+      - A customer's full Aadhaar number
+      - Request IDs and the action performed
+      - Passwords on failed sign-in
+      - Full request bodies with personal data
+    answer: 1
+  - q: Where should test environments get their data?
+    options:
+      - A fresh copy of production every night
+      - Masked or synthetic data
+      - Screenshots of production
+      - Whatever is quickest
+    answer: 1

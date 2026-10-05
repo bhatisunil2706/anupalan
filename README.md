@@ -28,7 +28,7 @@ cp .env.example .env      # fill SECRET_KEY and ENCRYPTION_KEY for anything beyo
 docker compose up --build
 ```
 
-Open http://localhost:3000 and create a workspace.
+Open http://localhost:3000 and create a workspace. If port 3000 is taken, set `WEB_PORT` and `PUBLIC_URL` in `.env` (for example 3100).
 
 ### Option B: Local development
 

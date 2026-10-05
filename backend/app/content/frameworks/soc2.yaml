@@ -1,0 +1,55 @@
+# SOC 2 — AICPA Trust Services Criteria (2017, revised points of focus 2022).
+# Criteria identifiers only, with short in-house labels and guidance. The AICPA text is copyrighted and NOT reproduced.
+# CONTENT STATUS: draft. Review by a SOC 2 practitioner before customer release.
+code: soc2
+name: SOC 2 (Trust Services Criteria)
+short_name: SOC 2
+version: "TSC 2017"
+region: Global
+publisher: AICPA
+source_url: https://www.aicpa-cima.com/resources/landing/system-and-organization-controls-soc-suite-of-services
+content_version: "0.1.0"
+review_status: draft
+description: >
+  Attestation report on controls relevant to security, availability, processing integrity,
+  confidentiality and privacy. Security (Common Criteria) is always in scope; Availability and
+  Confidentiality are included here as the most commonly selected additional categories.
+requirements:
+  - {ref: "CC1.1", section: "CC1 Control environment", title: "Integrity and ethical values", guidance: "Leadership sets the tone with a code of conduct that staff acknowledge."}
+  - {ref: "CC1.2", section: "CC1 Control environment", title: "Independent oversight", guidance: "The board or equivalent oversees internal control independently of management."}
+  - {ref: "CC1.3", section: "CC1 Control environment", title: "Structure, reporting lines and authority", guidance: "Management defines org structure, reporting lines and responsibilities."}
+  - {ref: "CC1.4", section: "CC1 Control environment", title: "Commitment to competence", guidance: "Attract, develop and retain competent people through hiring checks and training."}
+  - {ref: "CC1.5", section: "CC1 Control environment", title: "Accountability", guidance: "People are held accountable for their internal control responsibilities."}
+  - {ref: "CC2.1", section: "CC2 Communication and information", title: "Relevant, quality information", guidance: "Generate and use quality information to support internal control."}
+  - {ref: "CC2.2", section: "CC2 Communication and information", title: "Internal communication", guidance: "Communicate security objectives and responsibilities internally, including how to report concerns."}
+  - {ref: "CC2.3", section: "CC2 Communication and information", title: "External communication", guidance: "Communicate commitments and relevant matters to customers, vendors and regulators."}
+  - {ref: "CC3.1", section: "CC3 Risk assessment", title: "Clear objectives", guidance: "Specify objectives clearly enough to identify related risks."}
+  - {ref: "CC3.2", section: "CC3 Risk assessment", title: "Risk identification and analysis", guidance: "Identify and analyse risks to objectives, including vendor and technology risks."}
+  - {ref: "CC3.3", section: "CC3 Risk assessment", title: "Fraud risk", guidance: "Consider the potential for fraud when assessing risks."}
+  - {ref: "CC3.4", section: "CC3 Risk assessment", title: "Significant changes", guidance: "Identify and assess changes that could affect internal control."}
+  - {ref: "CC4.1", section: "CC4 Monitoring", title: "Ongoing and separate evaluations", guidance: "Evaluate whether controls are present and functioning, for example internal audits and pen tests."}
+  - {ref: "CC4.2", section: "CC4 Monitoring", title: "Communicating deficiencies", guidance: "Report control deficiencies to those responsible for corrective action in time."}
+  - {ref: "CC5.1", section: "CC5 Control activities", title: "Control activities mitigate risks", guidance: "Select and develop controls that reduce risks to acceptable levels."}
+  - {ref: "CC5.2", section: "CC5 Control activities", title: "General controls over technology", guidance: "Select and develop general IT controls."}
+  - {ref: "CC5.3", section: "CC5 Control activities", title: "Policies and procedures", guidance: "Deploy controls through policies and the procedures that put them into action."}
+  - {ref: "CC6.1", section: "CC6 Logical and physical access", title: "Logical access security", guidance: "Implement access security software, infrastructure and architecture to protect information assets."}
+  - {ref: "CC6.2", section: "CC6 Logical and physical access", title: "User registration and authorisation", guidance: "Register and authorise users before issuing credentials, and remove access when no longer needed."}
+  - {ref: "CC6.3", section: "CC6 Logical and physical access", title: "Role-based access changes", guidance: "Authorise, modify and remove access based on roles and least privilege."}
+  - {ref: "CC6.4", section: "CC6 Logical and physical access", title: "Physical access", guidance: "Restrict physical access to facilities and protected assets."}
+  - {ref: "CC6.5", section: "CC6 Logical and physical access", title: "Disposal of assets", guidance: "Remove data from assets before disposal or re-use."}
+  - {ref: "CC6.6", section: "CC6 Logical and physical access", title: "Boundary protection", guidance: "Protect against threats from sources outside system boundaries."}
+  - {ref: "CC6.7", section: "CC6 Logical and physical access", title: "Data transmission and movement", guidance: "Restrict and protect transmission, movement and removal of information."}
+  - {ref: "CC6.8", section: "CC6 Logical and physical access", title: "Unauthorised and malicious software", guidance: "Prevent or detect unauthorised or malicious software."}
+  - {ref: "CC7.1", section: "CC7 System operations", title: "Configuration and vulnerability detection", guidance: "Detect configuration changes and new vulnerabilities."}
+  - {ref: "CC7.2", section: "CC7 System operations", title: "Anomaly monitoring", guidance: "Monitor system components for anomalies that indicate malicious acts or errors."}
+  - {ref: "CC7.3", section: "CC7 System operations", title: "Security event evaluation", guidance: "Evaluate security events to decide whether they are incidents."}
+  - {ref: "CC7.4", section: "CC7 System operations", title: "Incident response", guidance: "Respond to incidents with a defined programme to contain, remediate and communicate."}
+  - {ref: "CC7.5", section: "CC7 System operations", title: "Incident recovery", guidance: "Recover from incidents and apply lessons learned."}
+  - {ref: "CC8.1", section: "CC8 Change management", title: "Change management", guidance: "Authorise, design, test, approve and implement changes to infrastructure, data and software."}
+  - {ref: "CC9.1", section: "CC9 Risk mitigation", title: "Business disruption", guidance: "Identify and mitigate risks from potential business disruptions."}
+  - {ref: "CC9.2", section: "CC9 Risk mitigation", title: "Vendor and partner risk", guidance: "Assess and manage risks from vendors and business partners."}
+  - {ref: "A1.1", section: "Availability", title: "Capacity management", guidance: "Monitor and manage capacity to meet availability commitments."}
+  - {ref: "A1.2", section: "Availability", title: "Environmental protection, backup and recovery infrastructure", guidance: "Protect infrastructure and maintain backups and recovery capability."}
+  - {ref: "A1.3", section: "Availability", title: "Recovery plan testing", guidance: "Test recovery plan procedures periodically."}
+  - {ref: "C1.1", section: "Confidentiality", title: "Identify and protect confidential information", guidance: "Identify and maintain confidential information to meet confidentiality objectives."}
+  - {ref: "C1.2", section: "Confidentiality", title: "Dispose of confidential information", guidance: "Dispose of confidential information when no longer needed."}

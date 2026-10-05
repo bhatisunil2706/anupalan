@@ -1,0 +1,225 @@
+# Digital Personal Data Protection Act, 2023 and DPDP Rules, 2025 (India)
+# Guidance text is written in-house. References point to the official Act and Rules.
+# CONTENT STATUS: draft. Verify every reference against the Gazette text before customer release.
+code: dpdp
+name: DPDP Act 2023 + DPDP Rules 2025
+short_name: DPDP
+version: "2023 / Rules 2025"
+region: India
+publisher: Ministry of Electronics and Information Technology (MeitY)
+source_url: https://www.meity.gov.in/data-protection-framework
+content_version: "0.1.0"
+review_status: draft
+description: >
+  India's personal data protection law. Applies to digital personal data processed in India, and to
+  processing outside India when it relates to offering goods or services to people in India.
+  The Rules are phased in: Data Protection Board from 13 Nov 2025, Consent Manager provisions from
+  13 Nov 2026, and the remaining obligations from 13 May 2027.
+requirements:
+  - ref: "s.4"
+    section: Grounds for processing
+    title: Process personal data only on a lawful ground
+    guidance: Every processing activity must rely on either consent of the Data Principal or a legitimate use listed in Section 7. Record the ground for each activity in the data inventory.
+  - ref: "s.5(1)"
+    section: Notice
+    title: Give notice when requesting consent
+    guidance: Before or at the time of asking for consent, give a notice describing the personal data, the purpose, how to exercise rights, and how to complain to the Data Protection Board.
+  - ref: "s.5(2)"
+    section: Notice
+    title: Notice for consent obtained before the Act
+    guidance: Where consent was taken before the Act commenced, send a notice to those Data Principals as soon as reasonably practicable.
+  - ref: "s.5(3)"
+    section: Notice
+    title: Notice available in English or a Scheduled language
+    guidance: Let the Data Principal read the notice and the consent request in English or in any language listed in the Eighth Schedule of the Constitution.
+  - ref: "s.6(1)"
+    section: Consent
+    title: Valid consent
+    guidance: Consent must be free, specific, informed, unconditional and unambiguous, given by a clear affirmative action, and limited to the personal data needed for the stated purpose.
+  - ref: "s.6(4)"
+    section: Consent
+    title: Withdrawal of consent
+    guidance: Let Data Principals withdraw consent at any time, with ease comparable to giving it.
+  - ref: "s.6(6)"
+    section: Consent
+    title: Stop processing after withdrawal
+    guidance: After consent is withdrawn, stop processing (and make processors stop) within a reasonable time, unless another legal basis applies.
+  - ref: "s.6(7)"
+    section: Consent
+    title: Consent through a registered Consent Manager
+    guidance: Where Data Principals use a registered Consent Manager, accept and honour consent given, managed, reviewed or withdrawn through it.
+    condition: uses_consent_manager
+  - ref: "s.6(10)"
+    section: Consent
+    title: Ability to prove notice and consent
+    guidance: The Data Fiduciary carries the burden of proving that notice was given and consent obtained. Keep consent records with notice version, timestamp and purpose.
+  - ref: "s.7"
+    section: Legitimate uses
+    title: Document reliance on legitimate uses
+    guidance: Where processing relies on a legitimate use (for example, data voluntarily provided for a specified purpose, employment purposes, legal obligation, medical emergency), document which use applies and why.
+  - ref: "s.8(1)"
+    section: Obligations of Data Fiduciary
+    title: Accountability for all processing, including by processors
+    guidance: The Data Fiduciary remains responsible for compliance for processing it does and processing done on its behalf by Data Processors.
+  - ref: "s.8(2)"
+    section: Obligations of Data Fiduciary
+    title: Engage processors only under a valid contract
+    guidance: Engage a Data Processor only under a valid contract, and only to provide goods or services to Data Principals.
+  - ref: "s.8(3)"
+    section: Obligations of Data Fiduciary
+    title: Accuracy and completeness of personal data
+    guidance: Ensure personal data is complete, accurate and consistent when it is used to make decisions affecting the Data Principal or is disclosed to another Data Fiduciary.
+  - ref: "s.8(4)"
+    section: Obligations of Data Fiduciary
+    title: Appropriate technical and organisational measures
+    guidance: Implement technical and organisational measures that ensure effective observance of the Act and Rules.
+  - ref: "s.8(5)"
+    section: Obligations of Data Fiduciary
+    title: Reasonable security safeguards
+    guidance: Protect personal data in your possession or control, including processing by processors, with reasonable security safeguards to prevent a personal data breach.
+  - ref: "s.8(6)"
+    section: Obligations of Data Fiduciary
+    title: Breach intimation to the Board and affected Data Principals
+    guidance: In the event of a personal data breach, inform the Data Protection Board and each affected Data Principal in the prescribed form and manner.
+  - ref: "s.8(7)"
+    section: Obligations of Data Fiduciary
+    title: Erase data when no longer needed
+    guidance: Erase personal data (and have processors erase it) when consent is withdrawn or when the specified purpose is no longer being served, unless retention is legally required.
+  - ref: "s.8(8)"
+    section: Obligations of Data Fiduciary
+    title: Deemed end of purpose after inactivity
+    guidance: For prescribed classes of Data Fiduciaries, the purpose is deemed no longer served if the Data Principal has not engaged within the prescribed period. Apply the inactivity periods in the Rules.
+  - ref: "s.8(9)"
+    section: Obligations of Data Fiduciary
+    title: Publish contact details for data protection queries
+    guidance: Publish the business contact information of the Data Protection Officer (if applicable) or a person who can answer Data Principals' questions about processing.
+  - ref: "s.8(10)"
+    section: Obligations of Data Fiduciary
+    title: Effective grievance redressal mechanism
+    guidance: Establish an effective mechanism to redress grievances of Data Principals.
+  - ref: "s.9(1)"
+    section: Children's data
+    title: Verifiable parental consent for children
+    guidance: Obtain verifiable consent of the parent or lawful guardian before processing personal data of a child (under 18) or of a person with disability who has a lawful guardian.
+    condition: processes_children_data
+  - ref: "s.9(2)"
+    section: Children's data
+    title: No processing detrimental to a child's well-being
+    guidance: Do not process children's personal data in a way likely to cause any detrimental effect on the child's well-being.
+    condition: processes_children_data
+  - ref: "s.9(3)"
+    section: Children's data
+    title: No tracking, behavioural monitoring or targeted advertising of children
+    guidance: Do not track or behaviourally monitor children, or direct targeted advertising at them, except where exempted.
+    condition: processes_children_data
+  - ref: "s.10(2)(a)"
+    section: Significant Data Fiduciary
+    title: Appoint a Data Protection Officer based in India
+    guidance: A Significant Data Fiduciary must appoint a DPO based in India, responsible to the board, who is the point of contact for grievance redressal.
+    condition: is_significant_data_fiduciary
+  - ref: "s.10(2)(b)"
+    section: Significant Data Fiduciary
+    title: Appoint an independent data auditor
+    guidance: Appoint an independent data auditor to evaluate compliance with the Act.
+    condition: is_significant_data_fiduciary
+  - ref: "s.10(2)(c)"
+    section: Significant Data Fiduciary
+    title: Periodic Data Protection Impact Assessment and audit
+    guidance: Carry out periodic Data Protection Impact Assessments and periodic audits, and other measures as prescribed.
+    condition: is_significant_data_fiduciary
+  - ref: "s.11"
+    section: Rights of Data Principals
+    title: Right to access information
+    guidance: On request, provide a summary of personal data processed and the processing activities, the identities of other Data Fiduciaries and Processors it was shared with, and other prescribed information.
+  - ref: "s.12"
+    section: Rights of Data Principals
+    title: Right to correction and erasure
+    guidance: On request, correct, complete, update or erase personal data for which consent was given, unless retention is necessary for the specified purpose or legally required.
+  - ref: "s.13"
+    section: Rights of Data Principals
+    title: Right of grievance redressal
+    guidance: Data Principals can raise grievances with the Data Fiduciary or Consent Manager, which must respond within the prescribed period. They must exhaust this route before approaching the Board.
+  - ref: "s.14"
+    section: Rights of Data Principals
+    title: Right to nominate
+    guidance: Allow Data Principals to nominate another person to exercise their rights in the event of death or incapacity.
+  - ref: "s.16"
+    section: Cross-border transfer
+    title: Respect restrictions on transfer outside India
+    guidance: Personal data may be transferred outside India except to countries the Central Government restricts by notification. Track destinations and monitor notifications. Sectoral rules (for example RBI) may impose stricter localisation.
+  - ref: "R.3"
+    section: Notice (Rules)
+    title: Notice content and format
+    guidance: The notice must be understandable independently of other information, give an itemised description of personal data and the specified purpose, and include a link or means to withdraw consent, exercise rights and complain to the Board.
+  - ref: "R.4"
+    section: Consent Managers (Rules)
+    title: Working with registered Consent Managers
+    guidance: Where integrated with a Consent Manager, follow the registration conditions and obligations in the Rules and the First Schedule.
+    condition: uses_consent_manager
+  - ref: "R.6(a)"
+    section: Reasonable security safeguards (Rules)
+    title: Encryption, obfuscation, masking or tokenisation
+    guidance: Secure personal data with appropriate measures such as encryption, obfuscation, masking or virtual tokens mapped to that data.
+  - ref: "R.6(b)"
+    section: Reasonable security safeguards (Rules)
+    title: Access control over computer resources
+    guidance: Apply appropriate measures to control access to computer resources used for processing personal data.
+  - ref: "R.6(c)"
+    section: Reasonable security safeguards (Rules)
+    title: Visibility of access through logs and monitoring
+    guidance: Keep visibility on access to personal data through logs, monitoring and review, so unauthorised access can be detected, investigated and remediated.
+  - ref: "R.6(d)"
+    section: Reasonable security safeguards (Rules)
+    title: Continuity of processing and backups
+    guidance: Ensure continued processing if confidentiality, integrity or availability is compromised, for example through data backups.
+  - ref: "R.6(e)"
+    section: Reasonable security safeguards (Rules)
+    title: Retain logs for at least one year
+    guidance: Retain logs and relevant personal data for at least one year for detecting and investigating unauthorised access, unless another law requires otherwise.
+  - ref: "R.6(f)"
+    section: Reasonable security safeguards (Rules)
+    title: Security safeguards in processor contracts
+    guidance: Include provisions in contracts with Data Processors requiring them to take reasonable security safeguards.
+  - ref: "R.6(g)"
+    section: Reasonable security safeguards (Rules)
+    title: Technical and organisational measures for observance
+    guidance: Implement appropriate technical and organisational measures to ensure the security safeguards are effectively observed.
+  - ref: "R.7(1)"
+    section: Breach intimation (Rules)
+    title: Inform affected Data Principals without delay
+    guidance: On becoming aware of a breach, inform each affected Data Principal without delay in plain language, covering the nature and extent, likely consequences, mitigation taken, safety measures they can take, and a contact person.
+  - ref: "R.7(2)"
+    section: Breach intimation (Rules)
+    title: Inform the Board without delay and within 72 hours in detail
+    guidance: Inform the Data Protection Board without delay, and within 72 hours of becoming aware (or a longer period allowed by the Board) submit details of the facts, mitigation, findings about the cause and the persons responsible, remedial measures and notifications made.
+  - ref: "R.8"
+    section: Retention and erasure (Rules)
+    title: Erasure periods and advance notice of erasure
+    guidance: Apply the time periods in the Third Schedule for prescribed classes of Data Fiduciaries, and inform the Data Principal at least 48 hours before erasure so they can log in or engage to keep their data.
+  - ref: "R.9"
+    section: Contact information (Rules)
+    title: Contact details on website, app and in responses
+    guidance: Prominently publish the DPO's or designated person's business contact information on the website or app, and mention it in every response to a Data Principal's request.
+  - ref: "R.10"
+    section: Children and persons with disability (Rules)
+    title: Verifiable consent mechanism for parents
+    guidance: Adopt technical and organisational measures to verify that the person giving consent for a child is an identifiable adult, using reliable identity and age details or a virtual token.
+    condition: processes_children_data
+  - ref: "R.11"
+    section: Children and persons with disability (Rules)
+    title: Verify lawful guardians of persons with disability
+    guidance: Verify that a guardian giving consent for a person with disability is appointed by a court or designated authority under applicable law.
+    condition: processes_children_data
+  - ref: "R.13"
+    section: Significant Data Fiduciary (Rules)
+    title: Annual DPIA and audit, algorithm due diligence
+    guidance: Once every twelve months, carry out a DPIA and an audit and furnish the significant observations to the Board. Verify that algorithmic software is not likely to risk Data Principals' rights. Follow any data localisation directions issued for specified data.
+    condition: is_significant_data_fiduciary
+  - ref: "R.14"
+    section: Rights of Data Principals (Rules)
+    title: Publish how to exercise rights; resolve grievances within 90 days
+    guidance: Publish on the website or app how Data Principals can make requests and what identifiers are needed. Respond to grievances within a period not exceeding 90 days.
+  - ref: "R.15"
+    section: Cross-border transfer (Rules)
+    title: Meet Central Government requirements for transfers abroad
+    guidance: When making personal data available outside India, meet any requirements the Central Government specifies by general or special order.

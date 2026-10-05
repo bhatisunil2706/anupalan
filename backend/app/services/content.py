@@ -6,7 +6,15 @@ import yaml
 from sqlalchemy import delete, select
 from sqlalchemy.orm import Session
 
-from app.models import ControlTemplate, Framework, Mapping, PolicyTemplate, Requirement
+from app.models import (
+    ControlTemplate,
+    Framework,
+    Mapping,
+    PolicyTemplate,
+    QuestionnaireTemplate,
+    Requirement,
+    TrainingCourse,
+)
 
 CONTENT_DIR = Path(__file__).resolve().parent.parent / "content"
 _FRONTMATTER = re.compile(r"^---\n(.*?)\n---\n(.*)$", re.S)
@@ -33,6 +41,18 @@ def read_policy_templates() -> list[dict]:
         meta = yaml.safe_load(m.group(1))
         out.append({**meta, "body_md": m.group(2).strip() + "\n"})
     return out
+
+
+def read_yaml_dir(name: str) -> list[dict]:
+    items = [yaml.safe_load(p.read_text()) for p in sorted((CONTENT_DIR / name).glob("*.yaml"))]
+    for item in items:
+        for i, q in enumerate(item.get("quiz", [])):
+            if not 0 <= q["answer"] < len(q["options"]):
+                raise ContentError(f"{item['slug']}: quiz question {i + 1} has an invalid answer index")
+        ids = [q["id"] for q in item.get("questions", [])]
+        if len(ids) != len(set(ids)):
+            raise ContentError(f"{item['slug']}: duplicate question ids")
+    return items
 
 
 def validate_content(frameworks: list[dict], controls: list[dict]) -> None:
@@ -110,6 +130,20 @@ def load_content(db: Session) -> dict:
         pt.control_codes = list(p.get("controls", []))
         pt.review_months = int(p.get("review_months", 12))
         db.add(pt)
+
+    for c in read_yaml_dir("training"):
+        row = db.scalar(select(TrainingCourse).where(TrainingCourse.slug == c["slug"])) or TrainingCourse(
+            slug=c["slug"])
+        row.title, row.summary, row.minutes = c["title"], c.get("summary", ""), int(c.get("minutes", 10))
+        row.body_md, row.quiz, row.pass_mark = c["body_md"], c["quiz"], int(c.get("pass_mark", 80))
+        row.control_codes = c.get("control_codes", [])
+        db.add(row)
+
+    for q in read_yaml_dir("questionnaires"):
+        row = db.scalar(select(QuestionnaireTemplate).where(QuestionnaireTemplate.slug == q["slug"])) or \
+            QuestionnaireTemplate(slug=q["slug"])
+        row.title, row.description, row.questions = q["title"], (q.get("description") or "").strip(), q["questions"]
+        db.add(row)
 
     db.commit()
     return {

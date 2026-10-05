@@ -108,3 +108,24 @@ class Connector:
             "fields": [f.__dict__ for f in cls.fields],
             "tests": [t.__dict__ for t in cls.tests],
         }
+
+
+def guarded_base_url(value: str, *, allowed_suffixes: tuple[str, ...] = (), default: str = "") -> str:
+    """Validate a customer-supplied API base URL (https only, no private networks in production)."""
+    from app.net_guard import UnsafeTargetError, check_url
+
+    raw = (value or default).strip()
+    if raw and "://" not in raw:
+        raw = "https://" + raw
+    try:
+        return check_url(raw, allowed_suffixes=allowed_suffixes)
+    except UnsafeTargetError as e:
+        raise ConnectorError(str(e)) from e
+
+
+def link_next(response) -> str | None:
+    """Return the rel="next" URL from an RFC 8288 Link header (Okta, GitLab)."""
+    for part in response.headers.get("link", "").split(","):
+        if 'rel="next"' in part:
+            return part[part.find("<") + 1:part.find(">")]
+    return None

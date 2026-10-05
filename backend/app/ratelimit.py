@@ -102,7 +102,7 @@ def count(name: str, ident: str) -> int:
 def reset(name: str, ident: str) -> None:
     try:
         store().delete(f"rl:{name}:{ident}")
-    except Exception:  # noqa: BLE001
+    except Exception:  # noqa: BLE001  # nosec B110 - best-effort reset
         pass
 
 

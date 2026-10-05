@@ -66,8 +66,17 @@ class Settings(BaseSettings):
     s3_prefix: str = "evidence"
     log_format: str = "plain"  # plain | json
 
+    # Bearer token for /metrics (backend port only). Empty = open on the internal network.
+    metrics_token: str = ""
+
     # Optional ClamAV daemon for malware scanning of uploads, e.g. "clamav:3310".
     clamav_address: str = ""
+
+    # AI assistant (opt-in per organisation). Org data is sent to the Claude API only when an owner enables it.
+    anthropic_api_key: str = ""
+    anthropic_base_url: str = "https://api.anthropic.com"
+    ai_model: str = "claude-sonnet-5-5"
+    ai_daily_jobs_per_org: int = 40
 
     @property
     def is_production(self) -> bool:

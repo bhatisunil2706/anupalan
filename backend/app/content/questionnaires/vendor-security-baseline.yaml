@@ -1,0 +1,32 @@
+slug: vendor-security-baseline
+title: Vendor security baseline
+description: >
+  Core security questions for any vendor with access to your systems or confidential data. Written in-house;
+  aligned with ISO 27001 Annex A and SOC 2 topics without reproducing either standard.
+questions:
+  - {id: gov-1, section: Governance, text: "Do you have an information security policy approved by management and reviewed at least annually?", type: yes_no, weight: 2, good: "yes"}
+  - {id: gov-2, section: Governance, text: "Is a named person responsible for information security?", type: yes_no, weight: 1, good: "yes"}
+  - {id: gov-3, section: Governance, text: "Do you hold a current ISO/IEC 27001 certificate or SOC 2 Type II report covering the services you provide to us?", type: yes_no, weight: 3, good: "yes", evidence: true}
+  - {id: gov-4, section: Governance, text: "Has an independent penetration test of the relevant systems been performed in the last 12 months?", type: yes_no, weight: 2, good: "yes", evidence: true}
+  - {id: hr-1, section: People, text: "Do staff with access to customer data complete security awareness training at least annually?", type: yes_no, weight: 1, good: "yes"}
+  - {id: hr-2, section: People, text: "Do you run background checks on staff before they get access to customer data, where permitted by law?", type: yes_no, weight: 1, good: "yes"}
+  - {id: hr-3, section: People, text: "Is access removed within 24 hours when staff leave?", type: yes_no, weight: 2, good: "yes"}
+  - {id: acc-1, section: Access control, text: "Is multi-factor authentication enforced for all staff access to production systems and email?", type: yes_no, weight: 3, good: "yes"}
+  - {id: acc-2, section: Access control, text: "Is access to customer data limited to staff who need it, and reviewed at least quarterly?", type: yes_no, weight: 2, good: "yes"}
+  - {id: acc-3, section: Access control, text: "Are administrator accounts separate from day-to-day accounts and limited to named people?", type: yes_no, weight: 1, good: "yes"}
+  - {id: data-1, section: Data protection, text: "Is customer data encrypted at rest?", type: yes_no, weight: 2, good: "yes"}
+  - {id: data-2, section: Data protection, text: "Is customer data encrypted in transit using TLS 1.2 or higher?", type: yes_no, weight: 2, good: "yes"}
+  - {id: data-3, section: Data protection, text: "In which countries will our data be stored or accessed from?", type: text, weight: 0}
+  - {id: data-4, section: Data protection, text: "Is our data logically separated from other customers' data?", type: yes_no, weight: 2, good: "yes"}
+  - {id: data-5, section: Data protection, text: "Will you delete or return our data within 30 days of the contract ending, and confirm in writing?", type: yes_no, weight: 2, good: "yes"}
+  - {id: ops-1, section: Operations, text: "Are critical security patches applied within 30 days (or faster for actively exploited issues)?", type: yes_no, weight: 2, good: "yes"}
+  - {id: ops-2, section: Operations, text: "Are backups taken automatically, encrypted, and restore-tested at least quarterly?", type: yes_no, weight: 2, good: "yes"}
+  - {id: ops-3, section: Operations, text: "Are security logs centrally collected and retained for at least 180 days?", type: yes_no, weight: 2, good: "yes"}
+  - {id: ops-4, section: Operations, text: "Do production systems synchronise time with a reliable source?", type: yes_no, weight: 1, good: "yes"}
+  - {id: dev-1, section: Secure development, text: "Do all code changes go through peer review before reaching production?", type: yes_no, weight: 1, good: "yes"}
+  - {id: dev-2, section: Secure development, text: "Do you scan code and dependencies for vulnerabilities and leaked secrets?", type: yes_no, weight: 1, good: "yes"}
+  - {id: inc-1, section: Incidents, text: "Do you have a documented incident response plan tested in the last 12 months?", type: yes_no, weight: 2, good: "yes"}
+  - {id: inc-2, section: Incidents, text: "Will you notify us of a security incident affecting our data within 24 hours of becoming aware of it?", type: yes_no, weight: 3, good: "yes"}
+  - {id: inc-3, section: Incidents, text: "Have you had a security incident affecting customer data in the last 24 months? If yes, describe it in the comment.", type: yes_no, weight: 2, good: "no"}
+  - {id: bcp-1, section: Continuity, text: "Do you have a business continuity and disaster recovery plan with defined recovery times, tested annually?", type: yes_no, weight: 1, good: "yes"}
+  - {id: sub-1, section: Subcontractors, text: "Do you assess the security of subcontractors who will access our data, and can you list them?", type: yes_no, weight: 2, good: "yes"}

@@ -53,8 +53,8 @@ def sync_accounts(db: Session, integration: Integration, records) -> int:
 
 
 def sync_integration(db: Session, integration: Integration) -> list[CheckResult]:
-    connector = build_connector(integration)
     try:
+        connector = build_connector(integration)
         results = connector.run()
         accounts = connector.list_accounts() if connector.provides_accounts else None
         people = connector.list_people() if connector.provides_people else None
@@ -70,6 +70,13 @@ def sync_integration(db: Session, integration: Integration) -> list[CheckResult]
         raise ConnectorError(integration.last_error) from e
 
     apply_results(db, integration, results)
+    if getattr(connector, "syncs_tasks", False):
+        try:
+            connector.sync_tasks(db, integration.org_id)
+        except ConnectorError as e:
+            integration.status, integration.last_error = "error", str(e)
+            db.commit()
+            raise
     if accounts is not None:
         sync_accounts(db, integration, accounts)
     if people is not None:

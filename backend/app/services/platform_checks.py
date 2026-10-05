@@ -2,7 +2,7 @@
 import uuid
 from datetime import date, datetime, timedelta, timezone
 
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from app.integrations import REGISTRY
@@ -76,3 +76,67 @@ def verify_review_removals(db: Session, org_id: uuid.UUID) -> int:
                 task.status, task.completed_at = "done", now
                 task.description += "\n\nVerified automatically: the account is no longer active."
     return verified
+
+
+# ---------------------------------------------------------------- consent and training checks (daily)
+
+CONSENT_CHECK = {"key": "platform.consent_capture", "title": "Consent is recorded and withdrawals are captured",
+                 "control_codes": ["PRV-03", "PRV-04"]}
+TRAINING_CHECK = {"key": "platform.training_completion", "title": "Staff have completed required training",
+                  "control_codes": ["HR-03"]}
+TRAINING_TARGET = 90  # percent of staff fully trained
+
+
+def consent_check(db: Session, org_id: uuid.UUID) -> tuple[str, str, dict] | None:
+    from app.models import ConsentEvent, ConsentNotice
+
+    published = db.scalars(select(ConsentNotice).where(ConsentNotice.org_id == org_id,
+                                                       ConsentNotice.status == "published")).all()
+    if not published:
+        return None
+    since = datetime.now(timezone.utc) - timedelta(days=30)
+    recent = db.scalar(select(func.count(ConsentEvent.id)).where(
+        ConsentEvent.org_id == org_id, ConsentEvent.received_at >= since)) or 0
+    withdrawals = db.scalar(select(func.count(ConsentEvent.id)).where(
+        ConsentEvent.org_id == org_id, ConsentEvent.action == "withdrawn")) or 0
+    details = {"published_notices": [f"{n.key} v{n.version}" for n in published], "events_30d": recent,
+               "withdrawals_total": withdrawals}
+    if recent == 0:
+        return "fail", (f"{len(published)} published consent notice(s) but no consent records received in the last "
+                        "30 days. Check your app is sending consent events."), details
+    return "pass", (f"{recent} consent records received in the last 30 days against {len(published)} published "
+                    f"notice(s); {withdrawals} withdrawals recorded"), details
+
+
+def training_check(db: Session, org_id: uuid.UUID) -> tuple[str, str, dict] | None:
+    from app.api.routes.training import report_rows
+
+    rows, required = report_rows(db, org_id)
+    if not rows or not required:
+        return None
+    complete = sum(r["complete"] for r in rows)
+    pct = round(100 * complete / len(rows))
+    missing = [r["email"] for r in rows if not r["complete"]]
+    details = {"completion_percent": pct, "required_courses": required, "people": len(rows),
+               "incomplete": missing[:200]}
+    summary = f"{complete} of {len(rows)} people ({pct}%) have completed all required training"
+    return ("pass" if pct >= TRAINING_TARGET else "fail"), summary + f" (target {TRAINING_TARGET}%)", details
+
+
+def run_feature_checks(db: Session, org: Organization, force: bool = False) -> None:
+    """Consent and training checks. Run at most once a day unless forced."""
+    from app.models import TestResult
+
+    today_start = datetime.combine(date.today(), datetime.min.time(), tzinfo=timezone.utc)
+    for spec, fn, source in ((CONSENT_CHECK, consent_check, "Consent records"),
+                             (TRAINING_CHECK, training_check, "Training")):
+        if not force and db.scalar(select(TestResult.id).where(
+                TestResult.org_id == org.id, TestResult.test_key == spec["key"],
+                TestResult.run_at >= today_start).limit(1)):
+            continue
+        result = fn(db, org.id)
+        if result is None:
+            continue
+        status, summary, details = result
+        record_check(db, org.id, integration_id=None, source_name=source, key=spec["key"], title=spec["title"],
+                     control_codes=spec["control_codes"], status=status, summary=summary, details=details)

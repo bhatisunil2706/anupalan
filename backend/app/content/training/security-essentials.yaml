@@ -1,0 +1,85 @@
+slug: security-essentials
+title: Security essentials
+minutes: 12
+pass_mark: 80
+control_codes: [HR-03]
+summary: Passwords, multi-factor authentication, devices, data handling and reporting incidents.
+body_md: |
+  ## Why this matters
+
+  Most security incidents start with an ordinary mistake: a reused password, a lost laptop, a file shared with the
+  wrong person. You don't need to be a security expert to prevent them. You need a few habits, done every time.
+
+  ## Passwords and passphrases
+
+  - Use a **long passphrase**: four or more unrelated words is stronger and easier to remember than a short, complex
+    password.
+  - **Never reuse** a work password anywhere else. When another site is breached, attackers try the same password
+    on work systems.
+  - Keep passwords in the **company password manager**, not in notes, spreadsheets or browser exports.
+  - Nobody from IT, security or management will ever ask for your password. Treat any request as an attack.
+
+  ## Multi-factor authentication (MFA)
+
+  MFA means a stolen password alone isn't enough to sign in. Turn it on wherever it's offered and use an
+  authenticator app or security key rather than SMS where you can.
+
+  If you get an MFA prompt you didn't start, **deny it and report it**. It means someone already has your password.
+
+  ## Your devices
+
+  - Lock your screen whenever you step away (Windows + L, or Control + Command + Q on a Mac).
+  - Keep your operating system and browser updated; restart when prompted.
+  - Don't disable disk encryption, antivirus or device management.
+  - Report a lost or stolen device **immediately**, even outside working hours. Fast reporting lets us wipe it.
+
+  ## Handling data
+
+  - Store work files only in approved company tools.
+  - Before sharing a link, check who can open it. "Anyone with the link" is public.
+  - Don't paste customer data, source code or confidential documents into public AI tools or websites that the
+    company hasn't approved.
+  - Use real personal data only where your job needs it. Test systems should use masked or synthetic data.
+
+  ## Reporting incidents
+
+  Report anything suspicious straight away through the security channel: a suspicious email, a misdirected file,
+  a lost device, an unusual MFA prompt, or a system behaving strangely. Under the CERT-In Directions, many incident
+  types must be reported to the government within **6 hours** of being noticed, so minutes matter. You will never
+  be blamed for reporting in good faith.
+quiz:
+  - q: Which of these is the strongest password choice?
+    options:
+      - "Acme@2026"
+      - "four unrelated words like velvet-orbit-mango-ladder"
+      - "Your name and date of birth"
+      - "The same strong password you use for your personal email"
+    answer: 1
+  - q: You receive an MFA approval prompt on your phone that you didn't start. What should you do?
+    options:
+      - Approve it so it stops appearing
+      - Ignore it
+      - Deny it and report it to security, then change your password
+      - Turn off MFA
+    answer: 2
+  - q: Your laptop is stolen on a Saturday evening. When should you report it?
+    options:
+      - Immediately, even though it's the weekend
+      - On Monday morning
+      - Only if it had customer data on it
+      - At the next team meeting
+    answer: 0
+  - q: A colleague asks you to share a customer list through a public file-sharing link. What's the right approach?
+    options:
+      - Use "anyone with the link" so it's quick
+      - Email it to their personal address
+      - Share it in an approved company tool with access limited to the people who need it
+      - Paste it into a chat with the whole company
+    answer: 2
+  - q: Why does incident reporting need to be fast?
+    options:
+      - It doesn't; incidents can wait for a weekly review
+      - Many incidents must be reported to CERT-In within 6 hours of being noticed
+      - So the person who caused it can be identified
+      - Reports are only needed for data breaches
+    answer: 1

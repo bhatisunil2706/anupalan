@@ -21,8 +21,10 @@ from app.models import (
     Task,
     User,
     Vendor,
+    VendorDocument,
 )
 from app.services import notify
+from app.services.platform_checks import run_feature_checks
 
 RENEW_WINDOW_DAYS = 14
 
@@ -172,6 +174,41 @@ def access_review_reminders(db: Session, org: Organization, today: date) -> None
                              link=f"/access-reviews/{review.id}")
 
 
+def vendor_document_reminders(db: Session, org: Organization, today: date) -> None:
+    """Warn 30 days before a vendor certificate, report or DPA runs out, and again when it has expired."""
+    for d, v in db.execute(select(VendorDocument, Vendor).join(Vendor, Vendor.id == VendorDocument.vendor_id).where(
+            VendorDocument.org_id == org.id, VendorDocument.valid_until.is_not(None), Vendor.status != "offboarded",
+            VendorDocument.valid_until <= today + timedelta(days=30))):
+        newer = db.scalar(select(VendorDocument.id).where(
+            VendorDocument.vendor_id == v.id, VendorDocument.kind == d.kind, VendorDocument.id != d.id,
+            VendorDocument.valid_until > d.valid_until).limit(1))
+        if newer:
+            continue
+        to = [e for e in [_email(db, v.owner_id)] if e] or notify.admin_emails(db, org.id)
+        if d.valid_until < today:
+            notify.queue(db, org.id, key=f"vdoc:{d.id}:expired", event="deadline", to=to,
+                         title=f"{v.name}: {d.title} expired on {d.valid_until:%d %b %Y}", link=f"/vendors/{v.id}",
+                         body="Ask the vendor for the current version.")
+        else:
+            notify.queue(db, org.id, key=f"vdoc:{d.id}:30d", event="deadline", to=to,
+                         title=f"{v.name}: {d.title} expires on {d.valid_until:%d %b %Y}", link=f"/vendors/{v.id}",
+                         body="Ask the vendor for the renewed certificate or report.")
+
+
+def training_reminders(db: Session, org: Organization, today: date) -> None:
+    """Remind people about overdue required training, at most once a week each."""
+    from app.api.routes.training import report_rows
+
+    rows, _ = report_rows(db, org.id)
+    week = today.isocalendar()
+    for r in rows:
+        overdue = [s for s, st in r["courses"].items() if st in ("overdue", "expired", "failed")]
+        if overdue:
+            notify.queue(db, org.id, key=f"training:{r['user_id']}:{week.year}-W{week.week}", event="training_due",
+                         to=[r["email"]], title=f"Security training to complete: {', '.join(overdue)}",
+                         link="/training")
+
+
 def run_reminders(db: Session, now: datetime | None = None) -> None:
     now = now or datetime.now(timezone.utc)
     today = now.date()
@@ -182,4 +219,7 @@ def run_reminders(db: Session, now: datetime | None = None) -> None:
         evidence_renewals(db, org, today)
         review_cycle_tasks(db, org, today)
         access_review_reminders(db, org, today)
+        vendor_document_reminders(db, org, today)
+        training_reminders(db, org, today)
+        run_feature_checks(db, org)
         db.commit()

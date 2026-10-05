@@ -1,0 +1,88 @@
+slug: dpdp-basics
+title: India's DPDP Act for everyone at work
+minutes: 15
+pass_mark: 80
+control_codes: [HR-03, PRV-14]
+summary: What the Digital Personal Data Protection Act, 2023 means for your day-to-day work.
+body_md: |
+  ## What the law covers
+
+  The Digital Personal Data Protection Act, 2023 (DPDP Act) and the DPDP Rules, 2025 govern **digital personal data**:
+  any data in digital form about an individual who can be identified by or from it. Names, phone numbers, email
+  addresses, Aadhaar and PAN numbers, device IDs and account histories are all personal data.
+
+  The person the data is about is the **Data Principal**. Our company decides why and how the data is processed,
+  which makes us a **Data Fiduciary**. Vendors who process data on our behalf are **Data Processors**, and we stay
+  responsible for what they do.
+
+  ## The core rules
+
+  1. **A lawful reason.** We process personal data only with the person's consent or for a "legitimate use" listed
+     in Section 7 of the Act, such as employment purposes or a legal obligation.
+  2. **Clear notice.** When we ask for consent, we explain in plain language what data we collect and why.
+  3. **Only what's needed.** Collect and use only the data required for the stated purpose.
+  4. **Keep it accurate and safe.** Protect data with reasonable security safeguards.
+  5. **Delete when done.** Erase data when the purpose is complete or consent is withdrawn, unless the law requires
+     us to keep it.
+
+  ## Rights of Data Principals
+
+  People can ask us for a summary of their data, ask us to correct or erase it, withdraw consent, nominate someone
+  to act for them, and raise a grievance. Grievances must be answered within the period set by the Rules (no more
+  than 90 days), and our internal target is shorter.
+
+  **If a customer asks you about their data, don't handle it informally.** Log it as a rights request or send them
+  to our privacy request page so it gets tracked and answered on time.
+
+  ## Children's data
+
+  Processing the data of anyone under 18 needs verifiable consent from a parent or guardian. Tracking, behavioural
+  monitoring and targeted advertising directed at children are not allowed.
+
+  ## Personal data breaches
+
+  If personal data is lost, leaked, accessed without authorisation or made unavailable, it's a personal data
+  breach. We must inform the Data Protection Board and affected people without delay, and send the Board a detailed
+  report within 72 hours. Report anything you suspect to the security team **immediately**; don't investigate on
+  your own.
+
+  ## Penalties
+
+  Failing to take reasonable security safeguards can lead to penalties of up to ₹250 crore per instance. Most
+  breaches come from everyday mistakes, which is why every one of us matters.
+quiz:
+  - q: Which of these is personal data under the DPDP Act?
+    options:
+      - A customer's phone number stored in our CRM
+      - Our office electricity bill
+      - Anonymous, aggregated website traffic totals
+      - The source code of our app
+    answer: 0
+  - q: A customer emails you asking us to delete their account data. What should you do?
+    options:
+      - Delete it yourself straight away from the database
+      - Ignore it unless they ask again
+      - Log it as a rights request (or point them to our privacy request page) so it is tracked and answered in time
+      - Tell them deletion isn't possible
+    answer: 2
+  - q: Within how long must the detailed breach report reach the Data Protection Board?
+    options:
+      - 6 hours
+      - 72 hours
+      - 30 days
+      - Only if more than 1,000 people are affected
+    answer: 1
+  - q: What's needed before processing personal data of a 15-year-old?
+    options:
+      - Nothing special
+      - The child's own consent
+      - Verifiable consent from a parent or lawful guardian
+      - Approval from the Data Protection Board
+    answer: 2
+  - q: Who is responsible when a vendor that processes data for us has a breach?
+    options:
+      - Only the vendor
+      - Our company remains responsible as the Data Fiduciary
+      - Nobody, because it happened outside our systems
+      - The Data Principal
+    answer: 1

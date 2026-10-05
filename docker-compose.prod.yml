@@ -1,0 +1,88 @@
+# Production overrides: HTTPS via Caddy, encrypted daily backups, read-only containers, no published app ports.
+#   cp .env.example .env   # fill in every value marked REQUIRED
+#   docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+x-hardening: &hardening
+  read_only: true
+  cap_drop: [ALL]
+  security_opt: ["no-new-privileges:true"]
+  tmpfs: ["/tmp"]
+
+services:
+  db:
+    environment:
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
+    command: ["postgres", "-c", "log_connections=on", "-c", "log_disconnections=on",
+              "-c", "password_encryption=scram-sha-256"]
+    restart: unless-stopped
+
+  redis:
+    restart: unless-stopped
+
+  migrate:
+    <<: *hardening
+    environment:
+      ENVIRONMENT: production
+      RUNTIME_DB_PASSWORD: ${RUNTIME_DB_PASSWORD:?RUNTIME_DB_PASSWORD is required}
+
+  backend:
+    <<: *hardening
+    environment:
+      ENVIRONMENT: production
+      COOKIE_SECURE: "true"
+      LOG_FORMAT: json
+      SECRET_KEY: ${SECRET_KEY:?SECRET_KEY is required}
+      ENCRYPTION_KEY: ${ENCRYPTION_KEY:?ENCRYPTION_KEY is required}
+      RUNTIME_DB_PASSWORD: ${RUNTIME_DB_PASSWORD:?RUNTIME_DB_PASSWORD is required}
+      DATABASE_URL: postgresql+psycopg://app_runtime:${RUNTIME_DB_PASSWORD}@db:5432/app
+      PUBLIC_URL: ${PUBLIC_URL:?PUBLIC_URL is required (https://...)}
+
+  worker:
+    <<: *hardening
+    environment:
+      ENVIRONMENT: production
+      COOKIE_SECURE: "true"
+      LOG_FORMAT: json
+      SECRET_KEY: ${SECRET_KEY:?SECRET_KEY is required}
+      ENCRYPTION_KEY: ${ENCRYPTION_KEY:?ENCRYPTION_KEY is required}
+      DATABASE_URL: postgresql+psycopg://app_runtime:${RUNTIME_DB_PASSWORD}@db:5432/app
+      PUBLIC_URL: ${PUBLIC_URL:?PUBLIC_URL is required (https://...)}
+
+  web:
+    <<: *hardening
+    tmpfs: ["/tmp", "/app/.next/cache"]
+    ports: !reset []
+    expose: ["3000"]
+
+  caddy:
+    image: caddy:2-alpine
+    ports: ["80:80", "443:443", "443:443/udp"]
+    environment:
+      DOMAIN: ${DOMAIN:?DOMAIN is required, e.g. app.example.com}
+      ACME_EMAIL: ${ACME_EMAIL:?ACME_EMAIL is required}
+    volumes:
+      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on: [web]
+    restart: unless-stopped
+
+  backup:
+    image: postgres:16-alpine
+    entrypoint: ["/bin/sh", "/backup.sh"]
+    environment:
+      PGHOST: db
+      PGUSER: app
+      PGPASSWORD: ${POSTGRES_PASSWORD}
+      PGDATABASE: app
+      BACKUP_PASSPHRASE: ${BACKUP_PASSPHRASE:?BACKUP_PASSPHRASE is required}
+      BACKUP_KEEP_DAYS: ${BACKUP_KEEP_DAYS:-30}
+    volumes:
+      - ./deploy/backup.sh:/backup.sh:ro
+      - ${BACKUP_DIR:-./backups}:/backups
+      - evidence:/evidence:ro
+    depends_on: [db]
+    restart: unless-stopped
+
+volumes:
+  caddy_data:
+  caddy_config:

@@ -418,3 +418,20 @@ def test_api_keys_are_hashed_and_scoped(owner, db):
     stored = db.scalar(select(ApiKey))
     assert stored.key_hash != r["secret"] and r["secret"] not in json.dumps(stored.scopes)
     assert owner.delete(f"/api/org/api-keys/{r['id']}").status_code == 204
+
+
+def test_metrics_endpoint(owner, monkeypatch):
+    from app.config import get_settings
+
+    c = make_client()
+    c.post("/api/auth/login", json={"email": "owner@acme.in", "password": "Wrong-Password-123"})
+    body = c.get("/metrics").text
+    assert 'security_events_total{event="login_failed"}' in body and "http_requests_total" in body
+    assert "owner@acme.in" not in body
+    monkeypatch.setenv("METRICS_TOKEN", "s3cret")
+    get_settings.cache_clear()
+    try:
+        assert c.get("/metrics").status_code == 404
+        assert c.get("/metrics", headers={"Authorization": "Bearer s3cret"}).status_code == 200
+    finally:
+        get_settings.cache_clear()

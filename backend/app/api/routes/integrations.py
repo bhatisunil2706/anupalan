@@ -1,3 +1,4 @@
+import httpx
 from fastapi import APIRouter, HTTPException, status
 from sqlalchemy import select
 
@@ -46,6 +47,11 @@ def connect(provider: str, body: IntegrationConnectIn, db: DB, ctx: AdminCtx):
         cls(config, secrets).verify()
     except ConnectorError as e:
         raise HTTPException(status.HTTP_400_BAD_REQUEST, str(e)) from e
+    except httpx.HTTPStatusError as e:
+        raise HTTPException(status.HTTP_400_BAD_REQUEST,
+                            f"{cls.name} returned HTTP {e.response.status_code} while checking the connection") from e
+    except httpx.HTTPError as e:
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, f"Couldn't reach {cls.name}. Check the address.") from e
     i = db.scalar(select(Integration).where(Integration.org_id == ctx.org_id, Integration.provider == provider))
     i = i or Integration(org_id=ctx.org_id, provider=provider)
     i.config, i.secret_encrypted, i.status, i.last_error = config, encrypt_json(secrets), "connected", ""
@@ -66,6 +72,8 @@ def _get(db, ctx, provider: str) -> Integration:
 @router.post("/{provider}/sync")
 def sync(provider: str, db: DB, ctx: AdminCtx):
     i = _get(db, ctx, provider)
+    if (i.config or {}).get("demo"):
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, "This is a demo connection with simulated results")
     try:
         results = sync_integration(db, i)
     except ConnectorError as e:

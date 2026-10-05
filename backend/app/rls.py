@@ -8,9 +8,11 @@ from sqlalchemy import Connection, text
 # Tables with an org_id column that are NOT tenant data (looked up by secret token hash before any tenant is known).
 NOT_TENANT_SCOPED = {"auth_tokens", "user_sessions"}
 # Global, read-only reference content. The runtime role may only read these.
-CONTENT_TABLES = {"frameworks", "requirements", "control_templates", "mappings", "policy_templates"}
-# Append-only tables: the runtime role may insert and read, never update or delete.
-APPEND_ONLY = {"audit_logs"}
+CONTENT_TABLES = {"frameworks", "requirements", "control_templates", "mappings", "policy_templates",
+                  "training_courses", "questionnaire_templates"}
+# Append-only tables: the runtime role may insert and read, never update or delete. Consent events are the
+# legal record of consent (DPDP s.6(10)), so they get the same protection as the audit log.
+APPEND_ONLY = {"audit_logs", "consent_events"}
 
 BYPASS = "current_setting('app.rls_bypass', true) = 'on'"
 CUR_ORG = "nullif(current_setting('app.org_id', true), '')::uuid"
@@ -20,7 +22,7 @@ DEFAULT = f"({BYPASS} OR org_id = {CUR_ORG})"
 SPECIAL: dict[str, tuple[str, str]] = {
     # (USING, WITH CHECK)
     "organizations": (
-        f"({BYPASS} OR id = {CUR_ORG} OR EXISTS (SELECT 1 FROM memberships m "
+        f"({BYPASS} OR id = {CUR_ORG} OR EXISTS (SELECT 1 FROM memberships m "  # nosec B608 - constant policy SQL
         f"WHERE m.org_id = organizations.id AND m.user_id = {CUR_USER}))",
         f"({BYPASS} OR id = {CUR_ORG})",
     ),

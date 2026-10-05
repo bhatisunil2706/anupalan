@@ -1,0 +1,72 @@
+slug: phishing
+title: Spotting phishing and social engineering
+minutes: 10
+pass_mark: 80
+control_codes: [HR-03, HR-07]
+summary: How attackers trick people by email, phone and chat, and what to do when something feels off.
+body_md: |
+  ## What phishing looks like
+
+  Phishing is a message designed to make you click, pay, or share something you shouldn't. It arrives by email, SMS,
+  WhatsApp, phone calls and even video calls. Common patterns:
+
+  - **Urgency or fear**: "Your account will be suspended in 1 hour", "Payment overdue, legal action today".
+  - **Authority**: a message that appears to come from the CEO, a bank, a government department or IT support.
+  - **Unusual requests**: buy gift cards, change a vendor's bank details, approve an MFA prompt, share an OTP.
+  - **Look-alike links and senders**: `acme-support.co` instead of `acme.in`, or a display name that doesn't match
+    the email address.
+  - **Unexpected attachments**: invoices, shipping notices or "scanned documents" you weren't expecting.
+
+  ## Payment and bank-detail fraud
+
+  Attackers often impersonate a known vendor and ask to change bank details for future payments. **Always confirm
+  bank-detail changes by calling the vendor on a number you already have**, never one from the email.
+
+  ## Phone and voice scams
+
+  A caller may claim to be from IT and ask you to install remote-access software, or read out an OTP. Our IT team
+  will never ask for your password or OTP. Hang up and call back through the official channel.
+
+  ## What to do
+
+  1. **Pause.** Urgency is the attacker's main tool.
+  2. **Check** the sender's real address and hover over links before clicking.
+  3. **Verify** unusual requests through a different channel you trust.
+  4. **Report** the message with the "Report phishing" button or to the security channel, even if you already clicked.
+     Reporting quickly after a click lets us contain the damage; you won't be blamed.
+quiz:
+  - q: An email from "CEO" asks you to urgently buy gift cards and send the codes. What do you do?
+    options:
+      - Buy them quickly; the CEO is waiting
+      - Reply asking for more details
+      - Verify through a different, trusted channel and report the email to security
+      - Forward it to colleagues to see if they got it too
+    answer: 2
+  - q: A vendor emails new bank details for future payments. What's the safe way to confirm?
+    options:
+      - Reply to the email to confirm
+      - Call the vendor on a number you already have on record
+      - Call the number given in the email
+      - Update the details; vendors change banks often
+    answer: 1
+  - q: You clicked a link in a suspicious email and entered your password. What now?
+    options:
+      - Do nothing; maybe it was fine
+      - Report it to security immediately and change your password
+      - Delete the email so nobody knows
+      - Wait to see if anything happens
+    answer: 1
+  - q: Which sender address is most likely a phishing attempt for a company using acme.in?
+    options:
+      - priya@acme.in
+      - it-helpdesk@acme-in-support.com
+      - payroll@acme.in
+      - noreply@acme.in
+    answer: 1
+  - q: A caller says they're from IT and asks for the OTP you just received. What should you do?
+    options:
+      - Read it out; IT needs it to fix your account
+      - Hang up and contact IT through the official channel
+      - Send it by chat instead
+      - Give only the first three digits
+    answer: 1

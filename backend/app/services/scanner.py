@@ -106,7 +106,7 @@ def _scan_mysql(cfg: dict, secret: dict) -> tuple[list[dict], dict]:
                 if text_cols:
                     cols_sql = ", ".join(f"`{c.replace('`', '``')}`" for c in text_cols)
                     try:
-                        cur.execute(f"SELECT {cols_sql} FROM `{table.replace('`', '``')}` LIMIT {ROWS_PER_TABLE}")
+                        cur.execute(f"SELECT {cols_sql} FROM `{table.replace('`', '``')}` LIMIT {ROWS_PER_TABLE}")  # nosec B608 - identifiers escaped
                         for row in cur.fetchall():
                             for c, v in zip(text_cols, row, strict=True):
                                 stats[c].add(v)

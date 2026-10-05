@@ -1,0 +1,20 @@
+slug: dpdp-processor
+title: DPDP Data Processor due diligence
+description: >
+  For vendors that process personal data on your behalf. Under the DPDP Act your company remains responsible for
+  processing done by its Data Processors (s.8(1)) and must engage them only under a valid contract (s.8(2)).
+questions:
+  - {id: p-1, section: Contract, text: "Will you sign a data processing agreement that limits processing to our documented instructions?", type: yes_no, weight: 3, good: "yes"}
+  - {id: p-2, section: Contract, text: "Will you use our personal data for any purpose of your own (for example analytics, product improvement or AI model training)?", type: yes_no, weight: 3, good: "no"}
+  - {id: p-3, section: Safeguards, text: "Do you apply reasonable security safeguards including encryption or masking, access control and access logging, as described in DPDP Rules R.6?", type: yes_no, weight: 3, good: "yes"}
+  - {id: p-4, section: Safeguards, text: "Do you keep access logs for personal data for at least one year?", type: yes_no, weight: 2, good: "yes"}
+  - {id: p-5, section: Breaches, text: "Will you notify us of a personal data breach without delay (target within 24 hours) so we can meet our 72-hour duty to the Data Protection Board?", type: yes_no, weight: 3, good: "yes"}
+  - {id: p-6, section: Breaches, text: "Will you cooperate with our investigation and provide the facts needed for the Board report?", type: yes_no, weight: 2, good: "yes"}
+  - {id: p-7, section: Rights, text: "Can you correct, export or erase a specific person's data within 7 days of our request?", type: yes_no, weight: 2, good: "yes"}
+  - {id: p-8, section: Rights, text: "Will you stop processing a person's data when we tell you they have withdrawn consent?", type: yes_no, weight: 2, good: "yes"}
+  - {id: p-9, section: Retention, text: "Will you erase our personal data when the purpose is complete or the contract ends, and confirm in writing?", type: yes_no, weight: 2, good: "yes"}
+  - {id: p-10, section: Transfers, text: "List every country where our personal data is stored or accessed from.", type: text, weight: 0}
+  - {id: p-11, section: Transfers, text: "Is all our personal data stored in India?", type: yes_no, weight: 1, good: "yes"}
+  - {id: p-12, section: Sub-processors, text: "Will you tell us before adding or changing sub-processors that handle our personal data?", type: yes_no, weight: 2, good: "yes"}
+  - {id: p-13, section: Children, text: "If you process children's data for us, do you avoid tracking, behavioural monitoring and targeted advertising directed at them?", type: yes_no, weight: 1, good: "yes"}
+  - {id: p-14, section: Assurance, text: "Will you allow us or an independent auditor to review your compliance with these commitments?", type: yes_no, weight: 2, good: "yes"}

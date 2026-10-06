@@ -5,7 +5,8 @@ class AWSConnector(Connector):
     provider = "aws"
     name = "Amazon Web Services"
     category = "Cloud"
-    description = "Checks root MFA, password policy, CloudTrail, S3 public access, encryption, backups and GuardDuty."
+    description = ("Checks root MFA, password policy, key rotation, CloudTrail and log retention, S3 public access, "
+                   "encryption, backups, GuardDuty, Security Hub and Inspector.")
     setup_help = (
         "Create an IAM user (or role) with the AWS managed 'SecurityAudit' read-only policy "
         "and paste its access key. Tag IAM users with 'email' so they can be matched to employees. "
@@ -25,6 +26,13 @@ class AWSConnector(Connector):
         TestDef("aws.rds_encryption", "All RDS instances are encrypted at rest", ["CRY-01"]),
         TestDef("aws.rds_backups", "RDS automated backups retained 7+ days", ["OPS-06"]),
         TestDef("aws.guardduty", "GuardDuty threat detection is enabled", ["LOG-02"]),
+        TestDef("aws.security_hub", "Security Hub is enabled with a standard (configuration baseline)",
+                ["OPS-04", "LOG-02"]),
+        TestDef("aws.inspector", "Amazon Inspector scans EC2, ECR or Lambda for vulnerabilities", ["OPS-02"]),
+        TestDef("aws.backup_plans", "AWS Backup has at least one backup plan with resources assigned", ["OPS-06"]),
+        TestDef("aws.log_retention", "CloudWatch log groups keep logs for 180+ days", ["LOG-01"]),
+        TestDef("aws.access_key_age", "IAM access keys rotated within 90 days", ["ACC-08"]),
+        TestDef("aws.env_separation", "Production runs in its own AWS account (AWS Organizations)", ["SDL-04"]),
     ]
 
     provides_accounts = True
@@ -130,10 +138,87 @@ class AWSConnector(Connector):
             return CheckResult("aws.guardduty", "pass" if on else "fail",
                                "GuardDuty enabled" if on else "GuardDuty not enabled in the primary region")
 
+        def security_hub():
+            sh = s.client("securityhub")
+            try:
+                sh.describe_hub()
+            except sh.exceptions.InvalidAccessException:
+                return CheckResult("aws.security_hub", "fail", "Security Hub is not enabled in the primary region")
+            stds = sh.get_enabled_standards().get("StandardsSubscriptions", [])
+            names = [x.get("StandardsArn", "").split("/")[-3] if "/" in x.get("StandardsArn", "") else
+                     x.get("StandardsArn", "") for x in stds if x.get("StandardsStatus") == "READY"]
+            return CheckResult("aws.security_hub", "pass" if names else "fail",
+                               f"Security Hub on with {len(names)} standard(s)" if names
+                               else "Security Hub on but no security standard is enabled", {"standards": names})
+
+        def inspector():
+            ins = s.client("inspector2")
+            accts = ins.batch_get_account_status(accountIds=[account_id]).get("accounts", [])
+            res = (accts[0].get("resourceState") or {}) if accts else {}
+            on = [k for k, v in res.items() if (v or {}).get("status") == "ENABLED"]
+            return CheckResult("aws.inspector", "pass" if on else "fail",
+                               f"Inspector scanning: {', '.join(sorted(on))}" if on
+                               else "Amazon Inspector is not scanning anything", {"enabled": on})
+
+        def backup_plans():
+            b = s.client("backup")
+            plans = b.list_backup_plans().get("BackupPlansList", [])
+            covered = [p["BackupPlanName"] for p in plans
+                       if b.list_backup_selections(BackupPlanId=p["BackupPlanId"]).get("BackupSelectionsList")]
+            return CheckResult("aws.backup_plans", "pass" if covered else "fail",
+                               f"Backup plans with resources: {', '.join(covered)}" if covered
+                               else "No AWS Backup plan covers any resources", {"plans": covered})
+
+        def log_retention():
+            logs = s.client("logs")
+            short, total = [], 0
+            for page in logs.get_paginator("describe_log_groups").paginate():
+                for g in page.get("logGroups", []):
+                    total += 1
+                    days = g.get("retentionInDays")  # absent = never expires
+                    if days is not None and days < 180:
+                        short.append(f"{g['logGroupName']} ({days}d)")
+            return CheckResult("aws.log_retention", "fail" if short else "pass",
+                               f"{len(short)} of {total} log groups keep logs under 180 days" if short
+                               else f"All {total} log groups keep logs 180+ days", {"short": short[:200]})
+
+        def access_key_age():
+            from datetime import datetime, timedelta, timezone
+
+            cutoff = datetime.now(timezone.utc) - timedelta(days=90)
+            old = []
+            for page in iam.get_paginator("list_users").paginate():
+                for u in page["Users"]:
+                    for k in iam.list_access_keys(UserName=u["UserName"])["AccessKeyMetadata"]:
+                        if k.get("Status") == "Active" and k["CreateDate"] < cutoff:
+                            old.append(u["UserName"])
+            return CheckResult("aws.access_key_age", "fail" if old else "pass",
+                               f"{len(old)} active access keys older than 90 days" if old
+                               else "No active access key is older than 90 days", {"users": sorted(set(old))[:200]})
+
+        def env_separation():
+            org = s.client("organizations")
+            try:
+                accounts = [a for page in org.get_paginator("list_accounts").paginate() for a in page["Accounts"]
+                            if a.get("Status") == "ACTIVE"]
+            except Exception as e:  # not in an organisation, or no permission from a member account
+                if "AWSOrganizationsNotInUse" in type(e).__name__ + str(e):
+                    return CheckResult("aws.env_separation", "fail",
+                                       "AWS Organizations isn't in use; production shares an account with other work")
+                raise
+            names = [a.get("Name", "") for a in accounts]
+            return CheckResult("aws.env_separation", "pass" if len(accounts) > 1 else "fail",
+                               f"{len(accounts)} accounts in the organisation" if len(accounts) > 1
+                               else "Only one AWS account; separate production from development and test",
+                               {"accounts": names[:50]})
+
         checks = [("aws.root_mfa", root_mfa), ("aws.password_policy", password_policy),
                   ("aws.cloudtrail", cloudtrail), ("aws.s3_public_access_block", s3_block),
                   ("aws.ebs_default_encryption", ebs), ("aws.rds_encryption", rds_enc),
-                  ("aws.rds_backups", rds_backup), ("aws.guardduty", guardduty)]
+                  ("aws.rds_backups", rds_backup), ("aws.guardduty", guardduty),
+                  ("aws.security_hub", security_hub), ("aws.inspector", inspector),
+                  ("aws.backup_plans", backup_plans), ("aws.log_retention", log_retention),
+                  ("aws.access_key_age", access_key_age), ("aws.env_separation", env_separation)]
         return [self._check(k, fn) for k, fn in checks]
 
     def list_accounts(self) -> list[AccountRecord]:

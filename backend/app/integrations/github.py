@@ -1,6 +1,6 @@
 import httpx
 
-from app.integrations.base import AccountRecord, CheckResult, Connector, ConnectorError, Field, TestDef
+from app.integrations.base import AccountRecord, CheckResult, Connector, ConnectorError, Field, TestDef, sla_result
 
 API = "https://api.github.com"
 
@@ -18,12 +18,16 @@ class GitHubConnector(Connector):
         Field("organization", "GitHub organisation", help="The org login, e.g. acme-inc"),
         Field("token", "Access token", secret=True),
         Field("max_admins", "Maximum org admins allowed", required=False, default="3"),
+        Field("critical_days", "Days to fix critical vulnerabilities", required=False, default="15"),
+        Field("high_days", "Days to fix high vulnerabilities", required=False, default="30"),
     ]
     tests = [
         TestDef("github.org_2fa", "Two-factor authentication required for the GitHub organisation", ["ACC-03"]),
         TestDef("github.branch_protection", "Default branches require pull request review", ["SDL-02", "SDL-05"]),
         TestDef("github.secret_scanning", "Secret scanning enabled on all repositories", ["ACC-08", "SDL-03"]),
         TestDef("github.dependabot_alerts", "Dependabot vulnerability alerts enabled on all repositories",
+                ["OPS-02", "SDL-03"]),
+        TestDef("github.vuln_sla", "No critical or high Dependabot alerts open past the fix deadline",
                 ["OPS-02", "SDL-03"]),
         TestDef("github.admin_count", "Organisation admin count within limit", ["ACC-04", "ACC-07"]),
     ]
@@ -117,6 +121,18 @@ class GitHubConnector(Connector):
         out.append(coverage("github.dependabot_alerts", no_dependabot,
                             "Dependabot alerts enabled on all {total} repositories",
                             "Dependabot alerts off on {n} of {total} repositories"))
+
+        alerts = self._get(f"/orgs/{self.org}/dependabot/alerts", state="open", severity="critical,high",
+                           per_page=100)
+        if alerts.status_code == 200:
+            out.append(sla_result("github.vuln_sla", [
+                {"severity": a.get("security_advisory", {}).get("severity", ""), "created_at": a.get("created_at"),
+                 "name": f"{a.get('repository', {}).get('name', '')}: "
+                         f"{a.get('security_advisory', {}).get('summary', '')}"[:200]}
+                for a in alerts.json()], self.config))
+        else:
+            out.append(CheckResult("github.vuln_sla", "error",
+                                   "Can't read Dependabot alerts; the token needs Dependabot alerts read access."))
 
         admins_r = self._get(f"/orgs/{self.org}/members", role="admin", per_page=100)
         if admins_r.status_code == 200:

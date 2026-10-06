@@ -1,29 +1,30 @@
 # Anupalan (working name)
 
-India-first compliance automation. One set of controls, mapped to the **DPDP Act 2023 + DPDP Rules 2025**, the **CERT-In Directions (April 2022)**, **ISO/IEC 27001:2022** and **SOC 2**, with evidence collection, policies, risk, vendors and DPDP operations (data inventory, rights requests, breach clocks).
+India-first compliance automation. One set of controls, mapped to the **DPDP Act 2023 + DPDP Rules 2025**, the **CERT-In Directions (April 2022)**, **ISO/IEC 27001:2022** and **SOC 2**, with evidence collection, policies, risk, vendors, training and DPDP operations (data inventory, consent records, rights requests, breach clocks).
 
 > "Anupalan" (अनुपालन, compliance) is a placeholder. Change it with `NEXT_PUBLIC_APP_NAME` and `APP_NAME`.
 
-## What's in v0.1
+## What's in v0.3
 
 | Area | What works |
 | --- | --- |
-| Accounts | Sign-up, sign-in, multiple organisations per user, invitations by link, roles (owner, admin, member, auditor read-only), audit log |
-| Onboarding | Company profile, applicability flags (children's data, Significant Data Fiduciary, Consent Manager, infra provider, VASP), framework choice |
-| Content | 4 frameworks, 217 requirements, 94 controls, every requirement mapped to at least one control (validated in tests), 8 policy templates |
+| Accounts | Sign-up with email verification, password reset, multiple organisations per user, invitations, roles (owner, admin, member, auditor with time-limited access) |
+| Security | Two-step verification (TOTP + recovery codes), org-enforced MFA, SSO (Google, Microsoft Entra ID, Okta, any OIDC) with verified domains, server-side revocable sessions with a device list, breached-password blocking, PostgreSQL row-level security, per-company encrypted evidence, hash-chained audit log, strict CSP, CSRF tokens, Redis rate limits. See [SECURITY.md](SECURITY.md) and [docs/security.md](docs/security.md) |
+| Content | 4 frameworks, 217 requirements, 94 controls, every requirement mapped (validated in tests), 8 policy templates, 4 training courses, 2 vendor questionnaires |
 | Controls | Status, owner, review dates, N/A with justification, evidence (file, link, note), health (passing / needs evidence / failing check), custom controls |
 | Readiness | Per-framework score; conditional requirements drop out when they don't apply |
-| Policies | Templates filled with your company name, editing with versioning, approval (auto-attaches evidence to mapped controls), staff acknowledgments |
-| DPDP | Processing inventory with lawful ground and transfers (CSV export), rights requests with internal SLA and the 90-day legal cap |
-| Incidents | CERT-In 6-hour clock, DPDP "without delay" steps and 72-hour Board report, investigation notes |
-| Risk / vendors | 5x5 risk register with heat map; vendor tiers, DPA tracking, data location, review dates |
-| Integrations | Google Workspace, Microsoft 365 / Entra ID, AWS, GitHub and Keka HR (beta), all read-only. Passing checks become evidence; failing checks create tasks that auto-close when fixed and alert the control owner. Credentials encrypted at rest |
-| People & accounts | Employee list from Keka or a CSV export of any HRMS, matched to accounts synced from identity systems. Leavers with active access fail a check (ACC-02, HR-05) within a day of exit |
-| Access reviews | One click snapshots accounts, routes each to the person's manager, records keep/remove with reasons, verifies removals on the next sync, and files the signed-off CSV as ACC-05 evidence. A reminder task appears each quarter |
-| Alerts | Email, Slack and Microsoft Teams: failing checks, CERT-In and DPDP deadlines, rights requests, task assignments and due dates, evidence and review renewals |
-| Recurring work | Tasks created automatically before evidence expires, and for vendor reviews, policy reviews and quarterly access reviews |
-| DPDP portal | Public page per company (`/p/<name>`) for access, correction, erasure, consent withdrawal, nomination and grievance requests. Email-verified requests land in Rights requests with deadlines set |
-| Data discovery | Scans PostgreSQL, MySQL and S3 for Aadhaar (checksum-validated), PAN, phone, email, UPI, card (Luhn), IFSC, GSTIN and sensitive field names. Stores only masked examples; one click adds findings to the data inventory |
+| Policies | Templates, versioning, approval (auto-attaches evidence), staff acknowledgments, AI drafting |
+| DPDP | Processing inventory, rights requests with SLA and the 90-day legal cap, public request portal, **consent records** (versioned notices, append-only consent log, API for websites and apps, withdrawal feed, CSV export) |
+| Incidents | CERT-In 6-hour clock, DPDP "without delay" steps and 72-hour Board report |
+| Training | Built-in courses with quizzes (security essentials, DPDP basics, phishing, secure development), required or optional, renewal cycles, team report, import from another LMS, daily HR-03 check |
+| Vendors | Risk tiers, DPAs, **questionnaires by link** (vendor answers without an account and uploads certificates), scoring with critical gaps, review creates VEN-01 evidence, certificate expiry reminders |
+| Auditor workspace | Evidence requests with comments, submit / accept / send back, Statement of Applicability or requirements matrix (.xlsx), evidence pack (.zip with SHA-256 manifest) |
+| AI assistant (opt-in) | Policy drafts, remediation plans from gaps, security questionnaire answers from your own policies with sources (Claude API) |
+| Integrations | Google Workspace, Microsoft 365, Okta, AWS, Azure, Google Cloud, GitHub, GitLab, Intune, Jamf, Keka (beta), Darwinbox (beta), Jira (two-way task sync). All read-only except Jira issue creation |
+| People & access | HR roster matched to identity accounts, leaver checks, quarterly access reviews |
+| Data discovery | PostgreSQL, MySQL and S3 scanning for Indian identifiers; **self-hosted scanner agent** for private networks |
+| Alerts | Email, Slack and Teams: failing checks, regulator deadlines, rights requests, tasks, renewals, overdue training, expiring vendor certificates |
+| Operations | Docker Compose with a migration/runtime database role split, Caddy TLS, encrypted backups, read-only containers, `/metrics`, JSON logs, CI with security scanning |
 
 ## Run it
 
@@ -34,44 +35,60 @@ cp .env.example .env      # fill SECRET_KEY and ENCRYPTION_KEY for anything beyo
 docker compose up --build
 ```
 
-Open http://localhost:3000 and create a workspace. If port 3000 is taken, set `WEB_PORT` and `PUBLIC_URL` in `.env` (for example 3100).
+Open http://localhost:3000. If port 3000 is taken, set `WEB_PORT` and `PUBLIC_URL` in `.env` (for example 3100).
+
+### Demo data
+
+Three demo companies with a login per role (password `Demo-Anupalan-2026!` unless you pass `--password`):
+
+```bash
+docker compose run --rm migrate python -m app.cli seed-demo          # add --reset to recreate
+```
+
+| Company | Owner | Admin | Member | Auditor |
+| --- | --- | --- | --- | --- |
+| Paisa Setu Fintech (DPDP, CERT-In, ISO 27001, SOC 2; about 70% ready) | priya@paisasetu.example | arjun@paisasetu.example | neha@paisasetu.example | kavya@paisasetu.example |
+| AarogyaLink Health (DPDP, ISO 27001; about 45%) | sameer@aarogyalink.example | lakshmi@aarogyalink.example | imran@aarogyalink.example | deepa@aarogyalink.example |
+| KiranaKart Commerce (DPDP, CERT-In, SOC 2; just starting) | rajesh@kiranakart.example | sunita@kiranakart.example | amit@kiranakart.example | none |
+
+`.example` addresses are reserved and never receive email. Connector results in the demo are simulated. The seed command refuses to run when `ENVIRONMENT=production`; `python -m app.cli remove-demo` deletes it all.
+
+### Production
+
+```bash
+cp .env.example .env      # set every value marked REQUIRED, ENVIRONMENT=production, PUBLIC_URL=https://<DOMAIN>
+docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build
+```
+
+This adds Caddy (automatic HTTPS), encrypted daily backups, read-only containers and the production startup checks: the app refuses to start with default secrets, without HTTPS cookies or Redis, or with a database role that can bypass row-level security.
 
 ### Option B: Local development
 
-Requirements: Python 3.12+, Node 22+, PostgreSQL 16.
+Requirements: Python 3.12+, Node 22+, PostgreSQL 16, Redis (optional locally).
 
 ```bash
-# Database
 createdb app
-
-# Backend (http://localhost:8000, API docs at /api/docs)
 cd backend
 python -m venv .venv && source .venv/bin/activate
 pip install -r requirements-dev.txt
 export DATABASE_URL="postgresql+psycopg://$USER@localhost:5432/app"
-alembic upgrade head
-uvicorn app.main:app --reload
+alembic upgrade head && python -m app.cli load-content
+uvicorn app.main:app --reload            # API docs at http://localhost:8000/api/docs
+python -m app.worker                     # separate terminal: syncs, reminders, alerts, AI jobs
 
-# Worker: integration syncs, reminders, recurring tasks and alert delivery (separate terminal)
-python -m app.worker
-
-# Frontend (http://localhost:3000), separate terminal
-cd frontend
-npm install
-npm run dev
+cd ../frontend && npm install && npm run dev
 ```
 
-The frontend proxies `/api/*` to the backend (`BACKEND_URL`, default `http://localhost:8000`), so the session cookie is first-party.
+Locally the app connects as your own database user, which bypasses row-level security, and startup logs a warning. To test with RLS on, run `RUNTIME_DB_PASSWORD=... python -m app.cli sync-runtime-role` and connect as `app_runtime`.
 
 ### Tests
 
 ```bash
 createdb app_test
 cd backend
-DATABASE_URL="postgresql+psycopg://$USER@localhost:5432/app_test" pytest -q   # 33 tests
-ruff check app tests
-python -m app.cli check-content                                               # mapping coverage only
-
+DATABASE_URL="postgresql+psycopg://$USER@localhost:5432/app_test" pytest -q   # runs the app as an RLS-restricted role
+ruff check app tests && bandit -q -r app -c pyproject.toml && pip-audit -r requirements.txt
+python -m app.cli check-content
 cd ../frontend && npx tsc --noEmit && npm run build
 ```
 
@@ -80,46 +97,46 @@ cd ../frontend && npx tsc --noEmit && npm run build
 ```
 backend/
   app/
-    content/          Frameworks (YAML), control library + mappings, policy templates (Markdown)
-    api/routes/       auth, org, frameworks, controls + evidence, work (tasks/policies/risks/vendors), dpdp, integrations, dashboard
-    integrations/     Connector interface + GitHub, AWS
-    services/         content loader, compliance engine (provisioning, health, readiness), policies, storage, audit
-    models.py         SQLAlchemy models (global content vs tenant data)
-    worker.py         Scheduled integration sync
+    content/          Frameworks, control library + mappings, policy templates, training courses, questionnaires
+    api/routes/       auth, security_admin, org, frameworks, controls, work, dpdp, consent, training, vendor_dd,
+                      auditor, ai, integrations, automation, portal, scanner_api, dashboard
+    integrations/     13 connectors with a shared interface
+    services/         compliance engine, checks, reminders, encrypted storage, sessions, SSO, audit chain, AI, demo
+    rls.py            Row-level security policies and the restricted runtime role
+    agent.py          Self-hosted personal data scanner
+    worker.py         Scheduled syncs, reminders, alert delivery, AI jobs
   alembic/            Migrations
-  tests/              API, tenant isolation, roles, deadlines, integrations
+  tests/              Security, tenant isolation, roles, features, connectors, AI (mocked)
 frontend/
-  src/app/(auth)      Sign in, sign up, invitation, onboarding
-  src/app/(app)       Dashboard, frameworks, controls, policies, integrations, DPDP, incidents, risks, vendors, tasks, settings
-  src/components      UI kit, app shell, readiness seal
+  src/proxy.ts        Per-request CSP nonces
+  src/app/(auth)      Sign in (MFA, SSO), sign up, password reset, email verification, invitation, onboarding
+  src/app/(app)       Dashboard, compliance, audit requests, training, AI assistant, automation, DPDP, risk, vendors,
+                      account security, settings
+  src/app/q, src/app/p  Public vendor questionnaire and privacy request portal
+deploy/               Caddyfile, backup script
+docs/security.md      Threat model and security design
 ```
 
 ## How the compliance engine works
 
-- **Global content** (frameworks, requirements, control templates, mappings) lives in `backend/app/content` and is loaded on startup (`python -m app.cli load-content` to reload). Loading fails if any requirement has no control.
+- **Global content** (frameworks, requirements, control templates, mappings, courses, questionnaires) lives in `backend/app/content` and is loaded by `python -m app.cli load-content`. Loading fails if any requirement has no control.
 - **Provisioning**: enabling a framework creates org controls for every template mapped to an applicable requirement. Requirements with a `condition` only apply when that profile flag is on.
 - **Control health**: `not_applicable` → excluded; any failing automated check → `failing`; `implemented` + current evidence → `passing`; `implemented` without current evidence → `needs_evidence`.
 - **Readiness**: a requirement is met when all its mapped controls are passing or not applicable.
 
 ## Adding a connector
 
-Subclass `Connector` in `backend/app/integrations/`, declare `fields` and `tests` (each test lists the control codes it proves), implement `verify()` and `run()`, and register it in `integrations/__init__.py`. See `github.py` and its tests for the pattern.
+Subclass `Connector` in `backend/app/integrations/`, declare `fields` and `tests` (each test lists the control codes it proves), implement `verify()` and `run()`, and register it in `integrations/__init__.py`. Validate customer-supplied hosts with `guarded_base_url`. See `okta.py` and `tests/test_connectors.py` for the pattern.
 
 ## Before customer launch
 
-These are known gaps, ordered roughly by priority:
-
-1. **Content review.** All framework guidance is written in-house and marked `review_status: draft`. Have a privacy lawyer verify the DPDP and CERT-In references against the Gazette text, and an ISO 27001 Lead Auditor review the control mappings. ISO and AICPA text is intentionally not reproduced; keep it that way.
-2. **Email provider and password reset.** Email works through SMTP (set `SMTP_*`); pick a provider (SES Mumbai, Postmark). Password reset is not built yet.
-3. **MFA and SSO** for user accounts (TOTP, then SAML/OIDC).
-4. **Storage.** Evidence is stored on local disk. Switch `services/storage.py` to S3 in `ap-south-1` with per-tenant prefixes and KMS keys.
-5. **Rate limiting** is in-process; move to Redis for more than one API instance.
-6. **Database-level tenant isolation.** Isolation is enforced in the API (`get_owned`, `ensure_member`) and covered by tests. Add PostgreSQL row-level security as a second layer.
-7. **Verify connectors against real tenants.** Google Workspace, Microsoft 365 and Keka are built from the official API docs and tested with simulated responses. Test each with a real account (Microsoft 365 developer tenant, Google Workspace trial, Keka sandbox) before customers use them. Keka's employee fields are mapped defensively because Keka doesn't publish the full schema.
-8. **Data discovery in production.** Scanning customer databases from a multi-tenant SaaS needs network access into their environment. Private addresses are blocked in production by default; offer a small self-hosted scanner that reports masked findings back.
-9. **More connectors**: Azure, GCP, GitLab, Jira, Okta, MDM (Jamf, Intune), Darwinbox.
-10. **AI assistant** (policy drafting, gap analysis, questionnaire answers) and **auditor workspace** (scoped auditor access, evidence requests, SoA export).
-11. **Sector packs**: RBI, SEBI CSCRF, IRDAI.
+1. **Content review.** Framework guidance, training courses and questionnaires are written in-house and marked draft. Have a privacy lawyer verify DPDP and CERT-In references against the Gazette text, and an ISO 27001 Lead Auditor review the control mappings. ISO and AICPA text is intentionally not reproduced.
+2. **Real-tenant connector tests.** Every connector is built from official API docs and tested with simulated responses. Test each against a real account before customers rely on it. Keka and Darwinbox field mappings need checking against customer datasets.
+3. **Independent penetration test** and an external review of [docs/security.md](docs/security.md).
+4. **Key management.** Move the master encryption key to AWS KMS (or an HSM) for the hosted service.
+5. **DPDP Consent Manager integration** once the Board publishes the interface (registration opens November 2026).
+6. **Sector packs**: RBI, SEBI CSCRF, IRDAI.
+7. **Passkeys (WebAuthn) and SCIM provisioning.**
 
 ## Licence and IP
 

@@ -2,6 +2,7 @@
 
 python -m app.cli load-content     Load / refresh frameworks, controls, mappings and policy templates
 python -m app.cli check-content    Validate content mapping coverage without touching the database
+python -m app.cli sync-runtime-role  Create/update the restricted app role, RLS policies and grants (owner role)
 python -m app.cli seed-demo [--reset] [--password PW]   Create 3 demo companies (refuses in production)
 python -m app.cli remove-demo      Delete the demo companies and users
 python -m app.cli verify-audit     Verify every organisation's audit hash chain
@@ -21,6 +22,18 @@ def main() -> None:
     elif cmd == "check-content":
         validate_content(read_frameworks(), read_controls())
         print("Content OK: every requirement maps to at least one control.")
+    elif cmd == "sync-runtime-role":
+        from app import rls
+        from app.config import get_settings
+        from app.db import engine
+
+        s = get_settings()
+        with engine.begin() as conn:
+            if not rls.ensure_runtime_role(conn, s.runtime_db_role, s.runtime_db_password):
+                sys.exit("Runtime role not ready: set RUNTIME_DB_PASSWORD and run this as the database owner.")
+            rls.apply_policies(conn)
+            rls.grant_runtime(conn, s.runtime_db_role)
+            print(f"Runtime role {s.runtime_db_role} ready (row-level security policies and grants applied).")
     elif cmd in ("seed-demo", "remove-demo"):
         from app.config import get_settings
         from app.services import demo

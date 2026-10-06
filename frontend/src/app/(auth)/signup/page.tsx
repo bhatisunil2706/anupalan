@@ -42,9 +42,9 @@ export default function SignupPage() {
         <Field label="Company name">
           {(id) => <Input id={id} autoComplete="organization" required value={form.org_name} onChange={set("org_name")} />}
         </Field>
-        <Field label="Password" hint="At least 10 characters">
+        <Field label="Password" hint="At least 12 characters. A short phrase of unrelated words works well.">
           {(id) => (
-            <Input id={id} type="password" autoComplete="new-password" minLength={10} required value={form.password} onChange={set("password")} />
+            <Input id={id} type="password" autoComplete="new-password" minLength={12} required value={form.password} onChange={set("password")} />
           )}
         </Field>
         <Button type="submit" busy={busy} className="w-full">

@@ -2,13 +2,14 @@
 
 import { useEffect, useState } from "react";
 
+import { SecuritySettings } from "@/components/security-settings";
 import { useSession } from "@/components/session";
 import { Badge, Button, Checkbox, Field, FormError, Input, LoadError, Loading, PageHeader, Panel, Select, Tabs, tbl, useToast } from "@/components/ui";
 import { api, useApi } from "@/lib/api";
 import { fmtDate, fmtDateTime, humanize } from "@/lib/format";
 import type { Org, Role } from "@/lib/types";
 
-type Tab = "org" | "team" | "notifications" | "portal" | "audit";
+type Tab = "org" | "team" | "security" | "notifications" | "portal" | "audit";
 
 export default function SettingsPage() {
   const { isAdmin } = useSession();
@@ -22,6 +23,7 @@ export default function SettingsPage() {
           { value: "team", label: "Team" },
           ...(isAdmin
             ? [
+                { value: "security" as Tab, label: "Security" },
                 { value: "notifications" as Tab, label: "Notifications" },
                 { value: "portal" as Tab, label: "Privacy request page" },
                 { value: "audit" as Tab, label: "Audit log" },
@@ -33,6 +35,7 @@ export default function SettingsPage() {
       />
       {tab === "org" && <OrgSettings />}
       {tab === "team" && <Team />}
+      {tab === "security" && isAdmin && <SecuritySettings />}
       {tab === "notifications" && isAdmin && <Notifications />}
       {tab === "portal" && isAdmin && <Portal />}
       {tab === "audit" && isAdmin && <AuditLog />}
@@ -108,6 +111,7 @@ function Team() {
   const invites = useApi<{ id: string; email: string; role: Role; expires_at: string }[]>(isAdmin ? "/org/invitations" : null);
   const [email, setEmail] = useState("");
   const [role, setRole] = useState<Role>("member");
+  const [accessDays, setAccessDays] = useState(60);
   const [link, setLink] = useState<string | null>(null);
   const [formError, setFormError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -117,7 +121,7 @@ function Team() {
     setBusy(true);
     setFormError(null);
     try {
-      const r = await api<{ invite_url: string }>("/org/invitations", { method: "POST", json: { email, role } });
+      const r = await api<{ invite_url: string }>("/org/invitations", { method: "POST", json: { email, role, ...(role === "auditor" ? { access_days: accessDays } : {}) } });
       setLink(r.invite_url);
       setEmail("");
       invites.reload();
@@ -160,11 +164,16 @@ function Team() {
                 <Select id={id} value={role} onChange={(e) => setRole(e.target.value as Role)}>
                   <option value="member">Member: works on controls and tasks</option>
                   <option value="admin">Admin: also manages settings and team</option>
-                  <option value="auditor">Auditor: read-only</option>
+                  <option value="auditor">Auditor: read-only, time-limited</option>
                   {me.role === "owner" && <option value="owner">Owner</option>}
                 </Select>
               )}
             </Field>
+            {role === "auditor" && (
+              <Field label="Access for (days)">
+                {(id) => <Input id={id} type="number" min={1} max={365} value={accessDays} onChange={(e) => setAccessDays(Number(e.target.value))} className="w-28" />}
+              </Field>
+            )}
             <Button type="submit" busy={busy}>Create invite link</Button>
           </form>
           <FormError error={formError} />
@@ -229,6 +238,8 @@ function AuditLog() {
   if (loading && !data) return <Loading />;
   if (error || !data) return <LoadError error={error ?? "Could not load"} retry={reload} />;
   return (
+    <div className="space-y-4">
+    <AuditChainCheck />
     <div className="rounded-lg border border-line bg-surface">
       <div className={tbl.wrap}>
         <table className={tbl.table}>
@@ -247,6 +258,34 @@ function AuditLog() {
           </tbody>
         </table>
       </div>
+    </div>
+    </div>
+  );
+}
+
+function AuditChainCheck() {
+  const [result, setResult] = useState<{ ok: boolean; entries: number; broken_at: number | null } | null>(null);
+  const [busy, setBusy] = useState(false);
+  async function verify() {
+    setBusy(true);
+    try {
+      setResult(await api("/org/audit-log/verify"));
+    } finally {
+      setBusy(false);
+    }
+  }
+  return (
+    <div className="flex flex-wrap items-center gap-3 rounded-lg border border-line bg-surface px-4 py-3 text-sm">
+      <p className="flex-1 text-muted">
+        Every entry is hash-chained to the one before it, so edits or deletions are detectable.
+      </p>
+      {result &&
+        (result.ok ? (
+          <Badge tone="pass">Intact: {result.entries} entries verified</Badge>
+        ) : (
+          <Badge tone="fail">Chain broken at entry #{result.broken_at}</Badge>
+        ))}
+      <Button variant="secondary" size="sm" busy={busy} onClick={verify}>Verify integrity</Button>
     </div>
   );
 }

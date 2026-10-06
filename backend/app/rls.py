@@ -76,9 +76,12 @@ def grant_runtime(conn: Connection, role: str) -> None:
     conn.execute(text(f"GRANT USAGE ON SCHEMA public TO {r}"))
     conn.execute(text(f"GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO {r}"))
     conn.execute(text(f"GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO {r}"))
-    for t in CONTENT_TABLES:
+    # Older migrations run before later tables exist, so only touch tables that are there now.
+    existing = set(conn.execute(text(
+        "SELECT table_name FROM information_schema.tables WHERE table_schema = 'public'")).scalars())
+    for t in sorted(CONTENT_TABLES & existing):
         conn.execute(text(f'REVOKE INSERT, UPDATE, DELETE ON "{t}" FROM {r}'))
-    for t in APPEND_ONLY:
+    for t in sorted(APPEND_ONLY & existing):
         conn.execute(text(f'REVOKE UPDATE, DELETE, TRUNCATE ON "{t}" FROM {r}'))
     if conn.execute(text("SELECT to_regclass('public.alembic_version')")).scalar():
         conn.execute(text(f"REVOKE ALL ON alembic_version FROM {r}"))

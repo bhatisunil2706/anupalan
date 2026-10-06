@@ -129,3 +129,35 @@ def link_next(response) -> str | None:
         if 'rel="next"' in part:
             return part[part.find("<") + 1:part.find(">")]
     return None
+
+
+SEVERITY_ALIASES = {"critical": "critical", "high": "high", "4": "critical", "3": "high", "crit": "critical"}
+
+
+def sla_result(key: str, findings: list[dict], config: dict) -> CheckResult:
+    """Shared vulnerability SLA check. findings: [{severity, created_at (ISO), name}]. Fails when a critical or
+    high finding has been open longer than the fix deadline (defaults: critical 15 days, high 30 days)."""
+    from datetime import datetime, timezone
+
+    limits = {"critical": int(config.get("critical_days") or 15), "high": int(config.get("high_days") or 30)}
+    now = datetime.now(timezone.utc)
+    overdue, open_counts = [], {"critical": 0, "high": 0}
+    for f in findings:
+        sev = SEVERITY_ALIASES.get(str(f.get("severity", "")).lower())
+        if sev not in limits:
+            continue
+        open_counts[sev] += 1
+        created = f.get("created_at")
+        try:
+            opened = datetime.fromisoformat(str(created).replace("Z", "+00:00")) if created else None
+        except ValueError:
+            opened = None
+        if opened and opened.tzinfo is None:
+            opened = opened.replace(tzinfo=timezone.utc)
+        if opened and (now - opened).days > limits[sev]:
+            overdue.append({"name": f.get("name", ""), "severity": sev, "days_open": (now - opened).days})
+    summary_open = f"{open_counts['critical']} critical and {open_counts['high']} high open"
+    if overdue:
+        return CheckResult(key, "fail", f"{len(overdue)} past the fix deadline ({summary_open})",
+                           {"overdue": sorted(overdue, key=lambda x: -x["days_open"])[:200], "limits_days": limits})
+    return CheckResult(key, "pass", f"Nothing past the fix deadline ({summary_open})", {"limits_days": limits})

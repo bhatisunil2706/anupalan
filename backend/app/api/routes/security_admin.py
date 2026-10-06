@@ -20,6 +20,7 @@ API_SCOPES = {
     "consent:write": "Record consent events from your website or app",
     "consent:read": "Read consent records",
     "scanner:write": "Upload findings from the self-hosted personal data scanner",
+    "evidence:write": "Push check results from your own tools (CI, backup jobs, scripts) as evidence",
 }
 
 

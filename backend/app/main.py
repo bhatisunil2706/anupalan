@@ -19,6 +19,7 @@ from app.api.routes import (
     automation,
     consent,
     controls,
+    coverage,
     dashboard,
     dpdp,
     frameworks,
@@ -201,7 +202,7 @@ def create_app() -> FastAPI:
                             status_code=500)
 
     for r in (auth, org, security_admin, frameworks, controls, work, dpdp, integrations, dashboard, automation,
-              portal, consent, training, vendor_dd, auditor, ai, scanner_api):
+              portal, consent, training, vendor_dd, auditor, ai, scanner_api, coverage):
         app.include_router(r.router, prefix="/api")
 
     @app.get("/api/health")

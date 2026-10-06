@@ -56,7 +56,7 @@ services:
 
   migrate:
     build: ./backend
-    command: ["sh", "-c", "alembic upgrade head && python -m app.cli load-content"]
+    command: ["sh", "-c", "alembic upgrade head && python -m app.cli sync-runtime-role && python -m app.cli load-content"]
     environment:
       <<: *backend-env
       MIGRATION_DATABASE_URL: postgresql+psycopg://app:${POSTGRES_PASSWORD:-app}@db:5432/app

@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
 import { MemberSelect } from "@/components/pickers";
 import { useSession } from "@/components/session";
@@ -19,8 +20,18 @@ const EMPTY = {
 export default function VendorsPage() {
   const { canWrite } = useSession();
   const toast = useToast();
+  const router = useRouter();
   const { data, error, loading, reload } = useApi<Vendor[]>("/vendors");
   const [editing, setEditing] = useState<Vendor | "new" | null>(null);
+  const [handledEdit, setHandledEdit] = useState(false);
+  useEffect(() => {
+    if (!data || handledEdit) return;
+    setHandledEdit(true);
+    const id = new URLSearchParams(window.location.search).get("edit");
+    const v = id && data.find((x) => x.id === id);
+    if (v) open(v);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [data, handledEdit]);
   const [form, setForm] = useState(EMPTY);
   const [formError, setFormError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -100,7 +111,7 @@ export default function VendorsPage() {
               </thead>
               <tbody>
                 {data.map((v) => (
-                  <tr key={v.id} className={`${tbl.row} cursor-pointer ${v.status === "offboarded" ? "opacity-60" : ""}`} onClick={() => open(v)}>
+                  <tr key={v.id} className={`${tbl.row} cursor-pointer ${v.status === "offboarded" ? "opacity-60" : ""}`} onClick={() => router.push(`/vendors/${v.id}`)}>
                     <td className={tbl.td}>
                       <p className="font-medium">{v.name}</p>
                       <p className="max-w-[40ch] truncate text-xs text-muted">{v.services || humanize(v.status)}</p>

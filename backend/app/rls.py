@@ -56,15 +56,15 @@ def ensure_runtime_role(conn: Connection, role: str, password: str) -> bool:
     if not role.replace("_", "").isalnum():
         raise ValueError("runtime role name must be alphanumeric/underscore")
     exists = conn.execute(text("SELECT 1 FROM pg_roles WHERE rolname = :r"), {"r": role}).first()
-    if exists:
-        return True
-    can_create = conn.execute(text(
+    can_manage = conn.execute(text(
         "SELECT rolsuper OR rolcreaterole FROM pg_roles WHERE rolname = current_user")).scalar()
-    if not (can_create and password):
-        return False
-    # Password is a bind-free literal here because CREATE ROLE doesn't accept parameters; quote it safely.
+    if not (can_manage and password):
+        return bool(exists)
+    # Password is a bind-free literal here because CREATE/ALTER ROLE don't accept parameters; quote it safely.
     quoted = conn.execute(text("SELECT quote_literal(:p)"), {"p": password}).scalar()
-    conn.execute(text(f'CREATE ROLE "{role}" LOGIN NOSUPERUSER NOBYPASSRLS NOCREATEDB NOCREATEROLE '
+    verb = "ALTER" if exists else "CREATE"
+    # Re-applying the attributes on every run also undoes any manual escalation of the runtime role.
+    conn.execute(text(f'{verb} ROLE "{role}" LOGIN NOSUPERUSER NOBYPASSRLS NOCREATEDB NOCREATEROLE '  # nosec B608
                       f"PASSWORD {quoted}"))
     return True
 

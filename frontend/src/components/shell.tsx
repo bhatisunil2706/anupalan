@@ -2,6 +2,11 @@
 
 import {
   AlertOctagon,
+  BadgeCheck,
+  FileSearch,
+  GraduationCap,
+  Lock,
+  Sparkles,
   CheckSquare,
   ClipboardCheck,
   Database,
@@ -46,6 +51,9 @@ const NAV: { group: string; items: { href: string; label: string; icon: typeof G
       { href: "/frameworks", label: "Frameworks", icon: LayoutGrid },
       { href: "/controls", label: "Controls", icon: ClipboardCheck },
       { href: "/policies", label: "Policies", icon: FileText },
+      { href: "/audit", label: "Audit requests", icon: FileSearch },
+      { href: "/training", label: "Training", icon: GraduationCap },
+      { href: "/assistant", label: "AI assistant", icon: Sparkles },
     ],
   },
   {
@@ -60,6 +68,7 @@ const NAV: { group: string; items: { href: string; label: string; icon: typeof G
     group: "DPDP",
     items: [
       { href: "/dpdp/inventory", label: "Data inventory", icon: Database },
+      { href: "/dpdp/consent", label: "Consent records", icon: BadgeCheck },
       { href: "/dpdp/discovery", label: "Data discovery", icon: ScanSearch },
       { href: "/dpdp/requests", label: "Rights requests", icon: Inbox },
       { href: "/incidents", label: "Incidents", icon: AlertOctagon },
@@ -85,9 +94,12 @@ export function AppShell({ children }: { children: ReactNode }) {
     try {
       const m = await api<Me>("/auth/me");
       if (!m.org_id) return router.replace("/login");
-      if (!m.onboarded) return router.replace("/onboarding");
+      if (m.mfa_setup_required && !window.location.pathname.startsWith("/account")) {
+        return router.replace("/account/security?setup=mfa");
+      }
+      if (!m.onboarded && !m.mfa_setup_required) return router.replace("/onboarding");
       setMe(m);
-      setMembers(await api<Member[]>("/org/members"));
+      if (!m.mfa_setup_required) setMembers(await api<Member[]>("/org/members").catch(() => []));
     } catch {
       router.replace("/login");
     }
@@ -167,6 +179,17 @@ export function AppShell({ children }: { children: ReactNode }) {
       </div>
       <div className="border-t border-white/10 px-3 py-3">
         <Link
+          href="/account/security"
+          className={cx(
+            "flex items-center gap-2.5 rounded-md px-2 py-1.5 text-sm hover:bg-white/8 hover:text-white",
+            pathname.startsWith("/account") && "bg-white/12 text-white",
+          )}
+        >
+          <Lock size={16} strokeWidth={1.8} aria-hidden />
+          Account security
+          {!me.mfa_enabled && me.auth_method !== "sso" && <span className="ml-auto h-2 w-2 rounded-full bg-warn" aria-label="MFA off" />}
+        </Link>
+        <Link
           href="/settings"
           className={cx(
             "flex items-center gap-2.5 rounded-md px-2 py-1.5 text-sm hover:bg-white/8 hover:text-white",
@@ -212,8 +235,47 @@ export function AppShell({ children }: { children: ReactNode }) {
           </button>
           <span className="font-bold text-ink">{APP_NAME}</span>
         </div>
+        <Banners me={me} />
         <main className="mx-auto max-w-[1200px] px-4 py-6 sm:px-6 lg:px-8 lg:py-8">{children}</main>
       </div>
     </SessionProvider>
+  );
+}
+
+function Banners({ me }: { me: Me }) {
+  const [sent, setSent] = useState(false);
+  const items: ReactNode[] = [];
+  if (me.mfa_setup_required) {
+    items.push(<span key="mfa">Your organisation requires two-step verification. Set it up to continue.</span>);
+  }
+  if (!me.email_verified) {
+    items.push(
+      <span key="verify">
+        Confirm your email address to invite teammates and receive alerts.{" "}
+        <button
+          className="font-medium underline"
+          disabled={sent}
+          onClick={async () => {
+            await api("/auth/email/resend", { method: "POST" }).catch(() => undefined);
+            setSent(true);
+          }}
+        >
+          {sent ? "Link sent" : "Resend the link"}
+        </button>
+      </span>,
+    );
+  }
+  if (me.access_expires_at) {
+    items.push(
+      <span key="expiry">
+        Auditor access ends on {new Date(me.access_expires_at).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}.
+      </span>,
+    );
+  }
+  if (!items.length) return null;
+  return (
+    <div className="border-b border-warn/25 bg-warn-50 px-4 py-2 text-sm text-warn sm:px-6 lg:px-8" role="status">
+      <div className="mx-auto flex max-w-[1200px] flex-col gap-1">{items}</div>
+    </div>
   );
 }

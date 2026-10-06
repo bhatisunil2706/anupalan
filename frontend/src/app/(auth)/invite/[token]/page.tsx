@@ -60,9 +60,9 @@ export default function InvitePage() {
         ) : (
           <>
             <Field label="Your name">{(id) => <Input id={id} required value={fullName} onChange={(e) => setFullName(e.target.value)} />}</Field>
-            <Field label="Choose a password" hint="At least 10 characters">
+            <Field label="Choose a password" hint="At least 12 characters. A short phrase of unrelated words works well.">
               {(id) => (
-                <Input id={id} type="password" minLength={10} required autoComplete="new-password" value={password} onChange={(e) => setPassword(e.target.value)} />
+                <Input id={id} type="password" minLength={12} required autoComplete="new-password" value={password} onChange={(e) => setPassword(e.target.value)} />
               )}
             </Field>
           </>

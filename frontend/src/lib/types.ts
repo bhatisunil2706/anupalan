@@ -12,6 +12,16 @@ export interface Me {
   role: Role | null;
   memberships: { org_id: string; org_name: string; role: Role }[];
   onboarded: boolean;
+  email_verified: boolean;
+  mfa_enabled: boolean;
+  mfa_setup_required: boolean;
+  auth_method: "password" | "sso";
+  access_expires_at: string | null;
+}
+
+export interface LoginResult {
+  mfa_required: boolean;
+  me: Me | null;
 }
 
 export interface Org {

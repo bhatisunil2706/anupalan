@@ -158,13 +158,29 @@ class ControlOut(BaseModel):
     failing_tests: list[str]
 
 
+ControlStatus = Literal["not_started", "in_progress", "implemented", "not_applicable"]
+Frequency = Literal["once", "continuous", "monthly", "quarterly", "semiannual", "annual"]
+
+
 class ControlUpdate(BaseModel):
-    status: Literal["not_started", "in_progress", "implemented", "not_applicable"] | None = None
+    title: str | None = Field(default=None, min_length=1, max_length=200)
+    description: str | None = Field(default=None, max_length=10000)
+    category: str | None = Field(default=None, min_length=1, max_length=100)
+    frequency: Frequency | None = None
+    status: ControlStatus | None = None
     owner_id: uuid.UUID | None = None
     implementation_notes: str | None = None
     na_justification: str | None = None
     next_review_date: date | None = None
     clear_owner: bool = False
+
+
+class ControlBulkUpdate(BaseModel):
+    ids: list[uuid.UUID] = Field(min_length=1, max_length=500)
+    owner_id: uuid.UUID | None = None
+    clear_owner: bool = False
+    status: Literal["not_started", "in_progress", "implemented"] | None = None
+    next_review_date: date | None = None
 
 
 class ControlCreate(BaseModel):
@@ -250,17 +266,22 @@ class PolicyOut(ORM):
     acknowledged_by_me: bool = False
 
 
+POLICY_MAX_CHARS = 400_000
+
+
 class PolicyIn(BaseModel):
     title: str = Field(min_length=1, max_length=200)
-    body_md: str = ""
-    control_codes: list[str] = []
+    body_md: str = Field(default="", max_length=POLICY_MAX_CHARS)
+    control_codes: list[str] = Field(default=[], max_length=100)
+    owner_id: uuid.UUID | None = None
 
 
 class PolicyUpdate(BaseModel):
-    title: str | None = Field(default=None, max_length=200)
-    body_md: str | None = None
+    title: str | None = Field(default=None, min_length=1, max_length=200)
+    body_md: str | None = Field(default=None, max_length=POLICY_MAX_CHARS)
     owner_id: uuid.UUID | None = None
-    control_codes: list[str] | None = None
+    clear_owner: bool = False
+    control_codes: list[str] | None = Field(default=None, max_length=100)
 
 
 class FromTemplateIn(BaseModel):

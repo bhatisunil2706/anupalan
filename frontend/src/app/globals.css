@@ -57,3 +57,21 @@ body {
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; }
 }
+
+/* Policy editor (ProseMirror). Tiptap's own CSS injection is off because the CSP blocks inline <style>. */
+.ProseMirror { position: relative; word-wrap: break-word; white-space: pre-wrap; white-space: break-spaces; font-variant-ligatures: none; }
+.ProseMirror [contenteditable="false"] { white-space: normal; }
+.ProseMirror-hideselection *::selection { background: transparent; }
+.ProseMirror-gapcursor { display: none; pointer-events: none; position: absolute; }
+.ProseMirror-gapcursor:after { content: ""; display: block; position: absolute; top: -2px; width: 20px; border-top: 1px solid var(--color-text); }
+.ProseMirror-focused .ProseMirror-gapcursor { display: block; }
+.policy-editor { max-width: none; }
+.policy-editor p.is-editor-empty:first-child::before { content: attr(data-placeholder); float: left; height: 0; pointer-events: none; color: var(--color-muted); }
+.policy-editor blockquote, .prose-policy blockquote { border-left: 3px solid var(--color-line); margin: 0.75rem 0; padding-left: 0.9rem; color: var(--color-muted); }
+.policy-editor hr, .prose-policy hr { border: 0; border-top: 1px solid var(--color-line); margin: 1.25rem 0; }
+.policy-editor a, .prose-policy a { color: var(--color-ink); text-decoration: underline; }
+.policy-editor h3, .prose-policy h3 { font-size: 1rem; font-weight: 650; margin: 1.25rem 0 0.4rem; }
+.policy-editor table { width: 100%; table-layout: fixed; }
+.policy-editor td, .policy-editor th { vertical-align: top; position: relative; }
+.policy-editor .selectedCell:after { content: ""; position: absolute; inset: 0; background: color-mix(in srgb, var(--color-ink) 10%, transparent); pointer-events: none; }
+.policy-editor li > p { margin: 0; }

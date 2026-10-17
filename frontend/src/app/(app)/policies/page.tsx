@@ -1,10 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { useSession } from "@/components/session";
-import { Badge, Button, Drawer, Empty, LoadError, Loading, PageHeader, tbl, useToast } from "@/components/ui";
+import { Badge, Button, ButtonLink, Drawer, Empty, LoadError, Loading, PageHeader, tbl, useToast } from "@/components/ui";
 import { api, useApi } from "@/lib/api";
 import { fmtDate } from "@/lib/format";
 import type { Policy } from "@/lib/types";
@@ -23,6 +23,9 @@ export default function PoliciesPage() {
   const templates = useApi<Template[]>("/policies/templates");
   const [picking, setPicking] = useState(false);
   const today = new Date().toISOString().slice(0, 10);
+  useEffect(() => {
+    if (new URLSearchParams(window.location.search).get("templates")) setPicking(true);
+  }, []);
 
   async function addTemplate(slug: string) {
     try {
@@ -43,7 +46,14 @@ export default function PoliciesPage() {
       <PageHeader
         title="Policies"
         description="Approving a policy records it as evidence on the controls it supports. Everyone in the workspace is asked to acknowledge approved policies."
-        actions={canWrite && <Button variant="secondary" onClick={() => setPicking(true)}>Add from template</Button>}
+        actions={
+          canWrite && (
+            <div className="flex gap-2">
+              <Button variant="secondary" onClick={() => setPicking(true)}>Add from template</Button>
+              <ButtonLink href="/policies/new" variant="primary">New policy</ButtonLink>
+            </div>
+          )
+        }
       />
       <div className="rounded-lg border border-line bg-surface">
         {data.length ? (
@@ -79,8 +89,18 @@ export default function PoliciesPage() {
             </table>
           </div>
         ) : (
-          <Empty title="No policies yet" action={canWrite && <Button onClick={() => setPicking(true)}>Add from template</Button>}>
-            Start from our templates. They are written for Indian companies and reference DPDP and CERT-In.
+          <Empty
+            title="No policies yet"
+            action={
+              canWrite && (
+                <div className="flex justify-center gap-2">
+                  <ButtonLink href="/policies/new?start=upload" variant="primary">Upload your policy</ButtonLink>
+                  <Button variant="secondary" onClick={() => setPicking(true)}>Use a template</Button>
+                </div>
+              )
+            }
+          >
+            Already have policies in Word or Google Docs? Upload or paste them. Otherwise start from our templates, written for Indian companies with DPDP and CERT-In in mind.
           </Empty>
         )}
       </div>

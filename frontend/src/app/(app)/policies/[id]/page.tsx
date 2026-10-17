@@ -1,13 +1,16 @@
 "use client";
 
+import { Download } from "lucide-react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 
+import { ControlCodesPicker, MemberSelect } from "@/components/pickers";
+import { PolicyEditor } from "@/components/policy-editor";
 import { useSession } from "@/components/session";
-import { Badge, Button, Input, LoadError, Loading, Panel, Textarea, useToast } from "@/components/ui";
+import { Badge, Button, Field, Input, LoadError, Loading, Panel, useToast } from "@/components/ui";
 import { api, useApi } from "@/lib/api";
 import { fmtDate } from "@/lib/format";
 import type { Policy } from "@/lib/types";
@@ -21,17 +24,31 @@ export default function PolicyPage() {
   const [editing, setEditing] = useState(false);
   const [title, setTitle] = useState("");
   const [body, setBody] = useState("");
+  const [codes, setCodes] = useState<string[]>([]);
   const [busy, setBusy] = useState(false);
+
+  useEffect(() => {
+    if (p && !editing) setCodes(p.control_codes);
+  }, [p, editing]);
+
+  // Warn before leaving with unsaved edits.
+  const dirty = editing && !!p && (title !== p.title || body !== p.body_md);
+  useEffect(() => {
+    if (!dirty) return;
+    const h = (e: BeforeUnloadEvent) => e.preventDefault();
+    window.addEventListener("beforeunload", h);
+    return () => window.removeEventListener("beforeunload", h);
+  }, [dirty]);
 
   if (loading && !p) return <Loading />;
   if (error || !p) return <LoadError error={error ?? "Could not load"} retry={reload} />;
 
-  async function run(fn: () => Promise<unknown>, msg: string) {
+  async function run(fn: () => Promise<unknown>, msg: string, close = true) {
     setBusy(true);
     try {
       await fn();
       toast(msg);
-      setEditing(false);
+      if (close) setEditing(false);
       reload();
     } catch (e) {
       toast(e instanceof Error ? e.message : "Failed", "error");
@@ -40,10 +57,27 @@ export default function PolicyPage() {
     }
   }
 
+  const patch = (json: Record<string, unknown>, msg: string, close = true) =>
+    run(() => api(`/policies/${id}`, { method: "PATCH", json }), msg, close);
+
   function startEdit() {
     setTitle(p!.title);
     setBody(p!.body_md);
     setEditing(true);
+  }
+
+  function cancelEdit() {
+    if (dirty && !confirm("Discard your changes?")) return;
+    setEditing(false);
+  }
+
+  function downloadMd() {
+    const blob = new Blob([p!.body_md], { type: "text/markdown" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = `${p!.title.replace(/[^\w\- ]+/g, "").trim() || "policy"} v${p!.version}.md`;
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(a.href), 1000);
   }
 
   return (
@@ -52,25 +86,29 @@ export default function PolicyPage() {
         <Link href="/policies" className="hover:underline">Policies</Link> / {p.title}
       </nav>
       <div className="grid grid-cols-1 gap-6 [&>*]:min-w-0 lg:grid-cols-[minmax(0,1fr)_300px]">
-        <article className="rounded-lg border border-line bg-surface p-6 sm:p-8">
-          {editing ? (
-            <div className="space-y-3">
-              <Input value={title} onChange={(e) => setTitle(e.target.value)} aria-label="Policy title" />
-              <Textarea value={body} onChange={(e) => setBody(e.target.value)} className="min-h-[60vh] font-mono text-[13px]" aria-label="Policy text (Markdown)" />
-              <p className="text-xs text-muted">Markdown formatting is supported. Saving changes to an approved policy creates a new draft version.</p>
-              <div className="flex justify-end gap-2">
-                <Button variant="ghost" onClick={() => setEditing(false)}>Cancel</Button>
-                <Button busy={busy} onClick={() => run(() => api(`/policies/${id}`, { method: "PATCH", json: { title, body_md: body } }), "Policy saved")}>
+        {editing ? (
+          <div className="space-y-3">
+            <Input value={title} onChange={(e) => setTitle(e.target.value)} aria-label="Policy title" className="h-11 text-base font-semibold" />
+            <PolicyEditor value={body} onChange={setBody} autoFocus />
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <p className="text-xs text-muted">
+                {p.status === "approved" ? `Saving creates draft version ${p.version + 1}. Version ${p.version} stays approved evidence until the new one is approved.` : "Changes are saved to this draft."}
+              </p>
+              <div className="flex gap-2">
+                <Button variant="ghost" onClick={cancelEdit}>Cancel</Button>
+                <Button busy={busy} disabled={!title.trim() || !dirty} onClick={() => patch({ title, body_md: body }, "Policy saved")}>
                   Save changes
                 </Button>
               </div>
             </div>
-          ) : (
+          </div>
+        ) : (
+          <article className="rounded-lg border border-line bg-surface p-6 sm:p-8">
             <div className="prose-policy">
               <ReactMarkdown remarkPlugins={[remarkGfm]}>{p.body_md}</ReactMarkdown>
             </div>
-          )}
-        </article>
+          </article>
+        )}
 
         <aside className="space-y-4">
           <Panel title="Status">
@@ -98,11 +136,36 @@ export default function PolicyPage() {
                   </Button>
                 )}
                 {canWrite && !editing && <Button variant="secondary" onClick={startEdit}>Edit policy</Button>}
+                {!editing && (
+                  <Button variant="ghost" onClick={downloadMd}>
+                    <Download size={14} aria-hidden /> Download (.md)
+                  </Button>
+                )}
               </div>
             </div>
           </Panel>
+          <Panel title="Owner">
+            <MemberSelect
+              value={p.owner?.id ?? ""}
+              disabled={!canWrite}
+              emptyLabel="No owner"
+              onChange={(v) => patch(v ? { owner_id: v } : { clear_owner: true }, "Owner updated", false)}
+            />
+          </Panel>
           <Panel title="Supports controls">
-            <p className="text-sm text-muted">{p.control_codes.length ? p.control_codes.join(", ") : "None linked"}</p>
+            <Field label="Controls" hint={canWrite ? "Approving the policy adds it as evidence on these controls." : undefined} className="[&>label]:sr-only">
+              {() => (
+                <ControlCodesPicker
+                  value={codes}
+                  disabled={!canWrite}
+                  onChange={(next) => {
+                    setCodes(next);
+                    patch({ control_codes: next }, "Linked controls updated", false);
+                  }}
+                />
+              )}
+            </Field>
+            {!canWrite && !codes.length && <p className="text-sm text-muted">None linked</p>}
           </Panel>
           {isAdmin && (
             <Button

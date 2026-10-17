@@ -172,3 +172,14 @@ def ensure_member(db: Session, ctx: OrgContext, user_id: uuid.UUID | None) -> No
         return
     if not active_membership(db, user_id, ctx.org_id):
         raise HTTPException(status.HTTP_400_BAD_REQUEST, "Assigned user is not a member of this organisation")
+
+
+def ensure_assignable(db: Session, ctx: OrgContext, user_id: uuid.UUID | None) -> None:
+    """Owners of controls and policies must be current members who can do the work (not external auditors)."""
+    if user_id is None:
+        return
+    m = active_membership(db, user_id, ctx.org_id)
+    if not m:
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, "Assigned user is not a member of this organisation")
+    if m.role == "auditor":
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, "Auditors can't own controls or policies")

@@ -1,3 +1,4 @@
+import time
 import uuid
 from collections import defaultdict
 from datetime import date
@@ -6,10 +7,10 @@ from fastapi import APIRouter, File, Form, HTTPException, UploadFile, status
 from sqlalchemy import select
 from sqlalchemy.orm import selectinload
 
-from app.deps import DB, Ctx, WriterCtx, ensure_member, get_owned
-from app.models import Control, Evidence, Mapping, OrgFramework, Requirement, Task, TestResult
-from app.schemas import ControlCreate, ControlOut, ControlUpdate, EvidenceOut, TaskOut, UserBrief
-from app.services import audit, storage
+from app.deps import DB, Ctx, WriterCtx, ensure_assignable, get_owned
+from app.models import Control, Evidence, Mapping, OrgFramework, Requirement, Task, TestResult, User
+from app.schemas import ControlBulkUpdate, ControlCreate, ControlOut, ControlUpdate, EvidenceOut, TaskOut, UserBrief
+from app.services import audit, notify, storage
 from app.services.compliance import default_valid_until, latest_test_results, org_health, requirement_applies
 
 router = APIRouter(tags=["controls"])
@@ -100,23 +101,80 @@ def control_detail(control_id: uuid.UUID, db: DB, ctx: Ctx):
     }
 
 
+def _notify_owner(db, ctx, controls: list[Control], owner_id) -> None:
+    """Tell the new owner what they were given (not when people assign controls to themselves)."""
+    if not owner_id or owner_id == ctx.user.id or not controls:
+        return
+    owner = db.get(User, owner_id)
+    if not owner:
+        return
+    who = ctx.user.full_name or ctx.user.email
+    if len(controls) == 1:
+        c = controls[0]
+        title, link = f"{who} assigned you control {c.code}: {c.title}", f"/controls/{c.id}"
+    else:
+        title, link = f"{who} assigned you {len(controls)} controls", "/controls?owner=me"
+    body = "\n".join(f"{c.code} {c.title}" for c in controls[:50])
+    stamp = "-".join(sorted(str(c.id)[:8] for c in controls))[:120]
+    notify.queue(db, ctx.org_id, key=f"control-owner:{owner_id}:{stamp}:{int(time.time())}",
+                 event="control_assigned", title=title, body=body, link=link, to=[owner.email])
+
+
 @router.patch("/controls/{control_id}", response_model=ControlOut)
 def update_control(control_id: uuid.UUID, body: ControlUpdate, db: DB, ctx: WriterCtx):
     c = get_owned(db, Control, control_id, ctx)
     data = body.model_dump(exclude_unset=True)
     if data.pop("clear_owner", False):
-        c.owner_id = None
-    if "owner_id" in data:
-        ensure_member(db, ctx, data["owner_id"])
-    if data.get("status") == "not_applicable" and not (data.get("na_justification") or c.na_justification):
+        data["owner_id"] = None
+    for k in ("title", "category"):
+        if k in data:
+            if data[k] is None or not data[k].strip():
+                raise HTTPException(status.HTTP_400_BAD_REQUEST, f"{k.capitalize()} can't be empty")
+            data[k] = data[k].strip()
+    new_owner = "owner_id" in data and data["owner_id"] != c.owner_id
+    if new_owner:
+        ensure_assignable(db, ctx, data["owner_id"])
+    if data.get("status") == "not_applicable" and not (data.get("na_justification") or c.na_justification).strip():
         raise HTTPException(status.HTTP_400_BAD_REQUEST, "A justification is required to mark a control not applicable")
+    before = {k: getattr(c, k) for k in data}
     for k, v in data.items():
         setattr(c, k, v)
-    audit.record(db, ctx, "control.updated", c, code=c.code, fields=list(data))
+    changed = [k for k in data if before[k] != data[k]]
+    audit.record(db, ctx, "control.updated", c, code=c.code, fields=changed,
+                 **({"owner_id": str(c.owner_id) if c.owner_id else None} if new_owner else {}))
+    db.flush()
+    if new_owner:
+        _notify_owner(db, ctx, [c], c.owner_id)
     db.commit()
     db.refresh(c)
     controls, health = org_health(db, ctx.org_id)
     return _control_out(c, health[c.id], _framework_index(db, ctx))
+
+
+@router.post("/controls/bulk")
+def bulk_update(body: ControlBulkUpdate, db: DB, ctx: WriterCtx):
+    """Assign an owner, set a status or a review date on many controls at once."""
+    data = body.model_dump(exclude_unset=True, exclude={"ids"})
+    if data.pop("clear_owner", False):
+        data["owner_id"] = None
+    if not data:
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, "Nothing to change")
+    if data.get("owner_id"):
+        ensure_assignable(db, ctx, data["owner_id"])
+    controls = db.scalars(select(Control).where(Control.org_id == ctx.org_id, Control.id.in_(set(body.ids)))).all()
+    if len(controls) != len(set(body.ids)):
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "Some controls were not found")
+    reassigned = [c for c in controls if "owner_id" in data and c.owner_id != data["owner_id"]]
+    for c in controls:
+        for k, v in data.items():
+            setattr(c, k, v)
+    audit.record(db, ctx, "control.bulk_updated", None, count=len(controls), codes=sorted(c.code for c in controls),
+                 fields=sorted(data), **({"owner_id": str(data["owner_id"])} if data.get("owner_id") else {}))
+    db.flush()
+    if data.get("owner_id"):
+        _notify_owner(db, ctx, reassigned, data["owner_id"])
+    db.commit()
+    return {"updated": len(controls)}
 
 
 # ---------------------------------------------------------------- evidence

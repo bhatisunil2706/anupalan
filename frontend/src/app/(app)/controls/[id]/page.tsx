@@ -1,6 +1,6 @@
 "use client";
 
-import { Download, ExternalLink, FileText, Link2, StickyNote, Trash2, Zap } from "lucide-react";
+import { Download, ExternalLink, FileText, Link2, Pencil, StickyNote, Trash2, Zap } from "lucide-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -51,6 +51,7 @@ export default function ControlDetailPage() {
   const [naText, setNaText] = useState("");
   const [addingEvidence, setAddingEvidence] = useState(false);
   const [addingTask, setAddingTask] = useState(false);
+  const [editingDetails, setEditingDetails] = useState(false);
   const [fwTab, setFwTab] = useState("");
 
   useEffect(() => {
@@ -96,7 +97,14 @@ export default function ControlDetailPage() {
           <h1 className="mt-0.5 text-[22px] font-bold tracking-[-0.01em]">{c.title}</h1>
           <p className="mt-2 max-w-[72ch] text-sm leading-relaxed text-muted">{c.description}</p>
         </div>
-        <HealthBadge health={c.health} />
+        <div className="flex items-center gap-2">
+          {canWrite && (
+            <Button size="sm" variant="secondary" onClick={() => setEditingDetails(true)}>
+              <Pencil size={14} aria-hidden /> Edit
+            </Button>
+          )}
+          <HealthBadge health={c.health} />
+        </div>
       </header>
 
       <div className="grid grid-cols-1 gap-6 [&>*]:min-w-0 lg:grid-cols-[minmax(0,1fr)_320px]">
@@ -229,7 +237,7 @@ export default function ControlDetailPage() {
                   </Select>
                 )}
               </Field>
-              <Field label="Owner">
+              <Field label="Owner" hint={canWrite ? "The person responsible. They get an email when you assign them." : undefined}>
                 {(fid) => (
                   <MemberSelect
                     id={fid}
@@ -285,6 +293,12 @@ export default function ControlDetailPage() {
         </aside>
       </div>
 
+      <EditControl
+        open={editingDetails}
+        control={c}
+        onClose={() => setEditingDetails(false)}
+        onSaved={() => { setEditingDetails(false); toast("Control updated"); reload(); }}
+      />
       <AddEvidence open={addingEvidence} controlId={id} onClose={() => setAddingEvidence(false)} onDone={() => { setAddingEvidence(false); toast("Evidence added"); reload(); }} />
       <TaskDrawer open={addingTask} controlId={id} onClose={() => setAddingTask(false)} onDone={() => { setAddingTask(false); toast("Task added"); reload(); }} />
     </>
@@ -335,6 +349,75 @@ function AddEvidence({ open, controlId, onClose, onDone }: { open: boolean; cont
       {kind === "link" && <Field label="URL">{(id) => <Input id={id} type="url" value={url} onChange={(e) => setUrl(e.target.value)} placeholder="https://" />}</Field>}
       <Field label={kind === "note" ? "Note" : "Description (optional)"}>{(id) => <Textarea id={id} value={description} onChange={(e) => setDescription(e.target.value)} />}</Field>
       <Field label="Valid until" hint="Leave empty to use the control's review frequency.">{(id) => <Input id={id} type="date" value={validUntil} onChange={(e) => setValidUntil(e.target.value)} />}</Field>
+    </Drawer>
+  );
+}
+
+const FREQUENCIES = [
+  ["continuous", "Continuous"],
+  ["monthly", "Monthly"],
+  ["quarterly", "Quarterly"],
+  ["semiannual", "Every 6 months"],
+  ["annual", "Yearly"],
+  ["once", "Once"],
+] as const;
+
+function EditControl({ open, control, onClose, onSaved }: { open: boolean; control: Control; onClose: () => void; onSaved: () => void }) {
+  const [form, setForm] = useState({ title: "", description: "", category: "", frequency: "annual", owner: "" });
+  const [error, setError] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
+
+  useEffect(() => {
+    if (open) {
+      setForm({ title: control.title, description: control.description, category: control.category, frequency: control.frequency, owner: control.owner?.id ?? "" });
+      setError(null);
+    }
+  }, [open, control]);
+
+  async function save() {
+    setBusy(true);
+    setError(null);
+    const json: Record<string, unknown> = {};
+    if (form.title !== control.title) json.title = form.title;
+    if (form.description !== control.description) json.description = form.description;
+    if (form.category !== control.category) json.category = form.category;
+    if (form.frequency !== control.frequency) json.frequency = form.frequency;
+    if (form.owner !== (control.owner?.id ?? "")) Object.assign(json, form.owner ? { owner_id: form.owner } : { clear_owner: true });
+    if (!Object.keys(json).length) return onClose();
+    try {
+      await api(`/controls/${control.id}`, { method: "PATCH", json });
+      onSaved();
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Failed");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <Drawer
+      open={open}
+      onClose={onClose}
+      title={`Edit ${control.code}`}
+      footer={<><Button variant="ghost" onClick={onClose}>Cancel</Button><Button onClick={save} busy={busy} disabled={!form.title.trim() || !form.category.trim()}>Save</Button></>}
+    >
+      <FormError error={error} />
+      <Field label="Title">{(id) => <Input id={id} value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} />}</Field>
+      <Field label="Description" hint="Describe the control the way it works in your company. Auditors read this.">
+        {(id) => <Textarea id={id} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} className="min-h-[140px]" />}
+      </Field>
+      <Field label="Owner">{(id) => <MemberSelect id={id} value={form.owner} onChange={(v) => setForm({ ...form, owner: v })} />}</Field>
+      <div className="grid grid-cols-2 gap-3">
+        <Field label="Category">{(id) => <Input id={id} value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })} />}</Field>
+        <Field label="Review frequency">
+          {(id) => (
+            <Select id={id} value={form.frequency} onChange={(e) => setForm({ ...form, frequency: e.target.value })}>
+              {FREQUENCIES.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
+            </Select>
+          )}
+        </Field>
+      </div>
+      <p className="text-xs text-muted">The control code ({control.code}) and its framework mappings don't change, so your readiness scores stay correct.</p>
     </Drawer>
   );
 }

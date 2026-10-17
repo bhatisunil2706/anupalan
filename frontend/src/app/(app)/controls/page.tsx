@@ -2,7 +2,9 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+
+import { MemberSelect } from "@/components/pickers";
 
 import { useSession } from "@/components/session";
 import {
@@ -21,6 +23,7 @@ import {
   Select,
   Textarea,
   tbl,
+  useToast,
 } from "@/components/ui";
 import { api, useApi } from "@/lib/api";
 import type { Control, Health } from "@/lib/types";
@@ -35,6 +38,40 @@ export default function ControlsPage() {
   const [framework, setFramework] = useState("");
   const [owner, setOwner] = useState("");
   const [adding, setAdding] = useState(false);
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [bulkOwner, setBulkOwner] = useState("");
+  const [busy, setBusy] = useState(false);
+  const toast = useToast();
+
+  useEffect(() => {
+    const o = new URLSearchParams(window.location.search).get("owner");
+    if (o === "me" || o === "none") setOwner(o);
+  }, []);
+
+  async function setControlOwner(c: Control, userId: string) {
+    try {
+      await api(`/controls/${c.id}`, { method: "PATCH", json: userId ? { owner_id: userId } : { clear_owner: true } });
+      toast(userId ? `${c.code} assigned` : `${c.code} unassigned`);
+      reload();
+    } catch (e) {
+      toast(e instanceof Error ? e.message : "Failed", "error");
+    }
+  }
+
+  async function bulk(json: Record<string, unknown>, msg: string) {
+    setBusy(true);
+    try {
+      const r = await api<{ updated: number }>("/controls/bulk", { method: "POST", json: { ids: [...selected], ...json } });
+      toast(`${r.updated} controls ${msg}`);
+      setSelected(new Set());
+      setBulkOwner("");
+      reload();
+    } catch (e) {
+      toast(e instanceof Error ? e.message : "Failed", "error");
+    } finally {
+      setBusy(false);
+    }
+  }
 
   const categories = useMemo(() => [...new Set((data ?? []).map((c) => c.category))].sort(), [data]);
   const frameworks = useMemo(() => [...new Set((data ?? []).flatMap((c) => c.frameworks))].sort(), [data]);
@@ -51,6 +88,16 @@ export default function ControlsPage() {
       ),
     [data, q, health, category, framework, owner, me.user.id],
   );
+
+  const allShown = rows.length > 0 && rows.every((c) => selected.has(c.id));
+  function toggle(id: string) {
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }
 
   if (loading && !data) return <Loading />;
   if (error || !data) return <LoadError error={error ?? "Could not load"} retry={reload} />;
@@ -83,11 +130,41 @@ export default function ControlsPage() {
         </Select>
       </div>
 
+      {canWrite && selected.size > 0 && (
+        <div className="sticky top-2 z-10 mb-3 flex flex-wrap items-center gap-2 rounded-lg border border-ink/30 bg-ink-50 px-3 py-2 text-sm shadow-sm" role="region" aria-label="Bulk actions">
+          <span className="font-medium">{selected.size} selected</span>
+          <span className="mx-1 h-5 w-px bg-line" aria-hidden />
+          <div className="w-48">
+            <MemberSelect value={bulkOwner} onChange={setBulkOwner} emptyLabel="Choose a person…" />
+          </div>
+          <Button size="sm" disabled={!bulkOwner} busy={busy} onClick={() => bulk({ owner_id: bulkOwner }, "assigned")}>Assign</Button>
+          <Button size="sm" variant="secondary" busy={busy} onClick={() => bulk({ clear_owner: true }, "unassigned")}>Remove owner</Button>
+          <Select aria-label="Set status" className="w-40" value="" onChange={(e) => e.target.value && bulk({ status: e.target.value }, "updated")}>
+            <option value="">Set status…</option>
+            <option value="not_started">Not started</option>
+            <option value="in_progress">In progress</option>
+            <option value="implemented">Implemented</option>
+          </Select>
+          <button type="button" onClick={() => setSelected(new Set())} className="ml-auto text-muted hover:text-text">Clear selection</button>
+        </div>
+      )}
+
       <div className="rounded-lg border border-line bg-surface">
         <div className={tbl.wrap}>
           <table className={tbl.table}>
             <thead>
               <tr>
+                {canWrite && (
+                  <th className={`${tbl.th} w-10`}>
+                    <input
+                      type="checkbox"
+                      aria-label="Select all shown controls"
+                      className="h-4 w-4 accent-ink"
+                      checked={allShown}
+                      onChange={() => setSelected(allShown ? new Set() : new Set(rows.map((c) => c.id)))}
+                    />
+                  </th>
+                )}
                 <th className={tbl.th}>Control</th>
                 <th className={tbl.th}>Frameworks</th>
                 <th className={tbl.th}>Owner</th>
@@ -97,7 +174,12 @@ export default function ControlsPage() {
             </thead>
             <tbody>
               {rows.map((c) => (
-                <tr key={c.id} className={`${tbl.row} cursor-pointer`} onClick={() => router.push(`/controls/${c.id}`)}>
+                <tr key={c.id} className={`${tbl.row} cursor-pointer ${selected.has(c.id) ? "bg-ink-50/60" : ""}`} onClick={() => router.push(`/controls/${c.id}`)}>
+                  {canWrite && (
+                    <td className={tbl.td} onClick={(e) => e.stopPropagation()}>
+                      <input type="checkbox" aria-label={`Select ${c.code}`} className="h-4 w-4 accent-ink" checked={selected.has(c.id)} onChange={() => toggle(c.id)} />
+                    </td>
+                  )}
                   <td className={tbl.td}>
                     <Link href={`/controls/${c.id}`} className="block" onClick={(e) => e.stopPropagation()}>
                       <span className="text-xs font-semibold text-muted">{c.code}</span>
@@ -109,7 +191,15 @@ export default function ControlsPage() {
                       {c.frameworks.map((f) => <Badge key={f} tone="ink">{f}</Badge>)}
                     </div>
                   </td>
-                  <td className={`${tbl.td} whitespace-nowrap text-muted`}>{c.owner?.full_name ?? "—"}</td>
+                  <td className={`${tbl.td} whitespace-nowrap text-muted`} onClick={(e) => canWrite && e.stopPropagation()}>
+                    {canWrite ? (
+                      <div className="w-40" title="Change owner">
+                        <MemberSelect value={c.owner?.id ?? ""} onChange={(v) => setControlOwner(c, v)} emptyLabel="Unassigned" />
+                      </div>
+                    ) : (
+                      c.owner?.full_name ?? "—"
+                    )}
+                  </td>
                   <td className={`${tbl.td} whitespace-nowrap text-muted`}>
                     {c.valid_evidence}/{c.total_evidence}
                     {c.automatable && <span className="ml-1.5 text-xs text-prog" title="Can be checked by an integration">auto</span>}

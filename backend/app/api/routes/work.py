@@ -1,11 +1,12 @@
 """Tasks, policies, risks and vendors."""
+import re
 import uuid
 from datetime import datetime, timezone
 
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, File, HTTPException, UploadFile, status
 from sqlalchemy import func, select
 
-from app.deps import DB, AdminCtx, Ctx, WriterCtx, ensure_member, get_owned
+from app.deps import DB, AdminCtx, Ctx, WriterCtx, ensure_assignable, ensure_member, get_owned
 from app.models import (
     Control,
     Membership,
@@ -30,7 +31,7 @@ from app.schemas import (
     VendorIn,
     VendorOut,
 )
-from app.services import audit, notify
+from app.services import audit, doc_import, notify
 from app.services.policies import approve_policy, create_policy_from_template
 
 router = APIRouter()
@@ -150,11 +151,42 @@ def policy_from_template(body: FromTemplateIn, db: DB, ctx: WriterCtx):
     return _policy_out(db, ctx, p)
 
 
+def _valid_codes(db, ctx, codes: list[str]) -> list[str]:
+    wanted = sorted({c.strip().upper() for c in codes if c and c.strip()})
+    if not wanted:
+        return []
+    known = set(db.scalars(select(Control.code).where(Control.org_id == ctx.org_id, Control.code.in_(wanted))))
+    unknown = [c for c in wanted if c not in known]
+    if unknown:
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, f"Unknown control codes: {', '.join(unknown)}")
+    return wanted
+
+
+IMPORT_MAX_BYTES = 10 * 1024 * 1024
+
+
+@router.post("/policies/import", tags=["policies"])
+async def import_policy_document(ctx: WriterCtx, file: UploadFile = File(...)):
+    """Convert a Word (.docx) or PDF file into editor content. Nothing is saved until the user saves the policy."""
+    data = await file.read(IMPORT_MAX_BYTES + 1)
+    if len(data) > IMPORT_MAX_BYTES:
+        raise HTTPException(status.HTTP_413_REQUEST_ENTITY_TOO_LARGE, "Files up to 10 MB can be imported")
+    if not data:
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, "The file is empty")
+    try:
+        result = doc_import.convert(file.filename or "", data)
+    except doc_import.ImportError_ as e:
+        raise HTTPException(status.HTTP_422_UNPROCESSABLE_ENTITY, str(e)) from e
+    title = re.sub(r"[_-]+", " ", (file.filename or "").rsplit(".", 1)[0]).strip()[:200]
+    return {**result, "title": title}
+
+
 @router.post("/policies", response_model=PolicyOut, status_code=201, tags=["policies"])
 def create_policy(body: PolicyIn, db: DB, ctx: WriterCtx):
     slug = "custom-" + uuid.uuid4().hex[:8]
-    p = Policy(org_id=ctx.org_id, slug=slug, title=body.title, body_md=body.body_md,
-               control_codes=body.control_codes, owner_id=ctx.user.id)
+    ensure_assignable(db, ctx, body.owner_id)
+    p = Policy(org_id=ctx.org_id, slug=slug, title=body.title.strip(), body_md=body.body_md,
+               control_codes=_valid_codes(db, ctx, body.control_codes), owner_id=body.owner_id or ctx.user.id)
     db.add(p)
     db.flush()
     audit.record(db, ctx, "policy.created", p)
@@ -171,8 +203,18 @@ def get_policy(policy_id: uuid.UUID, db: DB, ctx: Ctx):
 def update_policy(policy_id: uuid.UUID, body: PolicyUpdate, db: DB, ctx: WriterCtx):
     p = get_owned(db, Policy, policy_id, ctx)
     data = body.model_dump(exclude_unset=True)
-    if "owner_id" in data:
-        ensure_member(db, ctx, data["owner_id"])
+    if data.pop("clear_owner", False):
+        data["owner_id"] = None
+    if data.get("owner_id"):
+        ensure_assignable(db, ctx, data["owner_id"])
+    if "title" in data:
+        if not (data["title"] or "").strip():
+            raise HTTPException(status.HTTP_400_BAD_REQUEST, "Title can't be empty")
+        data["title"] = data["title"].strip()
+    if "body_md" in data and data["body_md"] is None:
+        data.pop("body_md")
+    if "control_codes" in data:
+        data["control_codes"] = _valid_codes(db, ctx, data["control_codes"] or [])
     content_changed = any(k in data and data[k] != getattr(p, k) for k in ("title", "body_md"))
     for k, v in data.items():
         setattr(p, k, v)

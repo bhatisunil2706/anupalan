@@ -20,7 +20,10 @@ def main() -> None:
         with system_session() as db:
             print(load_content(db))
     elif cmd == "check-content":
+        from app.services import help as docs
+
         print(f"Content OK: every requirement maps to at least one control. {check_content()}")
+        print(f"Documentation OK: {docs.validate()} articles, all internal links resolve.")
     elif cmd == "sync-runtime-role":
         from app import rls
         from app.config import get_settings

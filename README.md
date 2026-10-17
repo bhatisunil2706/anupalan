@@ -27,6 +27,7 @@ India-first compliance automation. One set of controls, mapped to the **DPDP Act
 | People & access | HR roster matched to identity accounts, leaver checks, quarterly access reviews |
 | Data discovery | PostgreSQL, MySQL and S3 scanning for Indian identifiers; **self-hosted scanner agent** for private networks |
 | Alerts | Email, Slack and Teams: failing checks, regulator deadlines, rights requests, tasks, renewals, overdue training, expiring vendor certificates |
+| Documentation | In-app **Documentation** section (36 articles: getting started, every module, administration, self-hosting, API reference, platform security, glossary, FAQ) with search, an "On this page" outline, and a **Help** button on every page that opens the article for that page |
 | Operations | Docker Compose with a migration/runtime database role split, Caddy TLS, encrypted backups, read-only containers, `/metrics`, JSON logs, CI with security scanning |
 
 ## Run it
@@ -130,6 +131,10 @@ docs/security.md      Threat model and security design
 ## Adding a connector
 
 Subclass `Connector` in `backend/app/integrations/`, declare `fields` and `tests` (each test lists the control codes it proves), implement `verify()` and `run()`, and register it in `integrations/__init__.py`. Validate customer-supplied hosts with `guarded_base_url`. See `okta.py` and `tests/test_connectors.py` for the pattern.
+
+## Editing the documentation
+
+Articles are Markdown files in `backend/app/content/help/`, with front matter: `title`, `section` (one of the sections in `app/services/help.py`), `order`, `summary` and optionally `routes` (app pages the **Help** button should open this article from, for example `/controls, /controls/*`). Link to other articles as `/docs/<slug>#<heading>`. `python -m app.cli check-content` and the tests fail if any link or heading anchor doesn't resolve.
 
 ## Before customer launch
 

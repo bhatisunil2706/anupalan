@@ -83,7 +83,7 @@ jobs:
           docker build -t anupalan-backend backend
           docker build -t anupalan-web frontend
       - name: Image scan (Trivy)
-        uses: aquasecurity/trivy-action@0.28.0
+        uses: aquasecurity/trivy-action@v0.36.0
         with:
           scan-type: image
           image-ref: anupalan-backend
@@ -91,7 +91,7 @@ jobs:
           ignore-unfixed: true
           exit-code: "1"
       - name: Config scan (Trivy)
-        uses: aquasecurity/trivy-action@0.28.0
+        uses: aquasecurity/trivy-action@v0.36.0
         with:
           scan-type: config
           scan-ref: .

@@ -12,7 +12,7 @@ python-multipart>=0.0.20
 PyYAML>=6.0.2
 httpx==0.28.1
 boto3==1.43.108
-google-auth>=2.40
+google-auth>=2.62.0
 requests>=2.32
 PyMySQL>=1.1
 pyotp==2.10.0

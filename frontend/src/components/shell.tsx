@@ -3,6 +3,8 @@
 import {
   AlertOctagon,
   BadgeCheck,
+  BookOpen,
+  CircleHelp,
   FileSearch,
   GraduationCap,
   Lock,
@@ -92,6 +94,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   const [members, setMembers] = useState<Member[]>([]);
   const [navOpen, setNavOpen] = useState(false);
   const [toReview, setToReview] = useState(0);
+  const [pageHelp, setPageHelp] = useState<{ slug: string; title: string } | null>(null);
 
   const refresh = useCallback(async () => {
     try {
@@ -113,6 +116,12 @@ export function AppShell({ children }: { children: ReactNode }) {
   }, [refresh]);
 
   useEffect(() => setNavOpen(false), [pathname]);
+  useEffect(() => {
+    if (pathname.startsWith("/docs")) return setPageHelp(null);
+    api<{ article: { slug: string; title: string } | null }>(`/help/for-page?path=${encodeURIComponent(pathname)}`)
+      .then((r) => setPageHelp(r.article))
+      .catch(() => setPageHelp(null));
+  }, [pathname]);
   useEffect(() => {
     if (!me || me.mfa_setup_required) return;
     api<{ mine: number }>("/evidence/review-count").then((r) => setToReview(r.mine)).catch(() => {});
@@ -191,6 +200,16 @@ export function AppShell({ children }: { children: ReactNode }) {
       </div>
       <div className="border-t border-white/10 px-3 py-3">
         <Link
+          href="/docs"
+          className={cx(
+            "flex items-center gap-2.5 rounded-md px-2 py-1.5 text-sm hover:bg-white/8 hover:text-white",
+            pathname.startsWith("/docs") && "bg-white/12 text-white",
+          )}
+        >
+          <BookOpen size={16} strokeWidth={1.8} aria-hidden />
+          Documentation
+        </Link>
+        <Link
           href="/account/security"
           className={cx(
             "flex items-center gap-2.5 rounded-md px-2 py-1.5 text-sm hover:bg-white/8 hover:text-white",
@@ -249,6 +268,15 @@ export function AppShell({ children }: { children: ReactNode }) {
         </div>
         <Banners me={me} />
         <main className="mx-auto max-w-[1200px] px-4 py-6 sm:px-6 lg:px-8 lg:py-8">{children}</main>
+        {pageHelp && (
+          <Link
+            href={`/docs/${pageHelp.slug}`}
+            className="fixed bottom-5 right-5 z-20 flex items-center gap-1.5 rounded-full border border-line bg-surface py-2 pl-2.5 pr-3.5 text-sm font-medium text-ink shadow-md hover:border-ink/40"
+            title={`Documentation: ${pageHelp.title}`}
+          >
+            <CircleHelp size={17} aria-hidden /> Help<span className="sr-only">: {pageHelp.title}</span>
+          </Link>
+        )}
       </div>
     </SessionProvider>
   );

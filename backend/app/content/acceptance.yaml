@@ -1,0 +1,353 @@
+# What good evidence must show for each control, written as checks a reviewer (and the AI evidence check) can apply.
+# One control can be covered by several pieces of evidence; together they should show every point.
+# CONTENT STATUS: draft. Review with an ISO 27001 Lead Auditor before customer release.
+acceptance:
+  GOV-01:
+    - The policy names the company and covers information security objectives and responsibilities
+    - It shows a version number, an approver and an approval date
+    - It was approved or reviewed within the last 12 months
+  GOV-02:
+    - The ISMS scope states which locations, teams, systems and services are included
+    - Interested parties and their requirements are listed
+    - It is approved and dated within the last 12 months
+  GOV-03:
+    - Minutes of a management review held within the last 12 months, with the date
+    - Attendees include senior management
+    - Inputs covered (risks, audit results, incidents, objectives) and decisions or actions are recorded
+  GOV-04:
+    - Named people or roles are responsible for security and privacy
+    - Responsibilities are described (RACI, job descriptions or org chart)
+    - The document is current (reviewed within the last 12 months)
+  GOV-05:
+    - Conflicting duties are identified (for example request, approve and deploy)
+    - Each conflict is split between different people, or a compensating control is described
+  GOV-06:
+    - Security objectives are measurable and have owners and target dates
+    - Resources or budget for security are shown
+    - The plan is dated within the current year
+  GOV-07:
+    - A register lists controlled documents with version and approval details
+    - Sample procedures show an owner, version and review date
+  GOV-08:
+    - The code of conduct covers confidentiality and acceptable behaviour
+    - Records show staff acknowledged it
+  GOV-09:
+    - At least one security communication sent to staff in the review period, with the date
+    - The audience (all staff or a group) is visible
+  GOV-10:
+    - Public or contractual security and privacy commitments are shown (trust page, terms or addendum)
+    - The commitments are current
+  GOV-11:
+    - A contact list for authorities (CERT-In, police, regulators) exists and is current
+    - A CERT-In point of contact is designated, with a record that the details were shared with CERT-In
+  GOV-12:
+    - Applicable laws, regulations and contracts are listed with owners
+    - The register shows a review date within the last 12 months
+  GOV-13:
+    - An internal audit plan covers the management system and controls
+    - An audit report from the review period lists findings
+    - Findings are tracked to owners and due dates
+  GOV-14:
+    - Security metrics with values for a recent period
+    - The metrics were reviewed or reported to management
+  GOV-15:
+    - Corrective actions record root cause, owner and due date
+    - Closed actions show closure date and verification
+  GOV-16:
+    - A completed security review for a real project or change in the review period
+    - Security requirements or risks identified are recorded with outcomes
+  GOV-17:
+    - Competence requirements are defined for security roles
+    - Training, certification or experience records show people meet them
+  RISK-01:
+    - A documented risk assessment method (likelihood, impact, criteria for acceptance)
+    - A risk register with owners and scores, updated within the last 12 months
+  RISK-02:
+    - A treatment decision and plan for each significant risk
+    - A Statement of Applicability (or equivalent) with justification for included and excluded controls
+    - Risk owners approved the plan and residual risk
+  RISK-03:
+    - Fraud risks (payment fraud, insider fraud, misuse) appear in the risk register
+    - Each has controls or treatment recorded
+  RISK-04:
+    - Impact assessments exist for significant changes in the review period
+    - They record risks, approvals and the decision
+  RISK-05:
+    - Subscriptions or feeds for threat information (CERT-In advisories, vendor bulletins)
+    - At least one example of an action taken on threat information
+  AST-01:
+    - The inventory lists hardware, software, cloud services and data stores
+    - Every asset has an owner
+    - The export or update date is within the review period
+  AST-02:
+    - An approved acceptable use policy
+    - Staff acknowledgments of it
+  AST-03:
+    - Classification levels are defined
+    - Handling rules for each level (storage, sharing, disposal) are stated
+  AST-04:
+    - Disposal or wipe records name the device or media and the date
+    - The method meets a recognised standard or a certificate from the disposal vendor is shown
+  AST-05:
+    - A report from device management covering company devices
+    - Disk encryption and screen lock are shown as enforced or compliant
+    - The report is dated within the review period
+  AST-06:
+    - A retention schedule for important records
+    - Records are stored with access and integrity controls
+  ACC-01:
+    - An approved access control policy covering granting, review and removal of access
+    - It is dated within the last 12 months
+  ACC-02:
+    - Access requests show an approval before access was granted
+    - Leaver records show access removed promptly (date of exit and date of removal)
+    - Samples are from the review period
+  ACC-03:
+    - MFA is enforced (not just available) for all users in the identity provider
+    - MFA is enforced for cloud console and administrator access
+    - The screenshot or report shows the date or was exported within the review period
+  ACC-04:
+    - A list of privileged accounts with named owners
+    - Root or break-glass accounts are protected with MFA and their use is monitored
+  ACC-05:
+    - The review covers the systems in scope and was completed in the review period
+    - The reviewer is named and signed off
+    - Changes identified in the review were carried out
+  ACC-06:
+    - Roles or groups grant only what is needed for production and personal data
+    - Access lists for sensitive data stores match those roles
+  ACC-07:
+    - The list of people with repository access and admin rights
+    - Access is limited to people who need it
+  ACC-08:
+    - Password rules enforced by the system (length, breached password checks or equivalent)
+    - Secrets are stored in a secrets manager or secret scanning is enabled
+  HR-01:
+    - Background checks for a sample of joiners in the review period
+    - Checks were completed before or soon after joining, as the policy requires
+  HR-02:
+    - Signed confidentiality agreements or employment terms with confidentiality clauses
+    - Samples are for joiners in the review period
+  HR-03:
+    - A completion report covering all staff for the required courses
+    - Completion dates are within the training cycle
+  HR-04:
+    - A disciplinary process that covers security and privacy violations
+    - The document is approved and current
+  HR-05:
+    - Offboarding checklists for leavers in the review period
+    - Asset return and access removal are confirmed with dates
+  HR-06:
+    - A remote working policy
+    - Technical enforcement (VPN, device management or conditional access) is shown
+  HR-07:
+    - A channel for staff to report security events
+    - Example reports were triaged and closed
+  PHY-01:
+    - Office access controls (badge system records or visitor log) from the review period
+    - For cloud-hosted systems, the provider's current ISO 27001 or SOC 2 report was reviewed
+  PHY-02:
+    - Maintenance records for facility equipment, or a review of the cloud provider's attestation
+    - Dated within the review period
+  PHY-03:
+    - Screen lock after inactivity is enforced on devices
+    - A clear desk and clear screen rule is documented
+  OPS-01:
+    - Malware protection or EDR covers all company endpoints and servers
+    - The console shows coverage and current status, dated within the review period
+  OPS-02:
+    - Scan reports from the review period
+    - Remediation timelines by severity are defined and tracked
+    - Critical and high findings are fixed within the defined timelines or have approved exceptions
+  OPS-03:
+    - A penetration test report from the last 12 months by a qualified tester
+    - Findings are tracked to remediation or accepted with justification
+  OPS-04:
+    - Documented configuration baselines for key systems
+    - Drift or compliance results against the baseline
+  OPS-05:
+    - Capacity or performance monitoring with alert thresholds
+    - Evidence of review or action on capacity alerts
+  OPS-06:
+    - Backups are configured for critical systems, with frequency and retention shown
+    - A restore test was performed in the review period, with the result
+  OPS-07:
+    - The architecture shows redundancy (multiple zones, replicas or failover)
+    - Failover or resilience was tested or monitored
+  OPS-08:
+    - Production personal data is not used in test, or it is masked
+    - The masking method or test data procedure is documented
+  OPS-09:
+    - Sharing restrictions or DLP rules are configured
+    - Settings are shown for the main collaboration and email tools
+  OPS-10:
+    - Web filtering is configured for company devices or networks
+    - Blocked categories or policies are shown
+  LOG-01:
+    - Logs from key systems are collected centrally
+    - Retention is at least 180 days and stored in India where required
+  LOG-02:
+    - Alert rules or a threat detection service are enabled
+    - Sample alerts were triaged with outcomes recorded
+  LOG-03:
+    - Servers and cloud services synchronise time with a reliable source (NIC or NPL NTP, or the cloud provider's time service)
+    - Configuration is shown for production systems
+  NET-01:
+    - A current network diagram
+    - Firewall or security group rules restrict access to what is needed
+    - Public access to storage and databases is blocked unless justified
+  NET-02:
+    - Public endpoints use TLS 1.2 or higher
+    - A scanner report (for example SSL Labs) or configuration from the review period
+  CRY-01:
+    - Databases, volumes and storage buckets are encrypted at rest
+    - Keys are managed in a key management service with restricted access
+  SDL-01:
+    - A secure development policy or procedure
+    - A threat model or security review for a recent feature
+  SDL-02:
+    - Branch protection requires review before merge on main branches
+    - Sample pull requests show approval by someone other than the author
+  SDL-03:
+    - Security scanning (code, dependencies, secrets) runs in the pipeline
+    - Results from the review period, with high findings addressed
+  SDL-04:
+    - Production, staging and development are separate accounts, projects or networks
+    - Access to production is limited
+  SDL-05:
+    - Changes in the review period have approval before deployment
+    - Deployment records link to the approved change
+  SDL-06:
+    - Contracts with outsourced developers include security and confidentiality terms
+    - Their code is reviewed or tested before release
+  SDL-07:
+    - An approved plan for audit or penetration testing on production
+    - It limits scope, timing and access to avoid disruption
+  VEN-01:
+    - An inventory of vendors with a risk tier for each
+    - Assessments for high-risk vendors completed in the review period
+  VEN-02:
+    - Signed data processing agreements or security terms for vendors handling personal data
+    - The agreements cover security, breach notification and deletion
+  VEN-03:
+    - A cloud usage policy or approved list of cloud services
+    - The cloud providers' current attestations were reviewed
+  INC-01:
+    - An approved incident response plan with roles and severity levels
+    - A tabletop exercise or real incident in the last 12 months, with lessons recorded
+  INC-02:
+    - Incident records show when the incident was noticed
+    - Reportable incidents show a CERT-In report within 6 hours, or the plan defines this step and the PoC
+  INC-03:
+    - Breach records show notification timestamps
+    - Copies of notices to the Data Protection Board and affected people, or the procedure if there were none
+  INC-04:
+    - Post-incident reviews identify root cause
+    - Actions from reviews are tracked to completion
+  INC-05:
+    - A procedure for collecting and preserving incident evidence
+    - It covers chain of custody and log preservation
+  BCP-01:
+    - A business continuity and disaster recovery plan with recovery objectives (RTO, RPO)
+    - A test of the plan in the last 12 months, with results and actions
+  PRV-01:
+    - The inventory lists processing activities with purpose, data categories and lawful basis
+    - Processors and retention are recorded
+    - It was updated within the review period
+  PRV-02:
+    - The published privacy notice, with its URL or a screenshot
+    - It covers purposes, data categories, rights and how to complain
+    - Versions or languages offered are shown
+  PRV-03:
+    - Screenshots of the consent flow showing a clear, specific request
+    - Sample consent records with timestamp, notice version and purpose
+  PRV-04:
+    - A withdrawal option as easy as giving consent
+    - A procedure or log showing withdrawal is passed to processors
+  PRV-05:
+    - Integration documentation with a registered Consent Manager
+    - Test records showing consent artefacts are exchanged
+  PRV-06:
+    - Legitimate uses are recorded for processing without consent
+    - Each has the specific legal ground
+  PRV-07:
+    - Data subjects can update their details, or data quality checks run
+    - Evidence of corrections being applied
+  PRV-08:
+    - A retention schedule by data category
+    - Logs or records showing deletion jobs ran in the review period
+  PRV-09:
+    - The website or app shows the DPO or privacy contact's details
+    - The screenshot is current
+  PRV-10:
+    - A log of rights requests with received and closed dates
+    - Responses fall within the required timelines
+  PRV-11:
+    - Age verification or gating for services used by children
+    - Verifiable parental consent flow
+    - Tracking and targeted advertising are disabled for child users
+  PRV-12:
+    - Appointment of a DPO based in India
+    - An independent data auditor engaged, with DPIA and audit reports
+  PRV-13:
+    - A register of transfers outside India with destination countries
+    - Each transfer is reviewed against restrictions in force, with a review date
+  PRV-14:
+    - A privacy review checklist used for new features
+    - A completed review for a recent feature
+  CIN-01:
+    - Subscriber records capture the fields required by CERT-In
+    - Retention of at least 5 years is configured
+  CIN-02:
+    - KYC and transaction records are captured
+    - Retention of at least 5 years is configured
+  GOV-18:
+    - A charter for the board committee overseeing IT and cyber risk
+    - Minutes from the review period show cyber risk discussed and decisions recorded
+  OPS-11:
+    - File integrity monitoring or immutable storage is configured for critical data and logs
+    - A sample alert or verification result
+  OPS-12:
+    - Input validation or reconciliation controls are defined for critical processing
+    - Reconciliation or exception reports from the review period
+  PRV-15:
+    - A screening checklist decides when a DPIA is needed
+    - Completed DPIAs with risks, measures and sign-off
+  PRV-16:
+    - A written appointment of an EU representative
+    - The privacy notice names the representative
+  PCI-01:
+    - A scope document and cardholder data-flow diagram
+    - Segmentation test results from the last 12 months
+  PCI-02:
+    - Card numbers are masked when displayed
+    - Stored card numbers are tokenised, truncated or strongly encrypted
+    - Sensitive authentication data is not stored after authorisation
+  PCI-03:
+    - An inventory of scripts on payment pages with justification
+    - Integrity checks or change detection on payment pages
+  PCI-04:
+    - Passing external ASV scan reports for each quarter
+    - Internal scan reports with high findings remediated
+  PCI-05:
+    - An inventory of payment terminals
+    - Inspection records and point-of-sale staff training
+  AI-01:
+    - An approved AI policy
+    - An inventory of AI systems with owners and risk levels
+  AI-02:
+    - Completed AI impact assessments for AI systems in scope
+    - Treatment decisions and approvals are recorded
+  AI-03:
+    - Design documentation or model cards for AI systems
+    - Evaluation results against acceptance criteria before release
+    - Monitoring of AI systems in production
+  AI-04:
+    - A register of datasets with source and right to use
+    - Data quality checks and preparation steps are recorded
+  AI-05:
+    - User-facing disclosures that AI is in use, with limitations
+    - A route for users to get human review or report problems
+  AI-06:
+    - Rules for staff use of AI tools
+    - Assessments of AI suppliers or models used

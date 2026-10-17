@@ -4,13 +4,14 @@ India-first compliance automation. One set of controls, mapped to the **DPDP Act
 
 > "Anupalan" (अनुपालन, compliance) is a placeholder. Change it with `NEXT_PUBLIC_APP_NAME` and `APP_NAME`.
 
-## What's in v0.4
+## What's in v0.5
 
 | Area | What works |
 | --- | --- |
 | Accounts | Sign-up with email verification, password reset, multiple organisations per user, invitations, roles (owner, admin, member, auditor with time-limited access) |
 | Security | Two-step verification (TOTP + recovery codes), org-enforced MFA, SSO (Google, Microsoft Entra ID, Okta, any OIDC) with verified domains, server-side revocable sessions with a device list, breached-password blocking, PostgreSQL row-level security, per-company encrypted evidence, hash-chained audit log, strict CSP, CSRF tokens, Redis rate limits. See [SECURITY.md](SECURITY.md) and [docs/security.md](docs/security.md) |
 | Content | 11 frameworks, 620 requirements, 110 controls, every requirement mapped (validated in tests). India: DPDP, CERT-In, RBI IT Governance (2023), SEBI CSCRF (2024). Global: ISO 27001 (all clauses and 93 Annex A controls), SOC 2 (all five categories; Processing Integrity and Privacy switch on in the profile), NIST CSF 2.0 (all 106 outcomes), PCI DSS v4.0.1, ISO 42001. Other regions: GDPR, HIPAA Security and Breach Notification Rules. 8 policy templates, 12 training courses, 7 vendor questionnaires |
+| Evidence assurance | **Second-person review**: uploaded evidence counts only after the control owner or an admin (not the uploader) approves it; review queue with a badge in the menu. **What the evidence must show**: 2-3 acceptance criteria for each of the 110 controls (editable per company); uploaders tick what their file shows and the control page shows which points are covered. **Automatic checks**: SHA-256 fingerprint at upload (verified on download), reused files from earlier periods, documents dated before the review period, unfinished templates, broken links. **AI evidence check** (opt-in, owner only): Claude reads the file against the criteria and gives an advisory verdict. **Auditor sampling**: reproducible random samples with pass/exception results and Excel export. Evidence packs contain only approved evidence, with who added and approved each item |
 | Controls | Status, owner, review dates, N/A with justification, evidence (file, link, note), health (passing / needs evidence / failing check), custom controls. Edit any control's title, description, category and review frequency. Change the owner inline in the list or **assign many at once** (bulk owner / status); new owners get an email |
 | Readiness | Per-framework score; conditional requirements drop out when they don't apply. Onboarding suggests frameworks by sector and only asks the profile questions for the frameworks picked |
 | Risk register | Likelihood x impact heat map, treatment plans, linked controls. **Jira**: every new risk gets an issue automatically, edits are pushed, Jira status flows back (Done = treated, reopened = open), and issues matching a JQL filter are imported as risks |
@@ -53,7 +54,7 @@ docker compose run --rm migrate python -m app.cli seed-demo          # add --res
 | AarogyaLink Health (DPDP, ISO 27001; about 45%) | sameer@aarogyalink.example | lakshmi@aarogyalink.example | imran@aarogyalink.example | deepa@aarogyalink.example |
 | KiranaKart Commerce (DPDP, CERT-In, SOC 2; just starting) | rajesh@kiranakart.example | sunita@kiranakart.example | amit@kiranakart.example | none |
 
-`.example` addresses are reserved and never receive email. Connector results in the demo are simulated. The seed command refuses to run when `ENVIRONMENT=production`; `python -m app.cli remove-demo` deletes it all.
+`.example` addresses are reserved and never receive email. Connector results in the demo are simulated, and so are the AI evidence check verdicts on Paisa Setu's review queue (set `ANTHROPIC_API_KEY` to run real checks on new uploads). The seed command refuses to run when `ENVIRONMENT=production`; `python -m app.cli remove-demo` deletes it all.
 
 ### Production
 

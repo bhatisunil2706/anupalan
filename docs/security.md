@@ -100,12 +100,34 @@ each feature suite.
 
 - Off by default; only the owner can turn it on, after acknowledging what is shared.
 - Only the organisation's own policy text, control descriptions and implementation notes, framework requirements
-  and the questions the user uploads are sent. Evidence files, people data, consent records and credentials are
-  never sent.
+  and the questions the user uploads are sent. People data, consent records and credentials are never sent.
+- Evidence files are sent only by the **AI evidence check**, a separate owner-only switch that needs the assistant
+  turned on and an explicit acknowledgement. Turning the assistant off turns evidence checks off too. The file is
+  passed as untrusted data; the model's verdict is validated field by field (unknown criteria and malformed output
+  are dropped, a failed parse marks the check as failed) and is advice only: it never approves or rejects evidence.
+  Evidence checks don't count towards the assistant's daily limit and run in the background worker.
 - Retrieved content is wrapped as data with an instruction not to follow embedded instructions. Output must be
   JSON; it is parsed strictly, citations to passages that weren't sent are dropped, unsupported answers are marked
   low confidence, and nothing is acted on automatically. People review and save drafts explicitly.
 - Per-organisation daily limits.
+
+## Evidence integrity and review
+
+- **Fingerprints.** Every uploaded file is hashed (SHA-256) before it is encrypted and stored. Downloads recompute the
+  hash and refuse a file that no longer matches (logged as `evidence.integrity_failed`); the evidence pack records
+  the upload-time hash and whether each file is unchanged. Files uploaded before fingerprints existed are hashed by
+  the worker and marked with the date the fingerprint was taken.
+- **Second-person review** (on by default). Uploaded files, links and notes count towards a control only after a
+  different person approves them: an admin, the owner, or the control's owner. The uploader can approve their own
+  evidence only when no one else could; that approval is flagged as self-approved for the auditor. Auditors can't
+  approve. Rejections need a reason, which is sent to the uploader. Evidence from integrations and platform workflows
+  is approved automatically because no person chose its content.
+- **Automatic checks** flag reuse of the same file from an earlier review period, documents dated before the period,
+  unfinished templates, very short documents, unreadable files and broken or sign-in-only links. Link checks follow
+  at most three redirects, each checked against the SSRF guard. Checks never block an upload; they inform the
+  reviewer and appear in the evidence pack.
+- **Auditor sampling.** Samples are drawn from approved evidence with a stored random seed, so the selection can be
+  re-performed. Each result records the tester and time; a file changed after sampling is flagged.
 
 ## Browser security
 

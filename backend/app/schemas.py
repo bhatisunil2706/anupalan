@@ -119,6 +119,8 @@ class OrgOut(ORM):
     profile: dict
     onboarded_at: datetime | None
     rights_request_sla_days: int
+    require_evidence_review: bool = True
+    ai_evidence_checks: bool = False
 
 
 class OrgUpdate(BaseModel):
@@ -153,6 +155,7 @@ class ControlOut(BaseModel):
     next_review_date: date | None
     valid_evidence: int
     total_evidence: int
+    pending_review: int = 0
     frameworks: list[str]
     automatable: bool
     failing_tests: list[str]
@@ -163,6 +166,7 @@ Frequency = Literal["once", "continuous", "monthly", "quarterly", "semiannual", 
 
 
 class ControlUpdate(BaseModel):
+    acceptance_criteria: list[str] | None = Field(default=None, max_length=20)
     title: str | None = Field(default=None, min_length=1, max_length=200)
     description: str | None = Field(default=None, max_length=10000)
     category: str | None = Field(default=None, min_length=1, max_length=100)
@@ -205,6 +209,23 @@ class EvidenceOut(ORM):
     valid_until: date | None
     uploaded_by: UserBrief | None
     data: dict
+    review_status: str = "approved"
+    reviewed_by: UserBrief | None = None
+    reviewed_at: datetime | None = None
+    review_note: str = ""
+    self_approved: bool = False
+    sha256: str = ""
+    document_date: date | None = None
+    checks: list[dict] = []
+    ai_check: dict = {}
+    criteria_confirmed: list[int] = []
+    trust: str = "uploaded"
+    can_review: bool = False
+
+
+class EvidenceDecision(BaseModel):
+    decision: Literal["approve", "reject"]
+    note: str = Field(default="", max_length=2000)
 
 
 # ---------------------------------------------------------------- tasks

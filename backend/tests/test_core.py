@@ -74,6 +74,10 @@ def test_control_health_and_readiness(owner):
     assert r.status_code == 201, r.text
     assert r.json()["valid_until"] is not None
     detail = owner.get(f"/api/controls/{ctl['id']}").json()
+    assert detail["control"]["health"] == "needs_evidence" and detail["control"]["pending_review"] == 1
+    # a sole member may approve their own evidence (flagged as self-approved)
+    assert owner.post(f"/api/evidence/{r.json()['id']}/review", json={"decision": "approve"}).json()["self_approved"]
+    detail = owner.get(f"/api/controls/{ctl['id']}").json()
     assert detail["control"]["health"] == "passing"
     assert {"CERT-In", "ISO 27001", "SOC 2"} <= set(detail["control"]["frameworks"])
     certin = next(x for x in owner.get("/api/frameworks/readiness").json() if x["code"] == "certin")

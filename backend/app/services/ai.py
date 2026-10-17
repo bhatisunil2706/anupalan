@@ -2,8 +2,9 @@
 
 Safety model
 - Off by default. An owner must enable it per organisation, and the server must have an API key.
-- Retrieval only sends the organisation's own policies, controls and framework requirements, never evidence files,
-  people data, consent records or credentials.
+- Retrieval only sends the organisation's own policies, controls and framework requirements, never people data,
+  consent records or credentials. Evidence files are sent only by the evidence check, which has its own owner-only
+  opt-in (ai_evidence_checks) on top of ai_enabled.
 - Everything retrieved is wrapped as untrusted data. The model must return JSON; we parse it strictly, drop any
   citation that doesn't point at a passage we actually sent, and never act on the output. People review every
   draft before it becomes a policy or is sent to a customer.
@@ -40,7 +41,8 @@ class AiError(Exception):
 _transport: httpx.BaseTransport | None = None  # tests inject a MockTransport
 
 
-def complete(system: str, prompt: str, max_tokens: int = 4000) -> tuple[str, int, int]:
+def complete(system: str, prompt: str | list[dict], max_tokens: int = 4000) -> tuple[str, int, int]:
+    """Call the Messages API. `prompt` is text, or a list of content blocks (text, image, document)."""
     s = get_settings()
     if not s.anthropic_api_key:
         raise AiError("The AI assistant isn't configured on this server")
@@ -263,7 +265,14 @@ def run_questionnaire(db: Session, job: AiJob, org: Organization) -> dict:
     return {"answers": answers, "_usage": (tin_total, tout_total)}
 
 
-RUNNERS = {"policy_draft": run_policy_draft, "gap_analysis": run_gap_analysis, "questionnaire": run_questionnaire}
+def run_evidence_check(db: Session, job: AiJob, org: Organization) -> dict:
+    from app.services.evidence_ai import check_evidence
+
+    return check_evidence(db, job, org)
+
+
+RUNNERS = {"policy_draft": run_policy_draft, "gap_analysis": run_gap_analysis, "questionnaire": run_questionnaire,
+           "evidence_check": run_evidence_check}
 
 
 def process_job(db: Session, job: AiJob) -> None:
@@ -282,6 +291,12 @@ def process_job(db: Session, job: AiJob) -> None:
         log.exception("ai job %s failed", job.id)
         job.status, job.error = "failed", "Something went wrong while generating this. Try again."
     job.finished_at = datetime.now(timezone.utc)
+    if job.kind == "evidence_check" and job.status == "failed":
+        from app.models import Evidence
+
+        ev = db.get(Evidence, uuid.UUID(str(job.input.get("evidence_id"))))
+        if ev is not None:
+            ev.ai_check = {"status": "failed", "error": job.error}
     db.commit()
 
 

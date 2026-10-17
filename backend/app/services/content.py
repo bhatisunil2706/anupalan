@@ -29,7 +29,14 @@ def read_frameworks() -> list[dict]:
 
 
 def read_controls() -> list[dict]:
-    return yaml.safe_load((CONTENT_DIR / "controls.yaml").read_text())["controls"]
+    controls = yaml.safe_load((CONTENT_DIR / "controls.yaml").read_text())["controls"]
+    acceptance = yaml.safe_load((CONTENT_DIR / "acceptance.yaml").read_text())["acceptance"]
+    for c in controls:
+        c["acceptance"] = acceptance.get(c["code"], [])
+    unknown = set(acceptance) - {c["code"] for c in controls}
+    if unknown:
+        raise ContentError(f"acceptance.yaml lists unknown controls: {sorted(unknown)}")
+    return controls
 
 
 def read_policy_templates() -> list[dict]:
@@ -109,6 +116,9 @@ def validate_questions(questions: list[dict], where: str) -> None:
 def check_content() -> dict:
     """Read and validate all framework content without touching the database."""
     frameworks, controls = read_frameworks(), read_controls()
+    thin = [c["code"] for c in controls if len(c.get("acceptance", [])) < 2]
+    if thin:
+        raise ContentError(f"Controls need at least two acceptance criteria: {thin}")
     merge_requirement_mappings(frameworks, controls)
     validate_content(frameworks, controls)
     for q in read_yaml_dir("questionnaires"):
@@ -158,6 +168,7 @@ def load_content(db: Session) -> dict:
         tpl.category = c["category"]
         tpl.frequency = c["frequency"]
         tpl.evidence_hint = c.get("evidence_hint", "")
+        tpl.acceptance_criteria = list(c.get("acceptance", []))
         tpl.automatable = bool(c.get("automated", False))
         db.add(tpl)
         db.flush()

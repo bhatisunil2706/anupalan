@@ -59,6 +59,7 @@ export interface Control {
   frameworks: string[];
   automatable: boolean;
   failing_tests: string[];
+  pending_review: number;
 }
 
 export interface Evidence {
@@ -75,6 +76,31 @@ export interface Evidence {
   valid_until: string | null;
   uploaded_by: UserBrief | null;
   data: Record<string, unknown>;
+  review_status: "pending" | "approved" | "rejected";
+  reviewed_by: UserBrief | null;
+  reviewed_at: string | null;
+  review_note: string;
+  self_approved: boolean;
+  sha256: string;
+  document_date: string | null;
+  checks: EvidenceCheck[];
+  ai_check: AiCheck;
+  criteria_confirmed: number[];
+  trust: "automated" | "platform" | "uploaded";
+  can_review: boolean;
+}
+
+export interface EvidenceCheck { code: string; severity: "info" | "warn"; message: string }
+
+export interface AiCheck {
+  status?: "pending" | "done" | "failed";
+  verdict?: "looks_right" | "needs_attention" | "wrong_evidence";
+  summary?: string;
+  criteria?: { n: number; criterion: string; met: "yes" | "no" | "unclear"; note: string }[];
+  issues?: string[];
+  document_date?: string | null;
+  error?: string;
+  checked_at?: string;
 }
 
 export interface Task {

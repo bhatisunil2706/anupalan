@@ -89,6 +89,7 @@ class ControlTemplate(Base):
     frequency: Mapped[str] = mapped_column(String(20))
     evidence_hint: Mapped[str] = mapped_column(Text, default="")
     automatable: Mapped[bool] = mapped_column(Boolean, default=False)
+    acceptance_criteria: Mapped[list] = mapped_column(JSON, default=list, server_default="[]")
 
     mappings: Mapped[list["Mapping"]] = relationship(back_populates="control_template")
 
@@ -169,6 +170,10 @@ class Organization(TimestampMixin, Base):
 
     # AI assistant: off until an admin opts in (workspace text is sent to the configured AI provider).
     ai_enabled: Mapped[bool] = mapped_column(Boolean, default=False)
+    # Uploaded evidence must be approved by a second person before it counts.
+    require_evidence_review: Mapped[bool] = mapped_column(Boolean, default=True, server_default="true")
+    # Separate opt-in: evidence files are sent to the AI model to check them against the control.
+    ai_evidence_checks: Mapped[bool] = mapped_column(Boolean, default=False, server_default="false")
 
     memberships: Mapped[list["Membership"]] = relationship(back_populates="organization")
 
@@ -238,6 +243,8 @@ class Control(TimestampMixin, Base):
     implementation_notes: Mapped[str] = mapped_column(Text, default="")
     na_justification: Mapped[str] = mapped_column(Text, default="")
     next_review_date: Mapped[date | None] = mapped_column(Date, nullable=True)
+    # Company's own version of "what good evidence shows"; empty means use the template's criteria.
+    acceptance_criteria: Mapped[list] = mapped_column(JSON, default=list, server_default="[]")
 
     template: Mapped[ControlTemplate | None] = relationship()
     owner: Mapped[User | None] = relationship()
@@ -261,8 +268,22 @@ class Evidence(TimestampMixin, Base):
     collected_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
     valid_until: Mapped[date | None] = mapped_column(Date, nullable=True)
     uploaded_by_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("users.id", ondelete="SET NULL"))
+    # Review: uploaded evidence is "pending" until a second person approves it; automated evidence is "approved".
+    review_status: Mapped[str] = mapped_column(String(20), default="approved", server_default="approved", index=True)
+    reviewed_by_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("users.id", ondelete="SET NULL"))
+    reviewed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    review_note: Mapped[str] = mapped_column(Text, default="", server_default="")
+    self_approved: Mapped[bool] = mapped_column(Boolean, default=False, server_default="false")
+    sha256: Mapped[str] = mapped_column(String(64), default="", server_default="", index=True)
+    document_date: Mapped[date | None] = mapped_column(Date, nullable=True)
+    # [{"code", "severity": "info"|"warn", "message"}]
+    checks: Mapped[list] = mapped_column(JSON, default=list, server_default="[]")
+    # {"status": "pending"|"done"|"failed"|"skipped", "verdict", "summary", "criteria", "issues", "checked_at"}
+    ai_check: Mapped[dict] = mapped_column(JSON, default=dict, server_default="{}")
+    criteria_confirmed: Mapped[list] = mapped_column(JSON, default=list, server_default="[]")
 
-    uploaded_by: Mapped[User | None] = relationship()
+    uploaded_by: Mapped[User | None] = relationship(foreign_keys=[uploaded_by_id])
+    reviewed_by: Mapped[User | None] = relationship(foreign_keys=[reviewed_by_id])
 
 
 TASK_STATUSES = ("open", "in_progress", "done")
@@ -1096,3 +1117,38 @@ class AiJob(TimestampMixin, Base):
     finished_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
     created_by: Mapped[User | None] = relationship()
+
+
+class EvidenceSample(TimestampMixin, Base):
+    """A reproducible random sample of evidence an auditor tests in depth."""
+
+    __tablename__ = "evidence_samples"
+    id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uid)
+    org_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("organizations.id", ondelete="CASCADE"), index=True)
+    name: Mapped[str] = mapped_column(String(200))
+    framework_code: Mapped[str] = mapped_column(String(50), default="")
+    period_start: Mapped[date] = mapped_column(Date)
+    period_end: Mapped[date] = mapped_column(Date)
+    seed: Mapped[str] = mapped_column(String(64))
+    population: Mapped[int] = mapped_column(Integer, default=0)
+    created_by_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("users.id", ondelete="SET NULL"))
+
+    created_by: Mapped[User | None] = relationship()
+
+
+class EvidenceSampleItem(Base):
+    __tablename__ = "evidence_sample_items"
+    __table_args__ = (UniqueConstraint("sample_id", "evidence_id"),)
+    id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uid)
+    org_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("organizations.id", ondelete="CASCADE"), index=True)
+    sample_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("evidence_samples.id", ondelete="CASCADE"), index=True)
+    evidence_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("evidence.id", ondelete="SET NULL"))
+    control_code: Mapped[str] = mapped_column(String(20))
+    evidence_title: Mapped[str] = mapped_column(String(300))
+    sha256: Mapped[str] = mapped_column(String(64), default="")
+    result: Mapped[str] = mapped_column(String(20), default="pending")  # pending | pass | exception
+    note: Mapped[str] = mapped_column(Text, default="")
+    tested_by_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("users.id", ondelete="SET NULL"))
+    tested_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+
+    tested_by: Mapped[User | None] = relationship()

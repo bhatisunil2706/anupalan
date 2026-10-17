@@ -204,7 +204,10 @@ export default function ControlsPage() {
                     {c.valid_evidence}/{c.total_evidence}
                     {c.automatable && <span className="ml-1.5 text-xs text-prog" title="Can be checked by an integration">auto</span>}
                   </td>
-                  <td className={tbl.td}><HealthBadge health={c.health} /></td>
+                  <td className={tbl.td}>
+                    <HealthBadge health={c.health} />
+                    {c.pending_review > 0 && <p className="mt-1 whitespace-nowrap text-xs text-warn">{c.pending_review} awaiting review</p>}
+                  </td>
                 </tr>
               ))}
             </tbody>

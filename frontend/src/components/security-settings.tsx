@@ -51,6 +51,7 @@ export function SecuritySettings() {
       {me.role === "owner" && <SsoSettings />}
       <ApiKeys />
       {me.role === "owner" && <AiSetting />}
+      <EvidenceSettings />
     </div>
   );
 }
@@ -362,8 +363,8 @@ function AiSetting() {
         <FormError error={formError} />
         <p className="text-muted">
           Drafts policies, suggests a remediation plan and answers security questionnaires from your own policies and controls. Text from your
-          policies, controls and the questions you upload is sent to Anthropic&apos;s Claude API ({data.model}). Evidence files, people data and
-          consent records are never sent.
+          policies, controls and the questions you upload is sent to Anthropic&apos;s Claude API ({data.model}). People data and consent records
+          are never sent. Evidence files are sent only if you also turn on AI evidence checks below.
         </p>
         {!data.available ? (
           <p className="text-warn">Not configured on this server (no API key).</p>
@@ -375,6 +376,76 @@ function AiSetting() {
             <Button disabled={!ack} onClick={() => toggle(true)}>Turn on</Button>
           </>
         )}
+      </div>
+    </Panel>
+  );
+}
+
+
+function EvidenceSettings() {
+  const { me } = useSession();
+  const toast = useToast();
+  const org = useApi<{ require_evidence_review: boolean; ai_evidence_checks: boolean }>("/org");
+  const ai = useApi<{ enabled: boolean; available: boolean; model: string }>("/ai/status");
+  const [ack, setAck] = useState(false);
+  const [formError, setFormError] = useState<string | null>(null);
+  if (!org.data || !ai.data) return null;
+  const isOwner = me.role === "owner";
+
+  async function save(json: Record<string, unknown>, msg: string) {
+    setFormError(null);
+    try {
+      await api("/org/evidence-settings", { method: "PUT", json });
+      toast(msg);
+      org.reload();
+    } catch (e) {
+      setFormError(e instanceof Error ? e.message : "Failed");
+    }
+  }
+
+  return (
+    <Panel title="Evidence checks">
+      <div id="evidence" className="space-y-5 text-sm">
+        <FormError error={formError} />
+        <div>
+          <div className="flex items-center justify-between gap-3">
+            <p className="font-medium">Second-person review</p>
+            {org.data.require_evidence_review ? <Badge tone="pass">On</Badge> : <Badge tone="warn">Off</Badge>}
+          </div>
+          <p className="mt-1 text-muted">
+            Uploaded files, links and notes count only after someone other than the uploader (the control owner or an admin) approves them.
+            Auditors expect this separation. Evidence collected by integrations is approved automatically.
+          </p>
+          <Button className="mt-2" size="sm" variant={org.data.require_evidence_review ? "danger" : "primary"}
+            onClick={() => save({ require_evidence_review: !org.data!.require_evidence_review }, "Saved")}>
+            {org.data.require_evidence_review ? "Turn off" : "Turn on"}
+          </Button>
+        </div>
+        <div className="border-t border-line pt-4">
+          <div className="flex items-center justify-between gap-3">
+            <p className="font-medium">AI evidence checks</p>
+            {org.data.ai_evidence_checks ? <Badge tone="pass">On</Badge> : <Badge>Off</Badge>}
+          </div>
+          <p className="mt-1 text-muted">
+            Claude reads each new piece of evidence and compares it with what the control needs: right kind of document, current period,
+            your company&apos;s name, completed rather than a blank template. Its verdict is advice for the reviewer and never approves anything.
+            Turning this on sends uploaded evidence files to Anthropic&apos;s Claude API ({ai.data.model}).
+          </p>
+          {!isOwner ? (
+            <p className="mt-2 text-xs text-muted">Only the owner can change this.</p>
+          ) : !ai.data.available ? (
+            <p className="mt-2 text-warn">Not configured on this server (no API key).</p>
+          ) : !ai.data.enabled ? (
+            <p className="mt-2 text-xs text-muted">Turn on the AI assistant above first.</p>
+          ) : org.data.ai_evidence_checks ? (
+            <Button className="mt-2" size="sm" variant="danger" onClick={() => save({ ai_evidence_checks: false }, "AI evidence checks turned off")}>Turn off</Button>
+          ) : (
+            <div className="mt-2 space-y-2">
+              <Checkbox label="I agree that evidence files may be sent to the AI provider for checking" checked={ack} onChange={setAck} />
+              <Button size="sm" disabled={!ack} onClick={() => save({ ai_evidence_checks: true, acknowledge_file_sharing: true }, "AI evidence checks turned on")}>Turn on</Button>
+            </div>
+          )}
+        </div>
       </div>
     </Panel>
   );

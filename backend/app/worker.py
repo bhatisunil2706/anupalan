@@ -61,12 +61,25 @@ def ai_jobs() -> None:
             log.info("processed %d ai jobs", n)
 
 
+def evidence_maintenance() -> None:
+    """Fingerprint older file evidence and re-check evidence links weekly."""
+    from app.models import Organization
+    from app.services import evidence_checks
+
+    with system_session() as db:
+        for org in db.scalars(select(Organization)):
+            evidence_checks.backfill_hashes(db, org.id)
+            evidence_checks.recheck_links(db, org.id)
+            db.commit()
+
+
 def main() -> None:
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s %(message)s")
     parser = argparse.ArgumentParser()
     parser.add_argument("--once", action="store_true")
     args = parser.parse_args()
-    jobs = [(sync_all, SYNC_EVERY), (reminders, REMIND_EVERY), (deliver, DELIVER_EVERY), (ai_jobs, 15)]
+    jobs = [(sync_all, SYNC_EVERY), (reminders, REMIND_EVERY), (deliver, DELIVER_EVERY), (ai_jobs, 15),
+            (evidence_maintenance, 60 * 60)]
     last = {fn: 0.0 for fn, _ in jobs}
     while True:
         for fn, every in jobs:

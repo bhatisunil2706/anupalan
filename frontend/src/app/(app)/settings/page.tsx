@@ -14,6 +14,12 @@ type Tab = "org" | "team" | "security" | "notifications" | "portal" | "audit";
 export default function SettingsPage() {
   const { isAdmin } = useSession();
   const [tab, setTab] = useState<Tab>("org");
+  useEffect(() => {
+    if (window.location.hash === "#evidence" && isAdmin) {
+      setTab("security");
+      setTimeout(() => document.getElementById("evidence")?.scrollIntoView({ behavior: "smooth", block: "center" }), 400);
+    }
+  }, [isAdmin]);
   return (
     <>
       <PageHeader title="Settings" />

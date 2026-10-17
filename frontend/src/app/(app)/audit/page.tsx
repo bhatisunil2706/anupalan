@@ -4,6 +4,7 @@ import { FileArchive, FileSpreadsheet, Plus } from "lucide-react";
 import { useEffect, useState } from "react";
 
 import { MemberSelect } from "@/components/pickers";
+import { Sampling } from "@/components/sampling";
 import { useSession } from "@/components/session";
 import { Badge, Button, Checkbox, Drawer, Empty, Field, FormError, Input, LoadError, Loading, PageHeader, Panel, Select, Tabs, Textarea, tbl, useToast } from "@/components/ui";
 import { api, download, useApi } from "@/lib/api";
@@ -28,16 +29,31 @@ export default function AuditPage() {
   const { data, error, loading, reload } = useApi<Req[]>("/audit/requests");
   const [creating, setCreating] = useState(false);
   const [openId, setOpenId] = useState<string | null>(null);
+  const [view, setView] = useState<"requests" | "sampling">("requests");
+  useEffect(() => {
+    if (new URLSearchParams(window.location.search).get("view") === "sampling") setView("sampling");
+  }, []);
 
   const rows = (data ?? []).filter((r) => filter === "all" || r.status === filter);
   return (
     <>
       <PageHeader
-        title="Audit requests"
-        description="Auditors ask for evidence here; your team answers in one place. Every request, comment and download is in the audit log."
-        actions={canRequest && <Button onClick={() => setCreating(true)}><Plus size={14} aria-hidden /> New request</Button>}
+        title="Audit workspace"
+        description="Auditors ask for evidence and test samples here; your team answers in one place. Every request, comment, test and download is in the audit log."
+        actions={canRequest && view === "requests" && <Button onClick={() => setCreating(true)}><Plus size={14} aria-hidden /> New request</Button>}
       />
       <Exports />
+      {canRequest && (
+        <div role="group" aria-label="Workspace view" className="mb-4 inline-flex rounded-md border border-line bg-surface p-0.5">
+          {(["requests", "sampling"] as const).map((v) => (
+            <button key={v} type="button" aria-pressed={view === v} onClick={() => setView(v)}
+              className={`rounded px-3 py-1.5 text-sm font-medium ${view === v ? "bg-ink text-white" : "text-muted hover:text-text"}`}>
+              {v === "requests" ? "Evidence requests" : "Evidence sampling"}
+            </button>
+          ))}
+        </div>
+      )}
+      {view === "sampling" && canRequest ? <Sampling /> : <>
       <Tabs<Filter>
         tabs={(["all", "open", "submitted", "accepted"] as Filter[]).map((f) => ({ value: f, label: `${f === "all" ? "All" : STATUS[f].label} (${(data ?? []).filter((r) => f === "all" || r.status === f).length})` }))}
         value={filter}
@@ -65,6 +81,7 @@ export default function AuditPage() {
           </div>
         )}
       </Panel>
+      </>}
       <CreateDrawer open={creating} onClose={() => setCreating(false)} onCreated={() => { setCreating(false); reload(); }} />
       {openId && <RequestDrawer id={openId} onClose={() => setOpenId(null)} onChanged={reload} />}
     </>

@@ -21,7 +21,8 @@ router = APIRouter(tags=["ai"])
 
 def _used_today(db, org_id) -> int:
     since = datetime.now(timezone.utc) - timedelta(days=1)
-    return db.scalar(select(func.count(AiJob.id)).where(AiJob.org_id == org_id, AiJob.created_at >= since)) or 0
+    return db.scalar(select(func.count(AiJob.id)).where(AiJob.org_id == org_id, AiJob.created_at >= since,
+                                                        AiJob.kind != "evidence_check")) or 0
 
 
 @router.get("/ai/status")
@@ -29,7 +30,7 @@ def ai_status(db: DB, ctx: Ctx):
     s = get_settings()
     return {"enabled": ctx.org.ai_enabled, "available": bool(s.anthropic_api_key), "model": s.ai_model,
             "used_24h": _used_today(db, ctx.org_id), "limit_24h": s.ai_daily_jobs_per_org,
-            "can_toggle": ctx.role == "owner"}
+            "can_toggle": ctx.role == "owner", "evidence_checks": ctx.org.ai_evidence_checks}
 
 
 class ToggleIn(BaseModel):
@@ -47,9 +48,44 @@ def toggle(body: ToggleIn, db: DB, ctx: Ctx):
         raise HTTPException(status.HTTP_400_BAD_REQUEST,
                             "Confirm that policy and control text may be sent to the AI provider")
     ctx.org.ai_enabled = body.enabled
+    if not body.enabled:
+        ctx.org.ai_evidence_checks = False
     audit.record(db, ctx, "ai.enabled" if body.enabled else "ai.disabled", ctx.org)
     db.commit()
     return {"enabled": ctx.org.ai_enabled}
+
+
+class EvidenceSettingsIn(BaseModel):
+    require_evidence_review: bool | None = None
+    ai_evidence_checks: bool | None = None
+    acknowledge_file_sharing: bool = False
+
+
+@router.put("/org/evidence-settings")
+def evidence_settings(body: EvidenceSettingsIn, db: DB, ctx: Ctx):
+    """Second-person review of uploaded evidence (admins), and AI evidence checks (owner only, explicit consent,
+    because evidence files are sent to the AI provider)."""
+    org = ctx.org
+    if body.require_evidence_review is not None:
+        if not ctx.is_admin:
+            raise HTTPException(status.HTTP_403_FORBIDDEN, "Admin access required")
+        org.require_evidence_review = body.require_evidence_review
+        audit.record(db, ctx, "evidence.review_required" if body.require_evidence_review
+                     else "evidence.review_not_required", org)
+    if body.ai_evidence_checks is not None:
+        if ctx.role != "owner":
+            raise HTTPException(status.HTTP_403_FORBIDDEN, "Only the owner can turn AI evidence checks on or off")
+        if body.ai_evidence_checks:
+            if not org.ai_enabled:
+                raise HTTPException(status.HTTP_400_BAD_REQUEST, "Turn on the AI assistant first")
+            if not body.acknowledge_file_sharing:
+                raise HTTPException(status.HTTP_400_BAD_REQUEST,
+                                    "Confirm that evidence files may be sent to the AI provider for checking")
+        org.ai_evidence_checks = body.ai_evidence_checks
+        audit.record(db, ctx, "ai.evidence_checks_enabled" if body.ai_evidence_checks
+                     else "ai.evidence_checks_disabled", org)
+    db.commit()
+    return {"require_evidence_review": org.require_evidence_review, "ai_evidence_checks": org.ai_evidence_checks}
 
 
 class Question(BaseModel):
@@ -103,7 +139,8 @@ def create_job(body: JobIn, db: DB, ctx: WriterCtx):
 
 @router.get("/ai/jobs")
 def list_jobs(db: DB, ctx: Ctx):
-    rows = db.scalars(select(AiJob).where(AiJob.org_id == ctx.org_id).order_by(AiJob.created_at.desc()).limit(100))
+    rows = db.scalars(select(AiJob).where(AiJob.org_id == ctx.org_id, AiJob.kind != "evidence_check")
+                      .order_by(AiJob.created_at.desc()).limit(100))
     return [_job_out(j, full=False) for j in rows]
 
 

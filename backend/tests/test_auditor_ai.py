@@ -90,7 +90,8 @@ def test_soa_matrix_export(owner):
 
 def test_evidence_pack_manifest_hashes(owner):
     auditor = _auditor(owner)
-    _evidence(owner)
+    _, ev = _evidence(owner)
+    owner.post(f"/api/evidence/{ev['id']}/review", json={"decision": "approve"})  # only approved evidence is packed
     r = auditor.get("/api/audit/frameworks/iso27001/evidence-pack.zip")
     assert r.status_code == 200
     z = zipfile.ZipFile(io.BytesIO(r.content))

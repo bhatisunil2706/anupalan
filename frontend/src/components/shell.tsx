@@ -22,6 +22,7 @@ import {
   Plug,
   Settings,
   ShieldAlert,
+  ShieldCheck,
   Truck,
   X,
 } from "lucide-react";
@@ -50,8 +51,9 @@ const NAV: { group: string; items: { href: string; label: string; icon: typeof G
     items: [
       { href: "/frameworks", label: "Frameworks", icon: LayoutGrid },
       { href: "/controls", label: "Controls", icon: ClipboardCheck },
+      { href: "/evidence/review", label: "Evidence review", icon: ShieldCheck },
       { href: "/policies", label: "Policies", icon: FileText },
-      { href: "/audit", label: "Audit requests", icon: FileSearch },
+      { href: "/audit", label: "Audit workspace", icon: FileSearch },
       { href: "/training", label: "Training", icon: GraduationCap },
       { href: "/assistant", label: "AI assistant", icon: Sparkles },
     ],
@@ -89,6 +91,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   const [me, setMe] = useState<Me | null>(null);
   const [members, setMembers] = useState<Member[]>([]);
   const [navOpen, setNavOpen] = useState(false);
+  const [toReview, setToReview] = useState(0);
 
   const refresh = useCallback(async () => {
     try {
@@ -110,6 +113,10 @@ export function AppShell({ children }: { children: ReactNode }) {
   }, [refresh]);
 
   useEffect(() => setNavOpen(false), [pathname]);
+  useEffect(() => {
+    if (!me || me.mfa_setup_required) return;
+    api<{ mine: number }>("/evidence/review-count").then((r) => setToReview(r.mine)).catch(() => {});
+  }, [me, pathname]);
 
   if (!me) return <Loading label="Opening your workspace" />;
 
@@ -169,6 +176,11 @@ export function AppShell({ children }: { children: ReactNode }) {
                     >
                       <Icon size={16} strokeWidth={1.8} aria-hidden />
                       {label}
+                      {href === "/evidence/review" && toReview > 0 && (
+                        <span className="ml-auto rounded-full bg-warn px-1.5 text-[11px] font-semibold leading-5 text-white" aria-label={`${toReview} to review`}>
+                          {toReview}
+                        </span>
+                      )}
                     </Link>
                   </li>
                 );

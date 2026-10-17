@@ -114,6 +114,7 @@ class ControlHealth:
     total_evidence: int = 0
     failing_tests: list[str] = field(default_factory=list)
     passing_tests: list[str] = field(default_factory=list)
+    pending_review: int = 0
 
 
 def latest_test_results(db: Session, org_id: uuid.UUID) -> dict[str, TestResult]:
@@ -139,7 +140,9 @@ def compute_health(
     out = {}
     for c in controls:
         evs = ev_by_control.get(c.id, [])
-        valid = [e for e in evs if e.valid_until is None or e.valid_until >= today]
+        current = [e for e in evs if e.valid_until is None or e.valid_until >= today]
+        valid = [e for e in current if e.review_status == "approved"]  # pending and rejected evidence don't count
+        pending = sum(1 for e in current if e.review_status == "pending")
         failing = [t.test_key for t in tests_by_code.get(c.code, []) if t.status in ("fail", "error")]
         passing = [t.test_key for t in tests_by_code.get(c.code, []) if t.status == "pass"]
         if c.status == "not_applicable":
@@ -150,7 +153,7 @@ def compute_health(
             h = "passing" if valid else "needs_evidence"
         else:
             h = c.status
-        out[c.id] = ControlHealth(h, len(valid), len(evs), failing, passing)
+        out[c.id] = ControlHealth(h, len(valid), len(evs), failing, passing, pending)
     return out
 
 

@@ -23,6 +23,8 @@ from app.models import (
     DataAsset,
     Evidence,
     EvidenceRequest,
+    EvidenceSample,
+    EvidenceSampleItem,
     Framework,
     Incident,
     Integration,
@@ -46,7 +48,7 @@ from app.models import (
     VendorDocument,
 )
 from app.security import encrypt_json, hash_password, new_token
-from app.services import audit, storage
+from app.services import audit, evidence_checks, storage
 from app.services.checks import record_check
 from app.services.compliance import provision_controls
 from app.services.integrations import sync_accounts
@@ -156,6 +158,106 @@ def _wipe(db: Session) -> None:
     db.flush()
 
 
+def _demo_review_queue(db: Session, rnd, org, controls, owner, admin, member, with_ai: bool) -> None:
+    """Evidence waiting for review, with real automatic checks and (simulated) AI check results."""
+    by_code = {c.code: c for c in controls}
+    if with_ai:
+        org.ai_enabled, org.ai_evidence_checks = True, True
+
+    def add(code, title, uploader, kind="file", name="", data=b"", description="", criteria=(), ai=None,
+            status="pending", note=""):
+        c = by_code.get(code)
+        if not c:
+            return
+        ev = Evidence(org_id=org.id, control_id=c.id, kind=kind, source="manual", title=title, description=description,
+                      uploaded_by_id=uploader.id, collected_at=NOW - timedelta(hours=rnd.randint(3, 70)),
+                      valid_until=TODAY + timedelta(days=180), review_status=status, criteria_confirmed=list(criteria))
+        if data:
+            ev.file_key, ev.file_name, ev.size_bytes = storage.save_bytes(org.id, name, data)
+            ev.content_type = storage.content_type_for(ev.file_name)
+        db.add(ev)
+        db.flush()
+        evidence_checks.evaluate(db, ev, c, data or None)
+        if ai and with_ai:
+            ev.ai_check = {"status": "done", "checked_at": NOW.isoformat(), "model": "demo (simulated)", **ai}
+        if status == "rejected":
+            ev.reviewed_by_id, ev.reviewed_at, ev.review_note = admin.id, NOW - timedelta(hours=2), note
+
+    review = (b"system,user,access,decision,reviewer,date\n"
+              + b"".join(f"AWS,{u},admin,keep,{admin.email},{TODAY - timedelta(days=3)}\n".encode()
+                         for u in (owner.email, admin.email))
+              + f"GitHub,former.contractor@{org.name.split()[0].lower()}.example,write,remove,{admin.email},"
+                f"{TODAY - timedelta(days=3)}\n".encode())
+    add("ACC-05", "Q3 access review sign-off", member, name="access-review-q3.csv", data=review, criteria=(1, 2, 3),
+        ai={"verdict": "looks_right", "summary": "A completed access review for AWS and GitHub with a named reviewer, "
+            "decisions and a removal.",
+            "criteria": [{"n": 1, "criterion": "The review covers the systems in scope and was completed in the review "
+                          "period", "met": "yes", "note": "AWS and GitHub, dated this month"},
+                         {"n": 2, "criterion": "The reviewer is named and signed off", "met": "yes",
+                          "note": "Reviewer email on every row"},
+                         {"n": 3, "criterion": "Changes identified in the review were carried out", "met": "unclear",
+                          "note": "A removal is listed but not confirmed as done"}],
+            "issues": ["Attach the ticket or log showing the GitHub access was removed."]})
+    template = _demo_docx("Information Security Policy. This policy applies to [Company Name] and all staff. "
+                          "Approved by [Name] on [Date].", "2022-04-11T09:00:00Z")
+    add("GOV-01", "Information security policy", member, name="infosec-policy-template.docx", data=template,
+        criteria=(1,), ai={"verdict": "wrong_evidence", "summary": "This is an unfilled template, not the approved "
+                           "policy.", "criteria": [], "issues": ["Placeholders such as [Company Name] are still "
+                                                                 "present.", "No approver or approval date."]})
+    add("BCP-01", "DR test", member, kind="note", description="We tested failover last quarter and it worked.",
+        ai={"verdict": "needs_attention", "summary": "A statement that a test happened, without the test record.",
+            "criteria": [], "issues": ["Attach the DR test report with the date, scope, RTO achieved and actions."]})
+    add("OPS-02", "Vulnerability scan", member, name="scan-summary.csv",
+        data=b"severity,count\ncritical,0\nhigh,2\n", status="rejected",
+        note="This is last year's summary. Upload the scan from this quarter with the remediation status.")
+
+
+def _demo_sample(db: Session, rnd, org, controls, auditor) -> None:
+    """An auditor's evidence sample, part-way through testing."""
+    from app.api.routes.auditor import select_sample
+
+    db.flush()
+    by_id = {c.id: c for c in controls}
+    population = sorted(db.scalars(select(Evidence).where(Evidence.org_id == org.id,
+                                                          Evidence.review_status == "approved")),
+                        key=lambda e: str(e.id))
+    if not population:
+        return
+    sample = EvidenceSample(org_id=org.id, name="ISO 27001 surveillance audit: interim sample",
+                            framework_code="iso27001",
+                            period_start=TODAY - timedelta(days=90), period_end=TODAY,
+                            seed=uuid.UUID(int=rnd.getrandbits(128)).hex,
+                            population=len(population), created_by_id=auditor.id)
+    db.add(sample)
+    db.flush()
+    picked = select_sample(population, by_id, sample.seed, 8, "random")
+    for i, e in enumerate(picked):
+        result, note = ("pass", "") if i < 4 else ("exception", "The note describes the process but there is no "
+                                                                 "record showing it ran in the period.") if i == 4 \
+            else ("pending", "")
+        db.add(EvidenceSampleItem(org_id=org.id, sample_id=sample.id, evidence_id=e.id,
+                                  control_code=by_id[e.control_id].code, evidence_title=e.title[:300],
+                                  sha256=e.sha256 if evidence_checks.is_digest(e.sha256) else "", result=result,
+                                  note=note, tested_by_id=auditor.id if result != "pending" else None,
+                                  tested_at=NOW - timedelta(hours=5) if result != "pending" else None))
+
+
+def _demo_docx(body: str, modified: str) -> bytes:
+    import io
+    import zipfile
+
+    w = 'xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"'
+    buf = io.BytesIO()
+    with zipfile.ZipFile(buf, "w") as z:
+        z.writestr("[Content_Types].xml", "<Types/>")
+        z.writestr("word/document.xml", f"<w:document {w}><w:body><w:p><w:r><w:t>{body}</w:t></w:r></w:p>"
+                                        "</w:body></w:document>")
+        z.writestr("docProps/core.xml", '<cp:coreProperties xmlns:cp="http://schemas.openxmlformats.org/package/'
+                   '2006/metadata/core-properties" xmlns:dcterms="http://purl.org/dc/terms/">'
+                   f"<dcterms:modified>{modified}</dcterms:modified></cp:coreProperties>")
+    return buf.getvalue()
+
+
 def seed(db: Session, password: str = DEFAULT_PASSWORD, reset: bool = False) -> list[dict]:
     existing = db.scalar(select(Organization).where(Organization.name == COMPANIES[0]["name"]))
     if existing and not reset:
@@ -214,10 +316,15 @@ def _seed_company(db: Session, spec: dict, pw_hash: str) -> dict:
         if roll < readiness:
             c.status = "implemented"
             c.implementation_notes = _impl_note(c.code, spec)
+            added = NOW - timedelta(days=rnd.randint(5, 60))
+            reviewer = admin if c.owner_id != admin.id else owner
             db.add(Evidence(org_id=org.id, control_id=c.id, kind="note", source="manual",
                             title=f"{c.title}: how we do it", description=c.implementation_notes,
-                            uploaded_by_id=c.owner_id, collected_at=NOW - timedelta(days=rnd.randint(5, 60)),
-                            valid_until=TODAY + timedelta(days=rnd.randint(-10, 300))))
+                            uploaded_by_id=c.owner_id, collected_at=added,
+                            valid_until=TODAY + timedelta(days=rnd.randint(-10, 300)),
+                            reviewed_by_id=reviewer.id, reviewed_at=added + timedelta(hours=rnd.randint(2, 48)),
+                            checks=[{"code": "note_only", "severity": "info", "message": "A note is a statement, not "
+                                     "proof. Attach the record, export or screenshot if one exists."}]))
         elif roll < readiness + 0.18:
             c.status = "in_progress"
         if c.code in ("PRV-12", "CIN-01", "CIN-02") and not spec["profile"].get("is_significant_data_fiduciary"):
@@ -228,9 +335,16 @@ def _seed_company(db: Session, spec: dict, pw_hash: str) -> dict:
         key, name, size = storage.save_bytes(org.id, "mfa-enforcement-report.csv",
                                              b"user,mfa\n" + b"".join(f"{_email(p[0], spec['domain'])},enforced\n"
                                                                       .encode() for p in spec["people"]))
+        csv_bytes = storage.read(org.id, key)
         db.add(Evidence(org_id=org.id, control_id=acc.id, kind="file", source="manual", title="MFA enforcement report",
                         file_key=key, file_name=name, size_bytes=size, content_type="text/csv",
-                        uploaded_by_id=admin.id, valid_until=TODAY + timedelta(days=90)))
+                        uploaded_by_id=admin.id, valid_until=TODAY + timedelta(days=90),
+                        sha256=evidence_checks.sha256(csv_bytes), reviewed_by_id=owner.id,
+                        reviewed_at=NOW - timedelta(days=1), criteria_confirmed=[1, 3]))
+    if readiness >= 0.4:
+        _demo_review_queue(db, rnd, org, controls, owner, admin, member, readiness >= 0.7)
+    if readiness >= 0.7 and "auditor" in users:
+        _demo_sample(db, rnd, org, controls, users["auditor"])
     policies = db.scalars(select(Policy).where(Policy.org_id == org.id).order_by(Policy.title)).all()
     for p in policies[: int(len(policies) * readiness)]:
         approve_policy(db, ctx, p)

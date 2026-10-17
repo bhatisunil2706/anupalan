@@ -224,8 +224,8 @@ def store(org_id: uuid.UUID, name: str, data: bytes) -> tuple[str, str, int]:
     return key, name, len(data)
 
 
-def save_upload(org_id: uuid.UUID, upload: UploadFile) -> tuple[str, str, int]:
-    """Validate, scan, encrypt and store an upload. Returns (key, safe name, size)."""
+def save_upload(org_id: uuid.UUID, upload: UploadFile, return_data: bool = False):
+    """Validate, scan, encrypt and store an upload. Returns (key, safe name, size), plus the bytes if asked."""
     name = safe_filename(upload.filename or "file")
     limit = get_settings().max_upload_mb * 1024 * 1024
     data = upload.file.read(limit + 1)
@@ -235,7 +235,8 @@ def save_upload(org_id: uuid.UUID, upload: UploadFile) -> tuple[str, str, int]:
         raise HTTPException(status.HTTP_400_BAD_REQUEST, "The file is empty")
     validate_content(name, data)
     scan_for_malware(data)
-    return store(org_id, name, data)
+    stored = store(org_id, name, data)
+    return (*stored, data) if return_data else stored
 
 
 def save_bytes(org_id: uuid.UUID, name: str, data: bytes) -> tuple[str, str, int]:
@@ -258,12 +259,14 @@ def delete(org_id: uuid.UUID, key: str) -> None:
         backend().delete(key)
 
 
-def download_response(org_id: uuid.UUID, key: str, filename: str) -> Response:
-    data = read(org_id, key)
+def download_response(org_id: uuid.UUID, key: str, filename: str, data: bytes | None = None,
+                      extra_headers: dict | None = None) -> Response:
+    data = read(org_id, key) if data is None else data
     safe = safe_filename(filename)
     return Response(data, media_type=content_type_for(safe), headers={
         "Content-Disposition": f"attachment; filename=\"{safe}\"; filename*=UTF-8''{quote(safe)}",
         "X-Content-Type-Options": "nosniff",
         "Content-Security-Policy": "default-src 'none'; sandbox",
         "Cache-Control": "private, no-store",
+        **(extra_headers or {}),
     })

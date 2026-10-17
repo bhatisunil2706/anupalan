@@ -14,6 +14,7 @@ from sqlalchemy import (
     Date,
     DateTime,
     ForeignKey,
+    Index,
     Integer,
     String,
     Text,
@@ -330,6 +331,7 @@ class PolicyAcknowledgment(Base):
 
 class Risk(TimestampMixin, Base):
     __tablename__ = "risks"
+    __table_args__ = (Index("ix_risks_external_ref", "org_id", "external_ref"),)
     id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uid)
     org_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("organizations.id", ondelete="CASCADE"), index=True)
     title: Mapped[str] = mapped_column(String(300))
@@ -345,6 +347,11 @@ class Risk(TimestampMixin, Base):
     owner_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("users.id", ondelete="SET NULL"))
     control_codes: Mapped[list] = mapped_column(JSON, default=list)
     review_date: Mapped[date | None] = mapped_column(Date, nullable=True)
+    source: Mapped[str] = mapped_column(String(20), default="manual", server_default="manual")  # manual | jira
+    external_ref: Mapped[str] = mapped_column(String(100), default="", server_default="")  # Jira issue key
+    external_url: Mapped[str] = mapped_column(String(500), default="", server_default="")
+    external_status: Mapped[str] = mapped_column(String(100), default="", server_default="")
+    external_synced_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
     owner: Mapped[User | None] = relationship()
 
@@ -852,6 +859,11 @@ class TrainingCourse(Base):
     quiz: Mapped[list] = mapped_column(JSON, default=list)  # [{"q", "options": [...], "answer": index}]
     pass_mark: Mapped[int] = mapped_column(Integer, default=80)
     control_codes: Mapped[list] = mapped_column(JSON, default=list)
+    # Interactive "phish or legit?" exercises: [{"from", "subject", "body", "verdict": "phish"|"legit", "explain"}]
+    scenarios: Mapped[list] = mapped_column(JSON, default=list, server_default="[]")
+    audience: Mapped[str] = mapped_column(String(100), default="Everyone", server_default="Everyone")
+    category: Mapped[str] = mapped_column(String(50), default="Security", server_default="Security")
+    order: Mapped[int] = mapped_column(Integer, default=100, server_default="100")
 
 
 class TrainingAssignment(TimestampMixin, Base):
@@ -863,6 +875,72 @@ class TrainingAssignment(TimestampMixin, Base):
     required: Mapped[bool] = mapped_column(Boolean, default=True)
     renew_months: Mapped[int] = mapped_column(Integer, default=12)
     due_days: Mapped[int] = mapped_column(Integer, default=30)
+    # Empty = everyone. Otherwise only people in these HR departments (from the people roster).
+    departments: Mapped[list] = mapped_column(JSON, default=list, server_default="[]")
+    required_since: Mapped[date | None] = mapped_column(Date, nullable=True)
+
+
+class TrainingEnrollment(TimestampMixin, Base):
+    """A course required of one person (e.g. after clicking a phishing simulation), on top of assignments."""
+
+    __tablename__ = "training_enrollments"
+    __table_args__ = (UniqueConstraint("org_id", "course_slug", "email"),)
+    id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uid)
+    org_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("organizations.id", ondelete="CASCADE"), index=True)
+    course_slug: Mapped[str] = mapped_column(String(80))
+    email: Mapped[str] = mapped_column(String(320), index=True)
+    reason: Mapped[str] = mapped_column(String(200), default="")
+    due_date: Mapped[date] = mapped_column(Date)
+
+
+class CustomCourse(TimestampMixin, Base):
+    """A course a company writes itself (its own policies, tools or regulator-specific content)."""
+
+    __tablename__ = "custom_courses"
+    __table_args__ = (UniqueConstraint("org_id", "slug"),)
+    id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uid)
+    org_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("organizations.id", ondelete="CASCADE"), index=True)
+    slug: Mapped[str] = mapped_column(String(80))
+    title: Mapped[str] = mapped_column(String(200))
+    summary: Mapped[str] = mapped_column(Text, default="")
+    minutes: Mapped[int] = mapped_column(Integer, default=10)
+    body_md: Mapped[str] = mapped_column(Text, default="")
+    video_url: Mapped[str] = mapped_column(String(500), default="")
+    quiz: Mapped[list] = mapped_column(JSON, default=list)
+    pass_mark: Mapped[int] = mapped_column(Integer, default=80)
+    control_codes: Mapped[list] = mapped_column(JSON, default=list)
+    published: Mapped[bool] = mapped_column(Boolean, default=False)
+    created_by_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("users.id", ondelete="SET NULL"))
+
+
+class PhishingCampaign(TimestampMixin, Base):
+    __tablename__ = "phishing_campaigns"
+    id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uid)
+    org_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("organizations.id", ondelete="CASCADE"), index=True)
+    name: Mapped[str] = mapped_column(String(200))
+    template_slug: Mapped[str] = mapped_column(String(80))
+    departments: Mapped[list] = mapped_column(JSON, default=list)
+    status: Mapped[str] = mapped_column(String(20), default="draft")  # draft | sending | sent | closed
+    enroll_clickers: Mapped[bool] = mapped_column(Boolean, default=True)
+    sent_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    closed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    created_by_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("users.id", ondelete="SET NULL"))
+
+
+class PhishingTarget(Base):
+    __tablename__ = "phishing_targets"
+    __table_args__ = (UniqueConstraint("campaign_id", "email"),)
+    id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uid)
+    org_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("organizations.id", ondelete="CASCADE"), index=True)
+    campaign_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("phishing_campaigns.id", ondelete="CASCADE"),
+                                                   index=True)
+    email: Mapped[str] = mapped_column(String(320))
+    full_name: Mapped[str] = mapped_column(String(200), default="")
+    department: Mapped[str] = mapped_column(String(200), default="")
+    token_hash: Mapped[str] = mapped_column(String(64), unique=True)
+    sent_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    clicked_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    send_error: Mapped[str] = mapped_column(String(300), default="")
 
 
 class TrainingCompletion(Base):
@@ -891,8 +969,13 @@ class QuestionnaireTemplate(Base):
     slug: Mapped[str] = mapped_column(String(80), unique=True)
     title: Mapped[str] = mapped_column(String(200))
     description: Mapped[str] = mapped_column(Text, default="")
-    # [{"id", "section", "text", "type": "yes_no"|"text", "weight", "good": "yes"|"no", "evidence": bool}]
+    # [{"id", "section", "text", "type": "yes_no"|"text"|"choice", "weight", "good": "yes"|"no", "evidence": bool,
+    #   "allow_na": bool, "options": [...], "guidance": str}]
     questions: Mapped[list] = mapped_column(JSON, default=list)
+    kind: Mapped[str] = mapped_column(String(20), default="core", server_default="core")  # core | addon
+    # Vendor risk tiers this questionnaire is recommended for (low | medium | high | critical)
+    recommended_for: Mapped[list] = mapped_column(JSON, default=list, server_default="[]")
+    order: Mapped[int] = mapped_column(Integer, default=100, server_default="100")
 
 
 class VendorAssessment(TimestampMixin, Base):
@@ -913,6 +996,27 @@ class VendorAssessment(TimestampMixin, Base):
     reviewed_by_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("users.id", ondelete="SET NULL"))
     reviewed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     reviewer_notes: Mapped[str] = mapped_column(Text, default="")
+    created_by_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("users.id", ondelete="SET NULL"))
+    # Copy of the questions at send time, so later edits to the template don't change what the vendor answered.
+    questions: Mapped[list] = mapped_column(JSON, default=list, server_default="[]")
+    template_title: Mapped[str] = mapped_column(String(200), default="", server_default="")
+    reminders_sent: Mapped[int] = mapped_column(Integer, default=0, server_default="0")
+    last_reminded_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    cancelled_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+
+
+class CustomQuestionnaire(TimestampMixin, Base):
+    """A company's own vendor questionnaire (often a copy of a built-in one with questions added or removed)."""
+
+    __tablename__ = "custom_questionnaires"
+    __table_args__ = (UniqueConstraint("org_id", "slug"),)
+    id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uid)
+    org_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("organizations.id", ondelete="CASCADE"), index=True)
+    slug: Mapped[str] = mapped_column(String(80))
+    title: Mapped[str] = mapped_column(String(200))
+    description: Mapped[str] = mapped_column(Text, default="")
+    questions: Mapped[list] = mapped_column(JSON, default=list)
+    based_on: Mapped[str] = mapped_column(String(80), default="")
     created_by_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("users.id", ondelete="SET NULL"))
 
 

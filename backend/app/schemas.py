@@ -324,6 +324,11 @@ class RiskOut(ORM):
     control_codes: list[str]
     review_date: date | None
     created_at: datetime
+    source: str = "manual"
+    external_ref: str = ""
+    external_url: str = ""
+    external_status: str = ""
+    external_synced_at: datetime | None = None
 
 
 class VendorIn(BaseModel):

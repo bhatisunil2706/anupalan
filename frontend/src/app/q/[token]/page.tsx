@@ -7,7 +7,7 @@ import { useEffect, useRef, useState } from "react";
 import { Button, Field, FormError, Input, Loading, Select, Textarea, cx, useToast } from "@/components/ui";
 import { api } from "@/lib/api";
 
-interface Question { id: string; section: string; text: string; type: "yes_no" | "text"; evidence?: boolean }
+interface Question { id: string; section: string; text: string; type: "yes_no" | "text" | "choice"; evidence?: boolean; weight?: number; options?: string[]; guidance?: string; refs?: string }
 interface Info {
   org_name: string; vendor_name: string; title: string; description: string; questions: Question[];
   answers: Record<string, { answer: string; comment: string }>; status: string; expires_at: string; respondent_name: string;
@@ -46,8 +46,9 @@ export default function VendorQuestionnairePage() {
     dirty.current = true;
     setAnswers((a) => ({ ...a, [id]: { ...(a[id] ?? { answer: "", comment: "" }), ...patch } }));
   };
-  const yesNo = info.questions.filter((q) => q.type === "yes_no");
+  const yesNo = info.questions.filter((q) => q.type === "yes_no" || q.type === "choice");
   const answered = yesNo.filter((q) => answers[q.id]?.answer).length;
+  const naMissing = info.questions.filter((q) => q.type === "yes_no" && q.weight && answers[q.id]?.answer === "na" && !answers[q.id]?.comment?.trim()).length;
   const sections = Array.from(new Set(info.questions.map((q) => q.section)));
 
   async function save() {
@@ -94,7 +95,7 @@ export default function VendorQuestionnairePage() {
     <Shell org={info.org_name}>
       <h1 className="text-[22px] font-bold tracking-[-0.01em]">{info.title}</h1>
       <p className="mt-1 text-sm text-muted">{info.org_name} has asked {info.vendor_name} to answer these questions. {info.description}</p>
-      <p className="mt-2 text-xs text-muted">Link valid until {new Date(info.expires_at).toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" })}. Save as you go; submit when every yes/no question is answered.</p>
+      <p className="mt-2 text-xs text-muted">Link valid until {new Date(info.expires_at).toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" })}. Save as you go; submit when every yes/no and choice question is answered. If a question doesn&apos;t apply, choose N/A and say why.</p>
 
       <div className="sticky top-0 z-10 -mx-4 mt-6 border-b border-line bg-paper/95 px-4 py-2 text-sm backdrop-blur">
         {answered} of {yesNo.length} answered
@@ -109,7 +110,13 @@ export default function VendorQuestionnairePage() {
               {info.questions.filter((q) => q.section === s).map((q) => (
                 <div key={q.id} className="rounded-lg border border-line bg-surface p-4">
                   <p className="text-sm font-medium">{q.text}</p>
-                  {q.type === "yes_no" ? (
+                  {q.guidance && <p className="mt-1 text-xs text-muted">{q.guidance}</p>}
+                  {q.type === "choice" ? (
+                    <Select className="mt-3 sm:w-80" aria-label={q.text} value={answers[q.id]?.answer ?? ""} onChange={(e) => set(q.id, { answer: e.target.value })}>
+                      <option value="">Choose…</option>
+                      {(q.options ?? []).map((o) => <option key={o} value={o}>{o}</option>)}
+                    </Select>
+                  ) : q.type === "yes_no" ? (
                     <div className="mt-3 flex flex-wrap gap-2" role="radiogroup" aria-label={q.text}>
                       {[["yes", "Yes"], ["no", "No"], ["na", "Not applicable"]].map(([v, label]) => (
                         <button key={v} type="button" role="radio" aria-checked={answers[q.id]?.answer === v} onClick={() => set(q.id, { answer: v })}
@@ -121,8 +128,10 @@ export default function VendorQuestionnairePage() {
                   ) : (
                     <Textarea className="mt-3" aria-label={q.text} value={answers[q.id]?.answer ?? ""} onChange={(e) => set(q.id, { answer: e.target.value })} />
                   )}
-                  {q.type === "yes_no" && (
-                    <Input className="mt-2" aria-label="Comment" placeholder={q.evidence ? "Comment (attach the document below)" : "Comment (optional)"} value={answers[q.id]?.comment ?? ""} onChange={(e) => set(q.id, { comment: e.target.value })} />
+                  {(q.type === "yes_no" || q.type === "choice") && (
+                    <Input className={cx("mt-2", answers[q.id]?.answer === "na" && q.weight && !answers[q.id]?.comment?.trim() ? "border-warn" : "")} aria-label="Comment"
+                      placeholder={answers[q.id]?.answer === "na" && q.weight ? "Why doesn't this apply? (required)" : q.evidence ? "Comment (attach the document below)" : "Comment (optional)"}
+                      value={answers[q.id]?.comment ?? ""} onChange={(e) => set(q.id, { comment: e.target.value })} />
                   )}
                 </div>
               ))}
@@ -136,8 +145,9 @@ export default function VendorQuestionnairePage() {
             <FormError error={error} />
             <div className="flex flex-wrap gap-2">
               <Button variant="secondary" busy={busy} onClick={save}>Save progress</Button>
-              <Button busy={busy} disabled={answered < yesNo.length || !name.trim()} onClick={submit}>Submit</Button>
+              <Button busy={busy} disabled={answered < yesNo.length || naMissing > 0 || !name.trim()} onClick={submit}>Submit</Button>
             </div>
+            {naMissing > 0 && <p className="text-xs text-warn">Add a reason to {naMissing} N/A answer{naMissing > 1 ? "s" : ""} before submitting.</p>}
           </div>
         </section>
       </div>

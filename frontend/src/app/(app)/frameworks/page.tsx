@@ -40,8 +40,12 @@ export default function FrameworksPage() {
         title="Frameworks"
         description="Each framework's requirements map to your shared controls. Turning one on adds only the controls you don't have yet."
       />
-      <div className="space-y-3">
-        {catalog.data.map((fw) => {
+      <div className="space-y-8">
+        {[...new Set(catalog.data.map((fw) => fw.group))].map((group) => (
+          <section key={group} aria-label={group}>
+            <h2 className="mb-3 text-xs font-semibold uppercase tracking-wider text-muted">{group}</h2>
+            <div className="space-y-3">
+        {(catalog.data ?? []).filter((fw) => fw.group === group).map((fw) => {
           const r = byCode[fw.code];
           return (
             <article key={fw.code} className="flex flex-col gap-5 rounded-lg border border-line bg-surface p-5 sm:flex-row sm:items-center">
@@ -84,6 +88,9 @@ export default function FrameworksPage() {
             </article>
           );
         })}
+            </div>
+          </section>
+        ))}
       </div>
     </>
   );

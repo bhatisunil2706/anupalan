@@ -1,0 +1,93 @@
+# PCI DSS v4.0.1 (June 2024) at requirement x.y level. Identifiers with short in-house labels and guidance.
+# The PCI DSS text is owned by the PCI Security Standards Council and is NOT reproduced. Download it free from
+# pcisecuritystandards.org for the full defined approach requirements and testing procedures.
+# CONTENT STATUS: draft. Review by a PCI QSA before customer release.
+code: pci_dss
+name: PCI DSS v4.0.1
+short_name: PCI DSS
+version: "4.0.1"
+region: Global
+publisher: PCI Security Standards Council
+source_url: https://www.pcisecuritystandards.org/document_library/
+content_version: "0.1.0"
+review_status: draft
+description: >
+  Security standard for any organisation that stores, processes or transmits payment card data, or
+  can affect its security. Required by card brands and acquiring banks; RBI's payment aggregator and
+  tokenisation rules also lean on it. Requirements dated 31 March 2025 are now mandatory.
+requirements:
+  # ---- 1 Network security controls ----
+  - {ref: "1.1", section: "1 Network security controls", title: "Network security policies and roles defined", guidance: "Document, keep current and assign responsibility for network security procedures.", controls: [GOV-07, GOV-04]}
+  - {ref: "1.2", section: "1 Network security controls", title: "Network security controls configured and maintained", guidance: "Approve firewall and security group rules, keep network diagrams current and review rulesets every six months.", controls: [NET-01, OPS-04]}
+  - {ref: "1.3", section: "1 Network security controls", title: "Access to and from the CDE restricted", guidance: "Allow only necessary traffic into and out of the cardholder data environment.", controls: [NET-01, PCI-01]}
+  - {ref: "1.4", section: "1 Network security controls", title: "Trusted and untrusted networks separated", guidance: "Control connections between trusted networks and the internet; don't expose internal addresses.", controls: [NET-01]}
+  - {ref: "1.5", section: "1 Network security controls", title: "Risks from devices on untrusted networks mitigated", guidance: "Protect laptops and other devices that connect to both untrusted networks and the CDE.", controls: [AST-05, HR-06]}
+  # ---- 2 Secure configurations ----
+  - {ref: "2.1", section: "2 Secure configurations", title: "Configuration policies and roles defined", guidance: "Document and assign responsibility for secure configuration procedures.", controls: [GOV-07, GOV-04]}
+  - {ref: "2.2", section: "2 Secure configurations", title: "System components configured securely", guidance: "Apply hardening standards, change vendor defaults, one primary function per server, disable unnecessary services, encrypt admin access.", controls: [OPS-04]}
+  - {ref: "2.3", section: "2 Secure configurations", title: "Wireless environments configured securely", guidance: "Change wireless defaults and keys, and change keys when people with knowledge leave.", controls: [NET-01]}
+  # ---- 3 Protect stored account data ----
+  - {ref: "3.1", section: "3 Stored account data", title: "Stored data policies and roles defined", guidance: "Document and assign responsibility for protecting stored account data.", controls: [GOV-07, GOV-04]}
+  - {ref: "3.2", section: "3 Stored account data", title: "Storage kept to a minimum", guidance: "Retain account data only as long as needed, with a retention policy and quarterly deletion checks.", controls: [PCI-02, PRV-08]}
+  - {ref: "3.3", section: "3 Stored account data", title: "Sensitive authentication data not stored", guidance: "Never store full track data, CVV/CVC or PIN data after authorisation, even encrypted.", controls: [PCI-02]}
+  - {ref: "3.4", section: "3 Stored account data", title: "PAN display and copying restricted", guidance: "Mask PAN when displayed (at most BIN and last four) and stop copying or moving PAN with remote-access tools unless authorised.", controls: [PCI-02]}
+  - {ref: "3.5", section: "3 Stored account data", title: "PAN rendered unreadable wherever stored", guidance: "Use tokenisation, truncation, keyed hashes or strong encryption; disk-level encryption alone is not enough on most systems.", controls: [PCI-02, CRY-01]}
+  - {ref: "3.6", section: "3 Stored account data", title: "Cryptographic keys secured", guidance: "Protect keys that protect account data, restrict access to them and store them securely.", controls: [CRY-01]}
+  - {ref: "3.7", section: "3 Stored account data", title: "Key management lifecycle", guidance: "Define key generation, distribution, storage, rotation, retirement and split knowledge or dual control.", controls: [CRY-01]}
+  # ---- 4 Encryption in transit ----
+  - {ref: "4.1", section: "4 Transmission over open networks", title: "Transmission policies and roles defined", guidance: "Document and assign responsibility for protecting card data in transit.", controls: [GOV-07, GOV-04]}
+  - {ref: "4.2", section: "4 Transmission over open networks", title: "PAN protected with strong cryptography in transit", guidance: "Use trusted certificates and strong protocols (TLS 1.2+) over public networks, keep an inventory of certificates, and never send PAN over end-user messaging unprotected.", controls: [NET-02]}
+  # ---- 5 Malware ----
+  - {ref: "5.1", section: "5 Malicious software", title: "Anti-malware policies and roles defined", guidance: "Document and assign responsibility for anti-malware procedures.", controls: [GOV-07, GOV-04]}
+  - {ref: "5.2", section: "5 Malicious software", title: "Malware prevented or detected", guidance: "Deploy anti-malware on all components except those evaluated as not at risk.", controls: [OPS-01]}
+  - {ref: "5.3", section: "5 Malicious software", title: "Anti-malware active, maintained and monitored", guidance: "Keep anti-malware updated, scanning, logging and not disabled by users.", controls: [OPS-01]}
+  - {ref: "5.4", section: "5 Malicious software", title: "Anti-phishing protection", guidance: "Use automated mechanisms (email filtering, DMARC) to detect and protect people against phishing.", controls: [OPS-10, HR-03]}
+  # ---- 6 Secure systems and software ----
+  - {ref: "6.1", section: "6 Secure systems and software", title: "Secure development policies and roles defined", guidance: "Document and assign responsibility for secure systems and software procedures.", controls: [GOV-07, GOV-04]}
+  - {ref: "6.2", section: "6 Secure systems and software", title: "Bespoke and custom software developed securely", guidance: "Train developers annually, follow secure coding practices, review code before release and keep an inventory of custom software components.", controls: [SDL-01, SDL-02]}
+  - {ref: "6.3", section: "6 Secure systems and software", title: "Vulnerabilities identified and addressed", guidance: "Track vulnerabilities, rank them, patch critical ones within one month and keep a software bill of materials for third-party components.", controls: [OPS-02, SDL-03]}
+  - {ref: "6.4", section: "6 Secure systems and software", title: "Public-facing web applications protected", guidance: "Protect web apps with an automated technical solution (WAF) and manage payment page scripts.", controls: [NET-01, PCI-03]}
+  - {ref: "6.5", section: "6 Secure systems and software", title: "Changes managed securely", guidance: "Document, test and approve changes; separate environments; don't use live PAN in test.", controls: [SDL-05, SDL-04, OPS-08]}
+  # ---- 7 Restrict access ----
+  - {ref: "7.1", section: "7 Restrict access by need to know", title: "Access policies and roles defined", guidance: "Document and assign responsibility for access restriction procedures.", controls: [GOV-07, GOV-04]}
+  - {ref: "7.2", section: "7 Restrict access by need to know", title: "Access defined and assigned by need to know", guidance: "Assign least privilege by role, approve access and review user and application accounts every six months.", controls: [ACC-01, ACC-06, ACC-05]}
+  - {ref: "7.3", section: "7 Restrict access by need to know", title: "Access enforced by access control systems", guidance: "Use access control systems set to deny all by default.", controls: [ACC-01]}
+  # ---- 8 Identify and authenticate ----
+  - {ref: "8.1", section: "8 Identification and authentication", title: "Authentication policies and roles defined", guidance: "Document and assign responsibility for identification and authentication procedures.", controls: [GOV-07, GOV-04]}
+  - {ref: "8.2", section: "8 Identification and authentication", title: "User accounts managed through their lifecycle", guidance: "Unique IDs, no shared accounts, prompt removal of leavers, disable inactive accounts after 90 days.", controls: [ACC-02]}
+  - {ref: "8.3", section: "8 Identification and authentication", title: "Strong authentication", guidance: "Passwords of at least 12 characters, lockout after failed attempts, and protected authentication factors.", controls: [ACC-08]}
+  - {ref: "8.4", section: "8 Identification and authentication", title: "MFA for access into the CDE", guidance: "Require MFA for all access into the CDE and all remote network access.", controls: [ACC-03]}
+  - {ref: "8.5", section: "8 Identification and authentication", title: "MFA configured to resist misuse", guidance: "MFA can't be bypassed or replayed, and needs at least two different factor types.", controls: [ACC-03]}
+  - {ref: "8.6", section: "8 Identification and authentication", title: "System and application accounts managed", guidance: "Restrict interactive use of system accounts and keep their passwords out of scripts and code.", controls: [ACC-04, ACC-08]}
+  # ---- 9 Physical access ----
+  - {ref: "9.1", section: "9 Physical access", title: "Physical security policies and roles defined", guidance: "Document and assign responsibility for physical security procedures.", controls: [GOV-07, GOV-04]}
+  - {ref: "9.2", section: "9 Physical access", title: "Facility entry controlled", guidance: "Control and monitor entry to facilities with systems in the CDE.", controls: [PHY-01]}
+  - {ref: "9.3", section: "9 Physical access", title: "Personnel and visitor access authorised", guidance: "Authorise physical access for staff and visitors, with badges and visitor logs.", controls: [PHY-01]}
+  - {ref: "9.4", section: "9 Physical access", title: "Media with cardholder data protected and destroyed", guidance: "Store, track and destroy media containing cardholder data securely.", controls: [AST-04]}
+  - {ref: "9.5", section: "9 Physical access", title: "Payment terminals protected from tampering", guidance: "Keep a device list, inspect devices and train point-of-sale staff.", condition: pci_card_present, controls: [PCI-05]}
+  # ---- 10 Logging and monitoring ----
+  - {ref: "10.1", section: "10 Logging and monitoring", title: "Logging policies and roles defined", guidance: "Document and assign responsibility for logging and monitoring procedures.", controls: [GOV-07, GOV-04]}
+  - {ref: "10.2", section: "10 Logging and monitoring", title: "Audit logs capture required events", guidance: "Log user access to card data, admin actions, log access, failed logins and changes to accounts and security settings.", controls: [LOG-01]}
+  - {ref: "10.3", section: "10 Logging and monitoring", title: "Audit logs protected", guidance: "Protect logs from modification and deletion, back them up and use change detection.", controls: [LOG-01, OPS-11]}
+  - {ref: "10.4", section: "10 Logging and monitoring", title: "Audit logs reviewed", guidance: "Review security event logs at least daily, using automated tools.", controls: [LOG-02]}
+  - {ref: "10.5", section: "10 Logging and monitoring", title: "Log history retained", guidance: "Keep logs for at least 12 months with the last three months immediately available.", controls: [LOG-01]}
+  - {ref: "10.6", section: "10 Logging and monitoring", title: "Time synchronised", guidance: "Synchronise clocks to designated time sources.", controls: [LOG-03]}
+  - {ref: "10.7", section: "10 Logging and monitoring", title: "Security control failures detected", guidance: "Detect, alert on and respond to failures of critical security controls promptly.", controls: [LOG-02]}
+  # ---- 11 Security testing ----
+  - {ref: "11.1", section: "11 Security testing", title: "Testing policies and roles defined", guidance: "Document and assign responsibility for security testing procedures.", controls: [GOV-07, GOV-04]}
+  - {ref: "11.2", section: "11 Security testing", title: "Wireless access points identified", guidance: "Detect authorised and unauthorised wireless access points quarterly.", controls: [NET-01]}
+  - {ref: "11.3", section: "11 Security testing", title: "Vulnerability scans quarterly", guidance: "Internal scans quarterly (authenticated) and external ASV scans quarterly, rescanning until high-risk issues are fixed.", controls: [OPS-02, PCI-04]}
+  - {ref: "11.4", section: "11 Security testing", title: "Penetration testing", guidance: "External and internal penetration tests at least annually and after significant changes, including segmentation tests.", controls: [OPS-03]}
+  - {ref: "11.5", section: "11 Security testing", title: "Intrusions and file changes detected", guidance: "Use intrusion detection or prevention and change detection on critical files.", controls: [LOG-02, OPS-11]}
+  - {ref: "11.6", section: "11 Security testing", title: "Payment page changes detected", guidance: "Detect unauthorised changes to payment page content and HTTP headers at least weekly.", controls: [PCI-03]}
+  # ---- 12 Policies and programmes ----
+  - {ref: "12.1", section: "12 Policies and programmes", title: "Information security policy", guidance: "Publish, review annually and communicate a security policy, with defined roles and an executive responsible.", controls: [GOV-01, GOV-04]}
+  - {ref: "12.2", section: "12 Policies and programmes", title: "Acceptable use policies", guidance: "Approve and document acceptable use of end-user technologies.", controls: [AST-02]}
+  - {ref: "12.3", section: "12 Policies and programmes", title: "Risks identified and managed", guidance: "Perform targeted risk analyses where requirements allow flexibility, review cryptography and hardware and software annually.", controls: [RISK-01]}
+  - {ref: "12.4", section: "12 Policies and programmes", title: "PCI DSS compliance managed", guidance: "Executive management owns PCI DSS compliance; service providers review that staff follow procedures quarterly.", controls: [GOV-04, GOV-13]}
+  - {ref: "12.5", section: "12 Policies and programmes", title: "Scope documented and validated", guidance: "Keep an inventory of in-scope components and confirm scope every 12 months and on significant change.", controls: [PCI-01, AST-01]}
+  - {ref: "12.6", section: "12 Policies and programmes", title: "Security awareness programme", guidance: "Train staff at hire and annually, including phishing and social engineering.", controls: [HR-03]}
+  - {ref: "12.7", section: "12 Policies and programmes", title: "Personnel screened", guidance: "Screen staff who will have access to the CDE before hiring, where local law allows.", controls: [HR-01]}
+  - {ref: "12.8", section: "12 Policies and programmes", title: "Third-party service providers managed", guidance: "Keep a list of TPSPs, written agreements, due diligence and annual monitoring of their PCI DSS status.", controls: [VEN-01, VEN-02]}
+  - {ref: "12.9", section: "12 Policies and programmes", title: "Service providers support customers' compliance", guidance: "Service providers acknowledge responsibility in writing and share their PCI DSS status and responsibility matrix with customers.", condition: pci_service_provider, controls: [VEN-02, GOV-10]}
+  - {ref: "12.10", section: "12 Policies and programmes", title: "Incident response", guidance: "Keep an incident response plan for suspected compromises of card data, test it annually and staff it 24/7.", controls: [INC-01]}

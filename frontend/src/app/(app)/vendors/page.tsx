@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 
 import { MemberSelect } from "@/components/pickers";
 import { useSession } from "@/components/session";
-import { Badge, Button, Checkbox, Drawer, Empty, Field, FormError, Input, LoadError, Loading, PageHeader, Select, Textarea, tbl, useToast } from "@/components/ui";
+import { Badge, Button, ButtonLink, Checkbox, Drawer, Empty, Field, FormError, Input, LoadError, Loading, PageHeader, Select, Textarea, tbl, useToast } from "@/components/ui";
 import { api, useApi } from "@/lib/api";
 import { fmtDate, humanize, splitList } from "@/lib/format";
 import type { Vendor } from "@/lib/types";
@@ -94,7 +94,12 @@ export default function VendorsPage() {
       <PageHeader
         title="Vendors"
         description="Vendors that process personal data for you are Data Processors under DPDP. You stay responsible for them, so each needs a signed DPA."
-        actions={canWrite && <Button onClick={() => open("new")}>Add vendor</Button>}
+        actions={
+          <div className="flex gap-2">
+            <ButtonLink href="/vendors/questionnaires">Questionnaires</ButtonLink>
+            {canWrite && <Button onClick={() => open("new")}>Add vendor</Button>}
+          </div>
+        }
       />
       <div className="rounded-lg border border-line bg-surface">
         {data.length ? (

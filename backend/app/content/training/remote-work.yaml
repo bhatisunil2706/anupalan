@@ -1,0 +1,59 @@
+slug: remote-work
+audience: Everyone
+category: Foundations
+order: 9
+title: Working securely from home and on the move
+minutes: 7
+pass_mark: 80
+control_codes: [HR-03, HR-06, AST-05]
+summary: Home Wi-Fi, public networks, travel, video calls and family devices, in practical rules.
+body_md: |
+  ## Your device
+
+  - Use your **company laptop** for work. Keep it updated, encrypted and locked with a password or biometrics.
+  - **Lock your screen** (Windows+L or Ctrl+Cmd+Q) whenever you step away, even at home.
+  - Don't let family members use your work laptop, and don't do work on shared family computers.
+  - Don't install software from unknown sources or disable security tools.
+
+  ## Networks
+
+  - Change your home router's **default admin password** and use WPA2 or WPA3 Wi-Fi encryption.
+  - On **public Wi-Fi** (cafés, airports, hotels), connect through the company VPN, or use your phone's hotspot.
+  - Be wary of networks with generic names like "Free_Airport_WiFi" that could be fake.
+
+  ## Calls and screens
+
+  - Take confidential calls where you can't be overheard, and use headphones.
+  - Check what's visible before you **share your screen**: close email, chat and unrelated documents.
+  - Use a privacy screen when working in public; people can read your screen from surprisingly far away.
+
+  ## Travel
+
+  - Never leave devices unattended in cafés, cars or hotel rooms; use the hotel safe.
+  - Carry only the data you need. Report a lost or stolen device immediately so IT can lock and wipe it.
+  - Be careful at public **USB charging points**: use your own charger and a power socket.
+
+  ## Paper
+
+  Avoid printing confidential documents at home. If you must, store them securely and shred them when done.
+quiz:
+  - q: You're working in a café. How should you connect?
+    options: ["Open café Wi-Fi directly", "Through the company VPN or your phone's hotspot", "Any network with a strong signal", "Don't connect, email from your phone"]
+    answer: 1
+    explain: VPN or hotspot protects your traffic on untrusted networks.
+  - q: Your child wants to play a game on your work laptop. What do you do?
+    options: ["Allow it for a short time", "Say no; work devices are for work only", "Create a guest account", "Allow it if they don't install anything"]
+    answer: 1
+    explain: Family use of work devices risks malware and data exposure.
+  - q: "Before sharing your screen in a client call, you should:"
+    options: ["Share your whole desktop", "Close unrelated windows and share only the app you need", "Turn off your camera", "Nothing special"]
+    answer: 1
+    explain: Avoid exposing email, chats or confidential files.
+  - q: Your laptop was stolen from your car. What first?
+    options: ["Buy a new one", "Report it to IT and security immediately", "Wait to see if it's returned", "File a report next week"]
+    answer: 1
+    explain: Fast reporting lets IT lock and wipe it.
+  - q: What's the safest way to charge your phone at an airport?
+    options: ["Any public USB port", "Your own charger in a power socket", "A charging cable a stranger offers", "The airport kiosk"]
+    answer: 1
+    explain: Public USB ports can be tampered with.

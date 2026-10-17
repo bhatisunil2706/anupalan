@@ -12,8 +12,9 @@ content_version: "0.1.0"
 review_status: draft
 description: >
   Attestation report on controls relevant to security, availability, processing integrity,
-  confidentiality and privacy. Security (Common Criteria) is always in scope; Availability and
-  Confidentiality are included here as the most commonly selected additional categories.
+  confidentiality and privacy. Security (Common Criteria) is always in scope. Availability and
+  Confidentiality are included by default; Processing Integrity and Privacy apply when you add them
+  to your report scope (set this in your company profile).
 requirements:
   - {ref: "CC1.1", section: "CC1 Control environment", title: "Integrity and ethical values", guidance: "Leadership sets the tone with a code of conduct that staff acknowledge."}
   - {ref: "CC1.2", section: "CC1 Control environment", title: "Independent oversight", guidance: "The board or equivalent oversees internal control independently of management."}
@@ -53,3 +54,28 @@ requirements:
   - {ref: "A1.3", section: "Availability", title: "Recovery plan testing", guidance: "Test recovery plan procedures periodically."}
   - {ref: "C1.1", section: "Confidentiality", title: "Identify and protect confidential information", guidance: "Identify and maintain confidential information to meet confidentiality objectives."}
   - {ref: "C1.2", section: "Confidentiality", title: "Dispose of confidential information", guidance: "Dispose of confidential information when no longer needed."}
+  # ---- Processing Integrity (only when in report scope) ----
+  - {ref: "PI1.1", section: "Processing integrity", title: "Processing specifications and data definitions", guidance: "Define and communicate what correct processing means: data definitions, product specifications and service commitments.", condition: soc2_processing_integrity, controls: [OPS-12, GOV-07]}
+  - {ref: "PI1.2", section: "Processing integrity", title: "Complete and accurate inputs", guidance: "Validate system inputs so that only complete, accurate and authorised data enters processing.", condition: soc2_processing_integrity, controls: [OPS-12, SDL-01]}
+  - {ref: "PI1.3", section: "Processing integrity", title: "Complete, accurate and timely processing", guidance: "Process data completely, accurately and on time, with errors detected and corrected (reconciliations, exception queues).", condition: soc2_processing_integrity, controls: [OPS-12, LOG-02]}
+  - {ref: "PI1.4", section: "Processing integrity", title: "Complete and accurate outputs", guidance: "Deliver outputs only to intended recipients, complete and accurate, and check them before release where it matters.", condition: soc2_processing_integrity, controls: [OPS-12]}
+  - {ref: "PI1.5", section: "Processing integrity", title: "Stored inputs, in-process items and outputs", guidance: "Store inputs, items in processing and outputs completely and accurately, protected from unauthorised change.", condition: soc2_processing_integrity, controls: [OPS-11, OPS-06]}
+  # ---- Privacy (only when in report scope) ----
+  - {ref: "P1.1", section: "Privacy", title: "Privacy notice", guidance: "Give data subjects notice of your privacy practices: what you collect, why, how long you keep it and their choices.", condition: soc2_privacy, controls: [PRV-02]}
+  - {ref: "P2.1", section: "Privacy", title: "Choice and consent", guidance: "Tell people their choices about collection, use, retention, disclosure and disposal, and obtain consent where required.", condition: soc2_privacy, controls: [PRV-03, PRV-04]}
+  - {ref: "P3.1", section: "Privacy", title: "Collection limited to the stated purpose", guidance: "Collect personal information only for the purposes in your notice.", condition: soc2_privacy, controls: [PRV-01, PRV-14]}
+  - {ref: "P3.2", section: "Privacy", title: "Explicit consent for sensitive collection", guidance: "Obtain explicit consent where it is required, and document it.", condition: soc2_privacy, controls: [PRV-03]}
+  - {ref: "P4.1", section: "Privacy", title: "Use limited to the stated purpose", guidance: "Use personal information only for the purposes in your notice.", condition: soc2_privacy, controls: [PRV-01, PRV-14]}
+  - {ref: "P4.2", section: "Privacy", title: "Retention", guidance: "Keep personal information only as long as needed for the stated purposes.", condition: soc2_privacy, controls: [PRV-08]}
+  - {ref: "P4.3", section: "Privacy", title: "Secure disposal", guidance: "Dispose of personal information securely when it is no longer needed.", condition: soc2_privacy, controls: [PRV-08, AST-04]}
+  - {ref: "P5.1", section: "Privacy", title: "Access by data subjects", guidance: "Let people see and get a copy of the personal information you hold about them.", condition: soc2_privacy, controls: [PRV-10]}
+  - {ref: "P5.2", section: "Privacy", title: "Correction", guidance: "Correct or annotate personal information when people show it is wrong, and tell third parties where needed.", condition: soc2_privacy, controls: [PRV-10, PRV-07]}
+  - {ref: "P6.1", section: "Privacy", title: "Disclosure to third parties", guidance: "Disclose personal information to third parties only for notified purposes and with consent where required.", condition: soc2_privacy, controls: [VEN-02, PRV-01]}
+  - {ref: "P6.2", section: "Privacy", title: "Record of authorised disclosures", guidance: "Keep a complete and accurate record of authorised disclosures.", condition: soc2_privacy, controls: [PRV-01]}
+  - {ref: "P6.3", section: "Privacy", title: "Record of unauthorised disclosures", guidance: "Record detected or reported unauthorised disclosures, including breaches.", condition: soc2_privacy, controls: [INC-03, INC-01]}
+  - {ref: "P6.4", section: "Privacy", title: "Third-party privacy commitments", guidance: "Obtain privacy commitments from vendors and other third parties and check they meet them.", condition: soc2_privacy, controls: [VEN-02, VEN-01]}
+  - {ref: "P6.5", section: "Privacy", title: "Third parties report unauthorised disclosures", guidance: "Require vendors to notify you of unauthorised disclosures and act on their notices.", condition: soc2_privacy, controls: [VEN-02]}
+  - {ref: "P6.6", section: "Privacy", title: "Breach notification to data subjects", guidance: "Notify affected people of breaches and incidents to meet your commitments and the law.", condition: soc2_privacy, controls: [INC-03]}
+  - {ref: "P6.7", section: "Privacy", title: "Accounting of disclosures", guidance: "On request, tell people which third parties received their personal information.", condition: soc2_privacy, controls: [PRV-10, PRV-01]}
+  - {ref: "P7.1", section: "Privacy", title: "Data quality", guidance: "Keep personal information accurate, complete and relevant for its purposes.", condition: soc2_privacy, controls: [PRV-07]}
+  - {ref: "P8.1", section: "Privacy", title: "Inquiries, complaints and disputes", guidance: "Handle privacy questions, complaints and disputes through a defined process and fix issues found.", condition: soc2_privacy, controls: [PRV-10, PRV-09]}

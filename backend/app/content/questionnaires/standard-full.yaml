@@ -1,0 +1,125 @@
+slug: standard-full
+title: Standard security questionnaire (Full)
+kind: core
+order: 1
+recommended_for: [high, critical]
+description: >
+  A complete security due-diligence questionnaire for vendors that host, process or can access your
+  confidential data or production systems. Organised in the domains used by common industry questionnaires
+  and referenced to ISO/IEC 27001:2022 and SOC 2 so vendors can answer from existing audit material.
+  Written in-house; it does not reproduce SIG, CAIQ or any licensed questionnaire.
+questions:
+  # ---- A. Company and governance ----
+  - {id: gov-01, section: "A. Company and governance", text: "Provide your legal entity name, registered address and the locations from which the services will be delivered.", type: text, weight: 0}
+  - {id: gov-02, section: "A. Company and governance", text: "Is a named executive accountable for information security (CISO or equivalent)? Give their name and title in the comment.", type: yes_no, weight: 2, good: "yes", refs: "ISO 5.2, A.5.2 · SOC2 CC1.3"}
+  - {id: gov-03, section: "A. Company and governance", text: "Does senior management review the security programme (risks, incidents, audit results) at least annually?", type: yes_no, weight: 2, good: "yes", refs: "ISO 9.3 · SOC2 CC1.2"}
+  - {id: gov-04, section: "A. Company and governance", text: "Do you have cyber insurance that would cover incidents affecting our data?", type: yes_no, weight: 1, good: "yes", evidence: true}
+  - {id: gov-05, section: "A. Company and governance", text: "How many employees and contractors will have access to our data or systems?", type: choice, options: ["None", "1-5", "6-25", "26-100", "More than 100"], weight: 0}
+  # ---- B. Policies and risk management ----
+  - {id: pol-01, section: "B. Policies and risk management", text: "Do you have an information security policy approved by management and reviewed at least annually?", type: yes_no, weight: 2, good: "yes", evidence: true, refs: "ISO A.5.1 · SOC2 CC5.3"}
+  - {id: pol-02, section: "B. Policies and risk management", text: "Do you have documented policies for access control, acceptable use, data classification, incident response and business continuity?", type: yes_no, weight: 2, good: "yes", refs: "ISO A.5.1 · SOC2 CC5.3"}
+  - {id: pol-03, section: "B. Policies and risk management", text: "Do you perform a documented information security risk assessment at least annually and after significant changes?", type: yes_no, weight: 2, good: "yes", refs: "ISO 6.1.2, 8.2 · SOC2 CC3.2"}
+  - {id: pol-04, section: "B. Policies and risk management", text: "Are identified risks assigned owners and tracked to treatment?", type: yes_no, weight: 1, good: "yes", refs: "ISO 6.1.3 · SOC2 CC3.2"}
+  - {id: pol-05, section: "B. Policies and risk management", text: "Do you keep a register of legal, regulatory and contractual requirements (for example DPDP, CERT-In, GDPR) that apply to the services?", type: yes_no, weight: 1, good: "yes", refs: "ISO A.5.31"}
+  # ---- C. Compliance and assurance ----
+  - {id: cmp-01, section: "C. Compliance and assurance", text: "Do you hold a current ISO/IEC 27001 certificate covering the services you provide to us?", type: yes_no, weight: 2, good: "yes", evidence: true, guidance: "Upload the certificate and the Statement of Applicability if you can share it."}
+  - {id: cmp-02, section: "C. Compliance and assurance", text: "Do you have a SOC 2 Type II report (issued within the last 12 months) covering the services?", type: yes_no, weight: 2, good: "yes", evidence: true, guidance: "Upload the report or a bridge letter. Under NDA is fine."}
+  - {id: cmp-03, section: "C. Compliance and assurance", text: "Has an independent penetration test of the systems used for our services been performed in the last 12 months, with high and critical findings fixed?", type: yes_no, weight: 3, good: "yes", evidence: true, refs: "ISO A.8.8 · SOC2 CC4.1"}
+  - {id: cmp-04, section: "C. Compliance and assurance", text: "Do you run internal audits or compliance checks of your security controls?", type: yes_no, weight: 1, good: "yes", refs: "ISO 9.2 · SOC2 CC4.1"}
+  - {id: cmp-05, section: "C. Compliance and assurance", text: "Will you allow us, or an independent auditor we appoint, to assess your compliance with the security terms of our contract on reasonable notice?", type: yes_no, weight: 2, good: "yes"}
+  - {id: cmp-06, section: "C. Compliance and assurance", text: "List any other certifications or attestations you hold (for example PCI DSS, ISO 27701, ISO 42001, HIPAA, CERT-In audit).", type: text, weight: 0}
+  # ---- D. People security ----
+  - {id: hr-01, section: "D. People security", text: "Do you run background checks on employees and contractors before they get access to customer data, where permitted by law?", type: yes_no, weight: 2, good: "yes", refs: "ISO A.6.1 · SOC2 CC1.4"}
+  - {id: hr-02, section: "D. People security", text: "Do all staff sign confidentiality agreements as part of their employment or engagement terms?", type: yes_no, weight: 2, good: "yes", refs: "ISO A.6.2, A.6.6"}
+  - {id: hr-03, section: "D. People security", text: "Do staff complete security and privacy awareness training at joining and at least annually, including phishing?", type: yes_no, weight: 2, good: "yes", refs: "ISO A.6.3 · SOC2 CC2.2"}
+  - {id: hr-04, section: "D. People security", text: "Do developers and administrators get role-specific security training (secure coding, cloud security)?", type: yes_no, weight: 1, good: "yes", refs: "ISO 7.2"}
+  - {id: hr-05, section: "D. People security", text: "Is all access revoked within 24 hours when someone leaves, and are company devices recovered?", type: yes_no, weight: 3, good: "yes", refs: "ISO A.5.11, A.5.18 · SOC2 CC6.2"}
+  - {id: hr-06, section: "D. People security", text: "Is there a disciplinary process for security policy violations?", type: yes_no, weight: 1, good: "yes", refs: "ISO A.6.4"}
+  # ---- E. Asset and data management ----
+  - {id: ast-01, section: "E. Asset and data management", text: "Do you maintain an inventory of hardware, software, cloud services and data stores, with owners?", type: yes_no, weight: 2, good: "yes", refs: "ISO A.5.9 · SOC2 CC6.1"}
+  - {id: ast-02, section: "E. Asset and data management", text: "Do you classify information and apply handling rules by classification (for example confidential, restricted)?", type: yes_no, weight: 1, good: "yes", refs: "ISO A.5.12, A.5.13"}
+  - {id: ast-03, section: "E. Asset and data management", text: "Is our data logically separated from other customers' data, and tested to make sure it stays separate?", type: yes_no, weight: 3, good: "yes", refs: "SOC2 CC6.1"}
+  - {id: ast-04, section: "E. Asset and data management", text: "Is our data encrypted at rest using AES-256 or equivalent?", type: yes_no, weight: 3, good: "yes", refs: "ISO A.8.24 · SOC2 CC6.1"}
+  - {id: ast-05, section: "E. Asset and data management", text: "Are encryption keys managed in a key management service or HSM, with access restricted and rotation in place?", type: yes_no, weight: 2, good: "yes", refs: "ISO A.8.24"}
+  - {id: ast-06, section: "E. Asset and data management", text: "Is our data encrypted in transit using TLS 1.2 or higher, including between internal services?", type: yes_no, weight: 3, good: "yes", refs: "ISO A.8.24 · SOC2 CC6.7"}
+  - {id: ast-07, section: "E. Asset and data management", text: "Do you securely wipe or destroy media and devices that held customer data, with records?", type: yes_no, weight: 1, good: "yes", refs: "ISO A.7.14 · SOC2 CC6.5"}
+  - {id: ast-08, section: "E. Asset and data management", text: "Will you return or delete our data within 30 days of the contract ending, including from backups on their normal cycle, and confirm in writing?", type: yes_no, weight: 2, good: "yes", refs: "ISO A.8.10 · SOC2 C1.2"}
+  - {id: ast-09, section: "E. Asset and data management", text: "Do you use data loss prevention controls to stop customer data leaving through email, uploads or removable media?", type: yes_no, weight: 1, good: "yes", refs: "ISO A.8.12"}
+  - {id: ast-10, section: "E. Asset and data management", text: "Is production customer data kept out of development and test environments (or masked when used)?", type: yes_no, weight: 2, good: "yes", refs: "ISO A.8.33"}
+  # ---- F. Identity and access ----
+  - {id: acc-01, section: "F. Identity and access", text: "Is single sign-on used for staff access to internal systems and SaaS tools?", type: yes_no, weight: 1, good: "yes", refs: "ISO A.5.16"}
+  - {id: acc-02, section: "F. Identity and access", text: "Is multi-factor authentication enforced for all staff access to email, production systems, cloud consoles and remote access?", type: yes_no, weight: 3, good: "yes", refs: "ISO A.8.5 · SOC2 CC6.1"}
+  - {id: acc-03, section: "F. Identity and access", text: "Is access to customer data granted on least privilege, approved by a manager or system owner, and logged?", type: yes_no, weight: 2, good: "yes", refs: "ISO A.5.15, A.8.3 · SOC2 CC6.3"}
+  - {id: acc-04, section: "F. Identity and access", text: "Are user access rights reviewed at least quarterly for production systems and customer data?", type: yes_no, weight: 2, good: "yes", refs: "ISO A.5.18 · SOC2 CC6.2"}
+  - {id: acc-05, section: "F. Identity and access", text: "Are privileged accounts separate from everyday accounts, limited to named people, and protected by just-in-time or vaulted access?", type: yes_no, weight: 2, good: "yes", refs: "ISO A.8.2"}
+  - {id: acc-06, section: "F. Identity and access", text: "Are shared or generic accounts prohibited (or tightly controlled and attributable)?", type: yes_no, weight: 1, good: "yes", refs: "ISO A.5.16"}
+  - {id: acc-07, section: "F. Identity and access", text: "Are passwords at least 12 characters, checked against breached-password lists, and stored with a modern hashing algorithm?", type: yes_no, weight: 1, good: "yes", refs: "ISO A.5.17"}
+  - {id: acc-08, section: "F. Identity and access", text: "Are secrets (API keys, credentials) kept in a secrets manager and out of source code?", type: yes_no, weight: 2, good: "yes", refs: "ISO A.5.17"}
+  - {id: acc-09, section: "F. Identity and access", text: "Can our users sign in to your product with SSO (SAML or OIDC) and MFA?", type: yes_no, weight: 1, good: "yes", allow_na: true}
+  # ---- G. Application and software security ----
+  - {id: app-01, section: "G. Application and software security", text: "Do you follow a documented secure development lifecycle (threat modelling, secure coding standards, security sign-off)?", type: yes_no, weight: 2, good: "yes", refs: "ISO A.8.25 · SOC2 CC8.1"}
+  - {id: app-02, section: "G. Application and software security", text: "Is every code change peer reviewed and are protected branches enforced before deployment to production?", type: yes_no, weight: 2, good: "yes", refs: "ISO A.8.28 · SOC2 CC8.1"}
+  - {id: app-03, section: "G. Application and software security", text: "Do you run automated security testing (SAST, dependency or SCA scanning, secret scanning) in the build pipeline?", type: yes_no, weight: 2, good: "yes", refs: "ISO A.8.29"}
+  - {id: app-04, section: "G. Application and software security", text: "Do you test for the OWASP Top 10 (or equivalent) before major releases?", type: yes_no, weight: 1, good: "yes"}
+  - {id: app-05, section: "G. Application and software security", text: "Are development, test and production environments separated, with production access limited?", type: yes_no, weight: 2, good: "yes", refs: "ISO A.8.31"}
+  - {id: app-06, section: "G. Application and software security", text: "Are changes to production approved, tested and recorded, with the ability to roll back?", type: yes_no, weight: 2, good: "yes", refs: "ISO A.8.32 · SOC2 CC8.1"}
+  - {id: app-07, section: "G. Application and software security", text: "Do you maintain a software bill of materials (SBOM) for your product?", type: yes_no, weight: 1, good: "yes"}
+  - {id: app-08, section: "G. Application and software security", text: "Do you run a vulnerability disclosure or bug bounty programme?", type: yes_no, weight: 1, good: "yes"}
+  - {id: app-09, section: "G. Application and software security", text: "Are your public APIs protected with authentication, authorisation checks on every object, rate limiting and input validation?", type: yes_no, weight: 2, good: "yes", allow_na: true}
+  # ---- H. Infrastructure and network security ----
+  - {id: net-01, section: "H. Infrastructure and network security", text: "Are production networks segmented, with default-deny firewall or security group rules reviewed at least every six months?", type: yes_no, weight: 2, good: "yes", refs: "ISO A.8.20, A.8.22 · SOC2 CC6.6"}
+  - {id: net-02, section: "H. Infrastructure and network security", text: "Are internet-facing applications protected by a web application firewall and DDoS protection?", type: yes_no, weight: 1, good: "yes", refs: "SOC2 CC6.6"}
+  - {id: net-03, section: "H. Infrastructure and network security", text: "Are servers and containers built from hardened, approved baselines, with configuration drift detected?", type: yes_no, weight: 2, good: "yes", refs: "ISO A.8.9"}
+  - {id: net-04, section: "H. Infrastructure and network security", text: "Is administrative access to infrastructure restricted to a VPN, bastion or zero-trust gateway with MFA?", type: yes_no, weight: 2, good: "yes", refs: "ISO A.8.20"}
+  - {id: net-05, section: "H. Infrastructure and network security", text: "Are system clocks synchronised to a reliable time source (NTP)?", type: yes_no, weight: 1, good: "yes", refs: "ISO A.8.17"}
+  # ---- I. Cloud and hosting ----
+  - {id: cld-01, section: "I. Cloud and hosting", text: "Which hosting or cloud providers do you use for the services, and in which regions?", type: text, weight: 0}
+  - {id: cld-02, section: "I. Cloud and hosting", text: "Do you continuously monitor cloud configuration (CSPM) against a benchmark such as CIS?", type: yes_no, weight: 2, good: "yes", refs: "ISO A.5.23"}
+  - {id: cld-03, section: "I. Cloud and hosting", text: "Is root or owner access to cloud accounts locked away with MFA and alerting on use?", type: yes_no, weight: 2, good: "yes", refs: "ISO A.8.2"}
+  - {id: cld-04, section: "I. Cloud and hosting", text: "Are production, staging and development in separate cloud accounts or projects?", type: yes_no, weight: 1, good: "yes", refs: "ISO A.8.31"}
+  # ---- J. Endpoint security ----
+  - {id: end-01, section: "J. Endpoint security", text: "Are staff laptops company-managed with full-disk encryption, screen lock and automatic updates enforced?", type: yes_no, weight: 2, good: "yes", refs: "ISO A.8.1"}
+  - {id: end-02, section: "J. Endpoint security", text: "Do endpoints and servers run anti-malware or EDR that is centrally monitored?", type: yes_no, weight: 2, good: "yes", refs: "ISO A.8.7 · SOC2 CC6.8"}
+  - {id: end-03, section: "J. Endpoint security", text: "Is access to customer data from personal (BYOD) devices prohibited or controlled through device management?", type: yes_no, weight: 1, good: "yes", refs: "ISO A.6.7"}
+  # ---- K. Vulnerability and threat management ----
+  - {id: vul-01, section: "K. Vulnerability and threat management", text: "Do you scan infrastructure and applications for vulnerabilities at least monthly?", type: yes_no, weight: 2, good: "yes", refs: "ISO A.8.8 · SOC2 CC7.1"}
+  - {id: vul-02, section: "K. Vulnerability and threat management", text: "What is your target time to fix critical vulnerabilities on internet-facing systems?", type: choice, options: ["Within 48 hours", "Within 7 days", "Within 30 days", "Longer than 30 days", "No defined target"], weight: 0}
+  - {id: vul-03, section: "K. Vulnerability and threat management", text: "Are critical security patches applied within 30 days, and faster for actively exploited vulnerabilities?", type: yes_no, weight: 3, good: "yes", refs: "ISO A.8.8"}
+  - {id: vul-04, section: "K. Vulnerability and threat management", text: "Do you receive and act on threat intelligence (CERT-In advisories, vendor bulletins)?", type: yes_no, weight: 1, good: "yes", refs: "ISO A.5.7"}
+  - {id: vul-05, section: "K. Vulnerability and threat management", text: "Is email protected with filtering, SPF, DKIM and DMARC at enforcement (quarantine or reject)?", type: yes_no, weight: 1, good: "yes"}
+  # ---- L. Logging and monitoring ----
+  - {id: log-01, section: "L. Logging and monitoring", text: "Are security-relevant logs (authentication, admin actions, data access) collected centrally?", type: yes_no, weight: 2, good: "yes", refs: "ISO A.8.15 · SOC2 CC7.2"}
+  - {id: log-02, section: "L. Logging and monitoring", text: "Are logs retained for at least 180 days and protected from tampering?", type: yes_no, weight: 2, good: "yes", refs: "ISO A.8.15 · CERT-In (v)"}
+  - {id: log-03, section: "L. Logging and monitoring", text: "Are security alerts monitored 24x7 (in-house SOC or managed service) with defined response times?", type: yes_no, weight: 2, good: "yes", refs: "ISO A.8.16 · SOC2 CC7.2"}
+  - {id: log-04, section: "L. Logging and monitoring", text: "Can you provide us with audit logs of access to our data on request?", type: yes_no, weight: 1, good: "yes"}
+  # ---- M. Incident management ----
+  - {id: inc-01, section: "M. Incident management", text: "Do you have a documented incident response plan with roles, severity levels and communication steps?", type: yes_no, weight: 2, good: "yes", refs: "ISO A.5.24 · SOC2 CC7.4"}
+  - {id: inc-02, section: "M. Incident management", text: "Has the incident response plan been tested (tabletop or live exercise) in the last 12 months?", type: yes_no, weight: 1, good: "yes", refs: "ISO A.5.24"}
+  - {id: inc-03, section: "M. Incident management", text: "Will you notify us of a security incident affecting our data or services within 24 hours of becoming aware of it?", type: yes_no, weight: 3, good: "yes", guidance: "We need this to meet CERT-In's 6-hour and DPDP's breach reporting duties."}
+  - {id: inc-04, section: "M. Incident management", text: "Do you report reportable incidents to CERT-In within 6 hours as required by the April 2022 Directions?", type: yes_no, weight: 2, good: "yes", allow_na: true}
+  - {id: inc-05, section: "M. Incident management", text: "Have you had a security incident or personal data breach affecting customer data in the last 24 months? If yes, describe it and what changed.", type: yes_no, weight: 2, good: "no"}
+  - {id: inc-06, section: "M. Incident management", text: "Do you perform root-cause analysis after incidents and share a summary with affected customers?", type: yes_no, weight: 1, good: "yes", refs: "ISO A.5.27 · SOC2 CC7.5"}
+  # ---- N. Business continuity and resilience ----
+  - {id: bcp-01, section: "N. Business continuity and resilience", text: "Do you have a business continuity and disaster recovery plan covering the services, tested at least annually?", type: yes_no, weight: 2, good: "yes", evidence: true, refs: "ISO A.5.29, A.5.30 · SOC2 A1.3"}
+  - {id: bcp-02, section: "N. Business continuity and resilience", text: "What recovery time objective (RTO) do you commit to for the services?", type: choice, options: ["Under 1 hour", "1-4 hours", "4-24 hours", "More than 24 hours", "Not defined"], weight: 0}
+  - {id: bcp-03, section: "N. Business continuity and resilience", text: "Are backups automated, encrypted, stored separately (another region or immutable storage) and restore-tested at least quarterly?", type: yes_no, weight: 2, good: "yes", refs: "ISO A.8.13 · SOC2 A1.2"}
+  - {id: bcp-04, section: "N. Business continuity and resilience", text: "Are the services deployed across multiple availability zones or data centres to avoid a single point of failure?", type: yes_no, weight: 1, good: "yes", refs: "ISO A.8.14"}
+  - {id: bcp-05, section: "N. Business continuity and resilience", text: "Do you publish service status and uptime, and commit to an SLA?", type: yes_no, weight: 1, good: "yes"}
+  # ---- O. Physical security ----
+  - {id: phy-01, section: "O. Physical security", text: "Are offices and any facilities processing our data protected by access control, visitor logs and CCTV?", type: yes_no, weight: 1, good: "yes", refs: "ISO A.7.1, A.7.2 · SOC2 CC6.4"}
+  - {id: phy-02, section: "O. Physical security", text: "Are servers hosted in certified data centres (ISO 27001 or SOC 2) or with a major cloud provider?", type: yes_no, weight: 1, good: "yes", refs: "ISO A.7"}
+  # ---- P. Subprocessors and fourth parties ----
+  - {id: sub-01, section: "P. Subprocessors and fourth parties", text: "List the subprocessors that will store, process or access our data, with their location and purpose.", type: text, weight: 0}
+  - {id: sub-02, section: "P. Subprocessors and fourth parties", text: "Do you assess the security of subprocessors before use and at least annually?", type: yes_no, weight: 2, good: "yes", refs: "ISO A.5.19, A.5.22 · SOC2 CC9.2"}
+  - {id: sub-03, section: "P. Subprocessors and fourth parties", text: "Do your contracts with subprocessors include security, confidentiality and breach notification terms at least as strict as ours?", type: yes_no, weight: 2, good: "yes", refs: "ISO A.5.20"}
+  - {id: sub-04, section: "P. Subprocessors and fourth parties", text: "Will you notify us before adding or replacing a subprocessor that handles our data, and let us object?", type: yes_no, weight: 2, good: "yes"}
+  # ---- Q. Privacy and data protection ----
+  - {id: prv-01, section: "Q. Privacy and data protection", text: "Will you process our personal data only on our documented instructions, under a data processing agreement?", type: yes_no, weight: 3, good: "yes", refs: "DPDP s.8(2) · GDPR Art.28"}
+  - {id: prv-02, section: "Q. Privacy and data protection", text: "Will you use our data for your own purposes, such as analytics, product improvement or training AI models?", type: yes_no, weight: 3, good: "no"}
+  - {id: prv-03, section: "Q. Privacy and data protection", text: "In which countries will our personal data be stored or accessed from?", type: text, weight: 0}
+  - {id: prv-04, section: "Q. Privacy and data protection", text: "Can you help us answer data principal requests (access, correction, erasure) within 7 days?", type: yes_no, weight: 2, good: "yes", refs: "DPDP s.11-13 · GDPR Art.15-17"}
+  - {id: prv-05, section: "Q. Privacy and data protection", text: "Have you appointed a Data Protection Officer or named privacy contact?", type: yes_no, weight: 1, good: "yes"}
+  - {id: prv-06, section: "Q. Privacy and data protection", text: "Do you keep a record of processing activities for the personal data you process for customers?", type: yes_no, weight: 1, good: "yes", refs: "GDPR Art.30"}
+  # ---- R. Artificial intelligence ----
+  - {id: ai-01, section: "R. Artificial intelligence", text: "Does the service use AI or machine learning on our data, including third-party AI models?", type: yes_no, weight: 0, guidance: "If yes, we may send the AI vendor addendum."}
+  - {id: ai-02, section: "R. Artificial intelligence", text: "If yes, can we opt out of our data being used to train or improve models (yours or your providers')?", type: yes_no, weight: 2, good: "yes", allow_na: true}

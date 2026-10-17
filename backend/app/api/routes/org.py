@@ -10,7 +10,7 @@ from app.models import AuditLog, Framework, Invitation, Membership, OrgFramework
 from app.schemas import InviteIn, MemberOut, OnboardingIn, OrgOut, OrgUpdate, RoleIn, UserBrief
 from app.security import new_token
 from app.services import audit, notify
-from app.services.compliance import PROFILE_FLAGS, provision_controls
+from app.services.compliance import FLAG_FRAMEWORK, PROFILE_FLAGS, provision_controls
 from app.services.policies import create_policy_from_template
 
 router = APIRouter(prefix="/org", tags=["organisation"])
@@ -23,7 +23,7 @@ def get_org(ctx: Ctx):
 
 @router.get("/profile-flags")
 def profile_flags():
-    return [{"key": k, "label": v} for k, v in PROFILE_FLAGS.items()]
+    return [{"key": k, "label": v, "framework": FLAG_FRAMEWORK.get(k)} for k, v in PROFILE_FLAGS.items()]
 
 
 @router.patch("", response_model=OrgOut)
@@ -67,7 +67,7 @@ def onboarding(body: OnboardingIn, db: DB, ctx: AdminCtx):
         for tpl in db.scalars(select(PolicyTemplate)):
             if create_policy_from_template(db, ctx, tpl, skip_existing=True):
                 policies += 1
-    from app.api.routes.training import ensure_assignments
+    from app.services.training import ensure_assignments
 
     ensure_assignments(db, org.id)
     org.onboarded_at = org.onboarded_at or datetime.now(timezone.utc)

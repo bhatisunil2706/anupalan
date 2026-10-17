@@ -1,0 +1,24 @@
+slug: ai-vendor
+title: "Add-on: AI and machine learning vendor"
+kind: addon
+order: 12
+recommended_for: [high, critical]
+description: >
+  For vendors whose product uses AI or machine learning on your data, or that supply AI models or services.
+  Covers training on customer data, model providers, safety testing and transparency. Aligned with
+  ISO/IEC 42001 topics.
+questions:
+  - {id: ai-v01, section: AI use and data, text: "Describe the AI features in the service and what our data is used for in each.", type: text, weight: 0}
+  - {id: ai-v02, section: AI use and data, text: "Is our data (prompts, outputs, files) used to train or fine-tune any model, yours or a third party's?", type: yes_no, weight: 3, good: "no", guidance: "If yes, explain whether it is opt-in, opt-out or always on."}
+  - {id: ai-v03, section: AI use and data, text: "Which third-party model providers process our data (for example OpenAI, Anthropic, Google, AWS Bedrock, self-hosted open models), and in which regions?", type: text, weight: 0}
+  - {id: ai-v04, section: AI use and data, text: "Do your contracts with model providers prohibit them from training on or retaining our data beyond what's needed to serve requests?", type: yes_no, weight: 3, good: "yes", allow_na: true}
+  - {id: ai-v05, section: AI use and data, text: "How long are prompts and outputs containing our data retained, and can we set or shorten that period?", type: text, weight: 0}
+  - {id: ai-v06, section: Governance, text: "Do you have an AI policy and an inventory of AI systems with named owners?", type: yes_no, weight: 2, good: "yes", refs: "ISO 42001 A.2, A.3"}
+  - {id: ai-v07, section: Governance, text: "Do you carry out AI risk or impact assessments (bias, safety, privacy, misuse) before releasing AI features?", type: yes_no, weight: 2, good: "yes", refs: "ISO 42001 A.5"}
+  - {id: ai-v08, section: Governance, text: "Do you hold or plan ISO/IEC 42001 certification?", type: choice, options: ["Certified", "In progress", "Planned in the next 12 months", "No plans"], weight: 0}
+  - {id: ai-v09, section: Security and safety, text: "Do you test AI features against prompt injection, data leakage between customers and jailbreaks before release and on major changes?", type: yes_no, weight: 3, good: "yes"}
+  - {id: ai-v10, section: Security and safety, text: "Are AI outputs that take actions (sending emails, changing records, running code) limited by permissions and human approval for high-impact steps?", type: yes_no, weight: 2, good: "yes", allow_na: true}
+  - {id: ai-v11, section: Security and safety, text: "Do you monitor AI features in production for quality, drift, harmful outputs and abuse?", type: yes_no, weight: 2, good: "yes", refs: "ISO 42001 A.6.2.6"}
+  - {id: ai-v12, section: Transparency, text: "Do you tell end users when they are interacting with AI or seeing AI-generated content?", type: yes_no, weight: 1, good: "yes", refs: "ISO 42001 A.8.2"}
+  - {id: ai-v13, section: Transparency, text: "Can we switch off AI features for our organisation or specific users?", type: yes_no, weight: 2, good: "yes"}
+  - {id: ai-v14, section: Transparency, text: "Will you tell us about AI incidents affecting our data or outputs (for example data exposure, systematic errors) within 72 hours?", type: yes_no, weight: 2, good: "yes", refs: "ISO 42001 A.8.4"}

@@ -47,7 +47,8 @@ function OrgSettings() {
   const { isAdmin, refresh } = useSession();
   const toast = useToast();
   const { data: org, error, loading, reload } = useApi<Org>("/org");
-  const flags = useApi<{ key: string; label: string }[]>("/org/profile-flags");
+  const flags = useApi<{ key: string; label: string; framework: string | null }[]>("/org/profile-flags");
+  const catalog = useApi<{ code: string; short_name: string; enabled: boolean }[]>("/frameworks");
   const [form, setForm] = useState({ name: "", sector: "", employee_count: "", rights_request_sla_days: 30, profile: {} as Record<string, boolean> });
   const [formError, setFormError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -93,10 +94,15 @@ function OrgSettings() {
         </div>
       </Panel>
       <Panel title="What applies to you">
-        <p className="mb-4 text-sm text-muted">Turning one of these on adds the matching DPDP or CERT-In requirements and controls.</p>
-        <div className="space-y-3">
-          {(flags.data ?? []).map((f) => (
-            <Checkbox key={f.key} label={f.label} checked={!!form.profile[f.key]} onChange={(v) => isAdmin && setForm({ ...form, profile: { ...form.profile, [f.key]: v } })} />
+        <p className="mb-4 text-sm text-muted">Turning one of these on adds the matching requirements and controls in the frameworks you use.</p>
+        <div className="space-y-5">
+          {(catalog.data ?? []).filter((fw) => fw.enabled && (flags.data ?? []).some((f) => f.framework === fw.code)).map((fw) => (
+            <fieldset key={fw.code} className="space-y-3">
+              <legend className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted">{fw.short_name}</legend>
+              {(flags.data ?? []).filter((f) => f.framework === fw.code).map((f) => (
+                <Checkbox key={f.key} label={f.label} checked={!!form.profile[f.key]} onChange={(v) => isAdmin && setForm({ ...form, profile: { ...form.profile, [f.key]: v } })} />
+              ))}
+            </fieldset>
           ))}
         </div>
       </Panel>

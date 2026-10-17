@@ -3,16 +3,16 @@ from datetime import datetime, timedelta, timezone
 from sqlalchemy import func, select
 
 from app.models import Control, Requirement
-from app.services.content import read_controls, read_frameworks, validate_content
+from app.services.content import check_content
 from tests.conftest import PASSWORD, make_client, onboard, signup
 
 
 def test_content_is_fully_mapped():
-    validate_content(read_frameworks(), read_controls())
+    check_content()
 
 
 def test_content_loaded(db):
-    assert db.scalar(select(func.count()).select_from(Requirement)) == 217
+    assert db.scalar(select(func.count()).select_from(Requirement)) == check_content()["requirements"]
 
 
 def test_signup_login_logout(client):

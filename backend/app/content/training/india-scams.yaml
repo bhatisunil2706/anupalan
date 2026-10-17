@@ -1,0 +1,78 @@
+slug: india-scams
+audience: Everyone
+category: Foundations
+order: 5
+title: "UPI, KYC and 'digital arrest' scams"
+minutes: 10
+pass_mark: 80
+control_codes: [HR-03, HR-07]
+summary: The scams hitting people in India right now, from fake KYC updates and UPI collect requests to 'digital arrest' video calls, and how to report them.
+body_md: |
+  ## Why we cover personal scams at work
+
+  Scammers who get into your phone, UPI or email often get into work accounts next, and the same tricks are used on
+  businesses. Knowing them protects you, your family and the company.
+
+  ## The common patterns
+
+  - **KYC update scams.** An SMS or WhatsApp says your bank, wallet or SIM will be blocked unless you update KYC
+    through a link or app. Banks don't block accounts through messages with links.
+  - **UPI collect and QR scams.** You're told you'll *receive* money, then asked to scan a QR code or approve a
+    request and enter your UPI PIN. **You never need your PIN to receive money.** Entering it always sends money.
+  - **"Digital arrest".** A video call from people dressed as police, CBI, customs or courier officials says a parcel
+    or account in your name is linked to a crime, and that you're under "digital arrest" until you pay or transfer
+    money for "verification". **No Indian agency arrests anyone over a video call or asks for money to clear your
+    name.** Hang up.
+  - **Remote-access apps.** A "support agent" asks you to install AnyDesk, TeamViewer or a screen-sharing app to fix
+    a problem. Once installed, they can see your OTPs and banking apps.
+  - **Fake jobs and task scams.** Easy money for liking videos or rating hotels, followed by a request to "invest" to
+    unlock earnings.
+  - **SIM swap.** Your phone suddenly loses signal: someone may have moved your number to a new SIM to receive your
+    OTPs. Call your operator immediately.
+
+  ## What to do
+
+  1. **Stop.** Fear and urgency are the scam. Real authorities give you time and written notices.
+  2. **Verify** using a number you find yourself (the back of your card, the official website), never one in the
+     message.
+  3. **Never share** OTPs, UPI PINs, card CVVs or screen access.
+  4. **Report quickly.** Call the national cyber crime helpline **1930** or report at **cybercrime.gov.in**. The
+     sooner you report a fraudulent transfer, the better the chance of freezing it. If a work device or account was
+     involved, tell our security team too.
+quiz:
+  - q: Someone says they've sent you a refund and asks you to enter your UPI PIN to receive it. What's true?
+    options: ["You need the PIN to receive money", "Entering your PIN sends money; it's a scam", "It's safe if the amount is small", "It's safe on weekends"]
+    answer: 1
+    explain: A UPI PIN is only ever needed to pay. Receiving money never needs it.
+  - q: A video caller in uniform says you are under "digital arrest" and must transfer money for verification. What do you do?
+    options: ["Stay on the call and comply", "Hang up; it's a scam. Report it on 1930 or cybercrime.gov.in", "Transfer a small amount to test", "Share your Aadhaar to prove innocence"]
+    answer: 1
+    explain: Agencies don't arrest people on video calls or ask for money. Hang up and report.
+  - q: An SMS says your bank account will be blocked today unless you update KYC through a link. What should you do?
+    options: ["Click and update quickly", "Ignore the link and check with your bank using its official app or number", "Reply with your details", "Forward it to friends"]
+    answer: 1
+    explain: Verify through a channel you find yourself, never the link in the message.
+  - q: Your phone suddenly shows "No service" and you didn't change anything. What could it mean?
+    options: ["Nothing important", "Possible SIM swap; call your operator and bank right away", "Your phone needs an update", "Your plan expired"]
+    answer: 1
+    explain: A SIM swap lets attackers receive your OTPs. Act fast.
+  - q: What is the national cyber crime helpline number in India?
+    options: ["100", "1930", "112", "1800"]
+    answer: 1
+    explain: 1930 is the helpline for reporting cyber fraud; you can also report at cybercrime.gov.in.
+scenarios:
+  - from: "VM-HDFCBK (SMS)"
+    subject: ""
+    body: "Dear Customer your account will be suspended today. Update PAN/KYC immediately at hdfc-kyc-update.in to avoid blocking."
+    verdict: phish
+    explain: "Banks don't suspend accounts through SMS links, and the domain isn't the bank's. Use the bank's own app."
+  - from: "Unknown number (WhatsApp)"
+    subject: ""
+    body: "Hello sir, your courier from Mumbai customs contains illegal items. Join video call with Cyber Police officer now or arrest warrant will be issued."
+    verdict: phish
+    explain: "This is the start of a 'digital arrest' scam. Block, don't join, and report on 1930."
+  - from: "Your bank's official app"
+    subject: ""
+    body: "A payment of Rs 2,000 to Swiggy was made from your account. If this wasn't you, tap Report in the app."
+    verdict: legit
+    explain: "A notification inside the official app about a transaction, asking you to act inside the same app, is the normal pattern."

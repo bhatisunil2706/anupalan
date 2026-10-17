@@ -1,0 +1,71 @@
+slug: payment-fraud
+audience: Finance and procurement
+category: Role-based
+order: 21
+title: Payment fraud and business email compromise
+minutes: 10
+pass_mark: 80
+control_codes: [HR-03, RISK-03]
+summary: For anyone who pays, approves or changes vendor details. How invoice fraud and CEO fraud work, and the verification steps that stop them.
+body_md: |
+  ## The most expensive email scam
+
+  Business email compromise (BEC) costs companies more than ransomware. Criminals impersonate, or actually take over
+  the email of, a vendor, an executive or a colleague, then redirect a real payment to their own account. Losses are
+  rarely recovered.
+
+  ## Common versions
+
+  - **Changed bank details.** A "vendor" writes that their bank account has changed and asks you to pay this month's
+    invoice to the new account. Often the email comes from the vendor's real, hacked mailbox, in an existing thread.
+  - **CEO or CFO fraud.** An urgent, confidential request from a leader to make a payment, buy gift cards or send
+    employee tax data, often timed when they're travelling.
+  - **Fake invoices** for services you never ordered, or duplicates of real invoices.
+  - **Payroll diversion.** An "employee" asks HR to change the account their salary goes to.
+
+  ## Controls that stop it
+
+  1. **Call back to verify any bank-detail change**, using a phone number from your vendor master file or the
+     original contract, never one in the email. Record who you spoke to.
+  2. **Two people for payments**: one creates, another approves, especially for new payees and changed details.
+  3. **Hold period**: payments to newly changed accounts wait a set time while verification completes.
+  4. **No exceptions for urgency or seniority.** A real leader will understand a verification call.
+  5. **Check the email address**, not just the display name; look for look-alike domains (`acrne.in` vs `acme.in`).
+  6. **Watch for reply-to tricks**: the reply goes to a different address than the sender.
+
+  ## If something seems wrong
+
+  Stop the payment if possible, call the bank immediately to try to recall the transfer, report on **1930** or
+  cybercrime.gov.in, and tell the security team. Speed is the only thing that recovers money.
+quiz:
+  - q: A long-time supplier emails, in an existing thread, asking you to pay this month's invoice to a new bank account. What do you do?
+    options: ["Update the details; the thread is genuine", "Call the supplier on the number in your vendor file to verify before changing anything", "Reply to the email to confirm", "Pay half to each account"]
+    answer: 1
+    explain: Real mailboxes get hacked. Verify by phone using details you already hold.
+  - q: The CEO emails asking for an urgent, confidential transfer while travelling. What's right?
+    options: ["Make the transfer; it's the CEO", "Verify through a separate channel and follow the normal approval process", "Reply asking if it's really them", "Transfer and tell finance later"]
+    answer: 1
+    explain: Urgency plus secrecy is the classic pattern. Verify out of band.
+  - q: Why do payments need two people?
+    options: ["It's slower", "One person can't create and approve a fraudulent or mistaken payment alone", "For audit decoration", "To split the workload"]
+    answer: 1
+    explain: Segregation of duties catches fraud and errors.
+  - q: Which sender address is suspicious for a supplier called Acme India (acme.in)?
+    options: ["accounts@acme.in", "accounts@acrne.in", "ar@acme.in", "billing@acme.in"]
+    answer: 1
+    explain: "'rn' looks like 'm' at a glance: a look-alike domain."
+  - q: You realise a payment went to a fraudulent account an hour ago. What first?
+    options: ["Wait for the vendor to complain", "Call the bank to recall it, report on 1930, and tell security", "Email the fraudster", "Delete the email thread"]
+    answer: 1
+    explain: Banks can sometimes freeze funds if told within hours.
+scenarios:
+  - from: "Rakesh Iyer <rakesh@supplier-co.in> (existing thread)"
+    subject: "RE: Invoice 4471 - updated remittance details"
+    body: "Hi, as discussed our banking partner has changed. Please process invoice 4471 to the new account below from this cycle. Our old account is under audit so payments there will bounce."
+    verdict: phish
+    explain: "Even in a real thread, a bank change needs a call-back on a known number. Hacked mailboxes reply inside genuine threads."
+  - from: "Procurement system <noreply@yourcompany.in>"
+    subject: "PO-2291 approved"
+    body: "Purchase order PO-2291 for Rs 48,000 was approved by Meera S. View it in the procurement system."
+    verdict: legit
+    explain: "A system notification from your own domain about an expected workflow, pointing you to the system itself."

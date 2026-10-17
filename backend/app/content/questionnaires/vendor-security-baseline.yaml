@@ -1,5 +1,8 @@
 slug: vendor-security-baseline
-title: Vendor security baseline
+title: Quick security baseline
+kind: core
+order: 3
+recommended_for: [low]
 description: >
   Core security questions for any vendor with access to your systems or confidential data. Written in-house;
   aligned with ISO 27001 Annex A and SOC 2 topics without reproducing either standard.

@@ -1,0 +1,21 @@
+slug: gdpr-processor
+title: "Add-on: GDPR processor (Article 28)"
+kind: addon
+order: 11
+recommended_for: [medium, high, critical]
+description: >
+  For vendors that process personal data of people in the EU or UK on your behalf. Covers the Article 28
+  processor terms, international transfers and breach support. Send alongside a core security questionnaire.
+questions:
+  - {id: g-01, section: Processing terms, text: "Will you sign a data processing agreement containing the Article 28(3) terms (instructions, confidentiality, security, sub-processors, assistance, deletion, audits)?", type: yes_no, weight: 3, good: "yes", refs: "GDPR Art.28"}
+  - {id: g-02, section: Processing terms, text: "Will you tell us immediately if you believe an instruction from us breaks data protection law?", type: yes_no, weight: 1, good: "yes", refs: "GDPR Art.28(3)"}
+  - {id: g-03, section: Processing terms, text: "Do you maintain a record of processing activities as a processor?", type: yes_no, weight: 1, good: "yes", refs: "GDPR Art.30(2)"}
+  - {id: g-04, section: International transfers, text: "Will any personal data be transferred to or accessed from outside the EEA or UK? List the countries.", type: text, weight: 0, refs: "GDPR Art.44"}
+  - {id: g-05, section: International transfers, text: "For transfers outside the EEA, will you sign the EU Standard Contractual Clauses (and the UK addendum where relevant)?", type: yes_no, weight: 3, good: "yes", allow_na: true, refs: "GDPR Art.46"}
+  - {id: g-06, section: International transfers, text: "Have you carried out a transfer impact assessment for those transfers, and can you share a summary?", type: yes_no, weight: 2, good: "yes", allow_na: true}
+  - {id: g-07, section: International transfers, text: "Will you challenge and tell us about government requests for our data, where legally allowed?", type: yes_no, weight: 1, good: "yes"}
+  - {id: g-08, section: Breaches, text: "Will you notify us of a personal data breach without undue delay (target 24 hours) with the details we need for our 72-hour notification?", type: yes_no, weight: 3, good: "yes", refs: "GDPR Art.33(2)"}
+  - {id: g-09, section: Data subject rights, text: "Can you help us respond to access, rectification, erasure, restriction and portability requests within our one-month deadline?", type: yes_no, weight: 2, good: "yes", refs: "GDPR Art.12-20"}
+  - {id: g-10, section: Data subject rights, text: "Will you help us with data protection impact assessments for processing involving your service?", type: yes_no, weight: 1, good: "yes", refs: "GDPR Art.35"}
+  - {id: g-11, section: Governance, text: "Have you appointed a Data Protection Officer (and an EU representative if you have no EU establishment)? Give contact details in the comment.", type: yes_no, weight: 1, good: "yes", refs: "GDPR Art.27, 37"}
+  - {id: g-12, section: Governance, text: "Have you been subject to a regulatory investigation or fine about personal data in the last 3 years? If yes, describe it.", type: yes_no, weight: 2, good: "no"}

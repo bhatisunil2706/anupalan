@@ -23,7 +23,7 @@ from app.models import (
     Vendor,
     VendorDocument,
 )
-from app.services import notify
+from app.services import notify, questionnaires
 from app.services.platform_checks import run_feature_checks
 
 RENEW_WINDOW_DAYS = 14
@@ -197,7 +197,7 @@ def vendor_document_reminders(db: Session, org: Organization, today: date) -> No
 
 def training_reminders(db: Session, org: Organization, today: date) -> None:
     """Remind people about overdue required training, at most once a week each."""
-    from app.api.routes.training import report_rows
+    from app.services.training import report_rows
 
     rows, _ = report_rows(db, org.id)
     week = today.isocalendar()
@@ -221,5 +221,6 @@ def run_reminders(db: Session, now: datetime | None = None) -> None:
         access_review_reminders(db, org, today)
         vendor_document_reminders(db, org, today)
         training_reminders(db, org, today)
+        questionnaires.send_reminders(db, org, now)
         run_feature_checks(db, org)
         db.commit()

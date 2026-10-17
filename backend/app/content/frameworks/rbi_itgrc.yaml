@@ -1,0 +1,50 @@
+# RBI Master Direction on Information Technology Governance, Risk, Controls and Assurance Practices
+# (RBI/2023-24/107, 7 November 2023, effective 1 April 2024). Topic references are in-house groupings of the
+# Direction's chapters, not paragraph numbers. Guidance written in-house.
+# CONTENT STATUS: draft. Map to paragraph numbers and review with a banking compliance specialist before release.
+code: rbi_itgrc
+name: RBI IT Governance, Risk, Controls and Assurance Directions (2023)
+short_name: RBI IT
+version: "2023"
+region: India
+publisher: Reserve Bank of India
+source_url: https://rbi.org.in/scripts/BS_ViewMasDirections.aspx?id=12562
+content_version: "0.1.0"
+review_status: draft
+description: >
+  Applies to RBI-regulated entities: banks, NBFCs in the middle, upper and top layers, credit information
+  companies and all-India financial institutions (EXIM Bank, NABARD, NHB, SIDBI). Base-layer NBFCs, core
+  investment companies and local area banks are excluded. Fintechs serving these entities are usually
+  asked to meet the same expectations through outsourcing contracts.
+requirements:
+  # ---- IT governance ----
+  - {ref: "GOV.1", section: "IT governance", title: "Board-approved IT governance framework", guidance: "The Board approves a framework covering IT strategy, risk, resources, performance and value delivery.", controls: [GOV-18, GOV-01]}
+  - {ref: "GOV.2", section: "IT governance", title: "IT Strategy Committee of the Board", guidance: "At least three directors, chaired by an independent director, with technically competent members; meets at least quarterly and reviews IT and cyber risk.", controls: [GOV-18]}
+  - {ref: "GOV.3", section: "IT governance", title: "IT Steering Committee", guidance: "Senior management forms a steering committee with IT and business representation, meeting at least quarterly and reporting to the IT Strategy Committee.", controls: [GOV-03, GOV-18]}
+  - {ref: "GOV.4", section: "IT governance", title: "Head of IT function", guidance: "Appoint a sufficiently senior, technically competent Head of IT responsible for IT operations.", controls: [GOV-04, GOV-17]}
+  - {ref: "GOV.5", section: "IT governance", title: "Board-approved policies reviewed annually", guidance: "IT, information security, cyber security, BCP, incident response and recovery, and cyber crisis management policies are approved and reviewed at least annually by the Board.", controls: [GOV-01, GOV-07, GOV-18]}
+  # ---- IT infrastructure and services management ----
+  - {ref: "ITS.1", section: "IT infrastructure and services", title: "IT service management", guidance: "Run IT operations with defined service levels, incident and problem management, and capacity planning.", controls: [OPS-05, LOG-02]}
+  - {ref: "ITS.2", section: "IT infrastructure and services", title: "IT asset inventory", guidance: "Keep an inventory of IT assets and information assets with owners and criticality.", controls: [AST-01, AST-03]}
+  - {ref: "ITS.3", section: "IT infrastructure and services", title: "Change and patch management", guidance: "Approve, test and record changes, and patch systems on a risk-based schedule.", controls: [SDL-05, OPS-02]}
+  - {ref: "ITS.4", section: "IT infrastructure and services", title: "Audit trails and logs", guidance: "Keep audit trails of transactions and administrative actions, protected from tampering, for the periods required by law and RBI.", controls: [LOG-01, OPS-11]}
+  - {ref: "ITS.5", section: "IT infrastructure and services", title: "Data migration and end-of-life systems", guidance: "Control data migration with reconciliation and sign-off; plan replacement of systems reaching end of support.", controls: [OPS-12, AST-01]}
+  - {ref: "ITS.6", section: "IT infrastructure and services", title: "Third-party and vendor risk", guidance: "Assess vendor risks (concentration, single points of failure, data protection, availability, supply chain) in proportion to criticality; outsourcing follows the separate IT outsourcing Direction.", controls: [VEN-01, VEN-02, VEN-03]}
+  # ---- IT and information security risk management ----
+  - {ref: "SEC.1", section: "IT and information security risk", title: "Periodic IT and cyber risk assessment", guidance: "Assess IT and cyber risks periodically and on major change, and report to the Risk Management Committee.", controls: [RISK-01, RISK-02]}
+  - {ref: "SEC.2", section: "IT and information security risk", title: "Chief Information Security Officer", guidance: "Appoint a CISO who reports to the executive overseeing risk, is a permanent invitee to the IT committees, owns the cyber strategy and runs the SOC.", controls: [GOV-04, GOV-17]}
+  - {ref: "SEC.3", section: "IT and information security risk", title: "Access control and privileged access", guidance: "Grant least-privilege access, use MFA for privileged and remote access, and review access regularly.", controls: [ACC-01, ACC-03, ACC-04, ACC-05]}
+  - {ref: "SEC.4", section: "IT and information security risk", title: "Data security and encryption", guidance: "Classify data, encrypt it at rest and in transit, and prevent leakage of customer data.", controls: [CRY-01, NET-02, OPS-09, AST-03]}
+  - {ref: "SEC.5", section: "IT and information security risk", title: "Security Operations Centre", guidance: "Monitor systems continuously through a SOC with defined use cases and escalation.", controls: [LOG-02, LOG-01]}
+  - {ref: "SEC.6", section: "IT and information security risk", title: "Vulnerability assessment and penetration testing", guidance: "Run VA/PT on critical and internet-facing systems on a risk-based schedule and fix findings to closure.", controls: [OPS-02, OPS-03]}
+  - {ref: "SEC.7", section: "IT and information security risk", title: "Secure configuration and network security", guidance: "Harden systems, segment networks and protect internet-facing services.", controls: [OPS-04, NET-01]}
+  - {ref: "SEC.8", section: "IT and information security risk", title: "Teleworking and remote access", guidance: "Secure remote work with managed devices, VPN or zero-trust access and MFA.", controls: [HR-06, AST-05]}
+  - {ref: "SEC.9", section: "IT and information security risk", title: "Cyber incident response and reporting", guidance: "Keep an incident response and recovery plan; report cyber incidents to RBI (and CERT-In within 6 hours) as instructed.", controls: [INC-01, INC-02, INC-04]}
+  - {ref: "SEC.10", section: "IT and information security risk", title: "Cyber Crisis Management Plan", guidance: "Maintain a Board-approved Cyber Crisis Management Plan aligned with CERT-In guidance and test it.", controls: [INC-01, BCP-01]}
+  - {ref: "SEC.11", section: "IT and information security risk", title: "Security awareness", guidance: "Train staff, senior management and the Board on cyber risks.", controls: [HR-03]}
+  # ---- Business continuity and DR ----
+  - {ref: "BCM.1", section: "Business continuity and disaster recovery", title: "BCP and DR policy", guidance: "Board-approved BCP and DR policy with recovery time and recovery point objectives for critical systems.", controls: [BCP-01]}
+  - {ref: "BCM.2", section: "Business continuity and disaster recovery", title: "DR drills and backup", guidance: "Run DR drills for critical systems on a schedule, include switchover to the DR site, and test backup restores.", controls: [BCP-01, OPS-06, OPS-07]}
+  # ---- IS audit ----
+  - {ref: "AUD.1", section: "Information systems audit", title: "IS audit policy and Audit Committee oversight", guidance: "The Audit Committee of the Board oversees a risk-based IS audit programme covering critical systems.", controls: [GOV-13, GOV-18]}
+  - {ref: "AUD.2", section: "Information systems audit", title: "Qualified, independent IS auditors and follow-up", guidance: "Use qualified, independent auditors (rotated periodically) and track findings to closure.", controls: [GOV-13, GOV-15]}

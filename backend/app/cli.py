@@ -11,7 +11,7 @@ import argparse
 import sys
 
 from app.db import system_session
-from app.services.content import load_content, read_controls, read_frameworks, validate_content
+from app.services.content import check_content, load_content
 
 
 def main() -> None:
@@ -20,8 +20,7 @@ def main() -> None:
         with system_session() as db:
             print(load_content(db))
     elif cmd == "check-content":
-        validate_content(read_frameworks(), read_controls())
-        print("Content OK: every requirement maps to at least one control.")
+        print(f"Content OK: every requirement maps to at least one control. {check_content()}")
     elif cmd == "sync-runtime-role":
         from app import rls
         from app.config import get_settings

@@ -1,26 +1,27 @@
 # Anupalan (working name)
 
-India-first compliance automation. One set of controls, mapped to the **DPDP Act 2023 + DPDP Rules 2025**, the **CERT-In Directions (April 2022)**, **ISO/IEC 27001:2022** and **SOC 2**, with evidence collection, policies, risk, vendors, training and DPDP operations (data inventory, consent records, rights requests, breach clocks).
+India-first compliance automation. One set of controls, mapped to the **DPDP Act 2023 + DPDP Rules 2025**, the **CERT-In Directions (April 2022)**, **RBI IT Governance Directions**, **SEBI CSCRF**, **ISO/IEC 27001:2022**, **SOC 2**, **NIST CSF 2.0**, **PCI DSS v4.0.1**, **ISO/IEC 42001**, **GDPR** and **HIPAA**, with evidence collection, policies, risk, vendors, training and DPDP operations (data inventory, consent records, rights requests, breach clocks).
 
 > "Anupalan" (अनुपालन, compliance) is a placeholder. Change it with `NEXT_PUBLIC_APP_NAME` and `APP_NAME`.
 
-## What's in v0.3
+## What's in v0.4
 
 | Area | What works |
 | --- | --- |
 | Accounts | Sign-up with email verification, password reset, multiple organisations per user, invitations, roles (owner, admin, member, auditor with time-limited access) |
 | Security | Two-step verification (TOTP + recovery codes), org-enforced MFA, SSO (Google, Microsoft Entra ID, Okta, any OIDC) with verified domains, server-side revocable sessions with a device list, breached-password blocking, PostgreSQL row-level security, per-company encrypted evidence, hash-chained audit log, strict CSP, CSRF tokens, Redis rate limits. See [SECURITY.md](SECURITY.md) and [docs/security.md](docs/security.md) |
-| Content | 4 frameworks, 217 requirements, 94 controls, every requirement mapped (validated in tests), 8 policy templates, 4 training courses, 2 vendor questionnaires |
+| Content | 11 frameworks, 620 requirements, 110 controls, every requirement mapped (validated in tests). India: DPDP, CERT-In, RBI IT Governance (2023), SEBI CSCRF (2024). Global: ISO 27001 (all clauses and 93 Annex A controls), SOC 2 (all five categories; Processing Integrity and Privacy switch on in the profile), NIST CSF 2.0 (all 106 outcomes), PCI DSS v4.0.1, ISO 42001. Other regions: GDPR, HIPAA Security and Breach Notification Rules. 8 policy templates, 12 training courses, 7 vendor questionnaires |
 | Controls | Status, owner, review dates, N/A with justification, evidence (file, link, note), health (passing / needs evidence / failing check), custom controls. Edit any control's title, description, category and review frequency. Change the owner inline in the list or **assign many at once** (bulk owner / status); new owners get an email |
-| Readiness | Per-framework score; conditional requirements drop out when they don't apply |
+| Readiness | Per-framework score; conditional requirements drop out when they don't apply. Onboarding suggests frameworks by sector and only asks the profile questions for the frameworks picked |
+| Risk register | Likelihood x impact heat map, treatment plans, linked controls. **Jira**: every new risk gets an issue automatically, edits are pushed, Jira status flows back (Done = treated, reopened = open), and issues matching a JQL filter are imported as risks |
 | Policies | Four ways in: **upload** (Word .docx, PDF, Markdown, text, HTML), **paste from Google Docs or Word** (headings, lists, bold, tables kept), **write** in a visual editor (no Markdown needed; a Markdown view is there for power users), or start from a template. Owner and linked controls editable, versioning (editing an approved policy starts a new draft), approval (auto-attaches evidence), staff acknowledgments, download, AI drafting |
 | DPDP | Processing inventory, rights requests with SLA and the 90-day legal cap, public request portal, **consent records** (versioned notices, append-only consent log, API for websites and apps, withdrawal feed, CSV export) |
 | Incidents | CERT-In 6-hour clock, DPDP "without delay" steps and 72-hour Board report |
-| Training | Built-in courses with quizzes (security essentials, DPDP basics, phishing, secure development), required or optional, renewal cycles, team report, import from another LMS, daily HR-03 check |
-| Vendors | Risk tiers, DPAs, **questionnaires by link** (vendor answers without an account and uploads certificates), scoring with critical gaps, review creates VEN-01 evidence, certificate expiry reminders |
+| Training | 12 built-in courses (incl. UPI/KYC/'digital arrest' scams, AI at work, payment fraud for finance, privacy for support) with explained answers, shuffled options and 'phish or legit?' practice exercises. Assign by department from the HR roster; new joiners get the full window from their joining date. **Phishing simulations** (7 generic templates, company domains only, click tracking that ignores link scanners, auto-enrolment of clickers). Certificates, company-written courses (paste from Docs, video links, quiz builder), team progress by department, invite roster people without accounts, CSV evidence export, LMS import, weekly reminders, daily HR-03 check |
+| Vendors | Risk tiers, DPAs, certificate expiry reminders. **Questionnaire library**: Standard Full (96 questions, 18 domains referenced to ISO 27001 and SOC 2), Standard Lite, Quick baseline, and add-ons for DPDP processors, GDPR Article 28, AI vendors and PCI DSS. Recommended by tier, core + add-ons in one email, a snapshot of the questions at send time, choice questions, N/A needs a reason. **Sent questionnaires** list with progress, reminders (manual and automatic 3 days before due, each with a fresh link) and cancel. Duplicate and customise any questionnaire, build your own, import from Excel/CSV, export questions or answers to Excel. Review creates VEN-01 evidence |
 | Auditor workspace | Evidence requests with comments, submit / accept / send back, Statement of Applicability or requirements matrix (.xlsx), evidence pack (.zip with SHA-256 manifest) |
 | AI assistant (opt-in) | Policy drafts, remediation plans from gaps, security questionnaire answers from your own policies with sources (Claude API) |
-| Integrations | 25 integrations, 71 automated checks, all read-only except Jira issue creation. Identity: Google Workspace, Microsoft 365, Okta. Cloud: AWS (incl. Security Hub, Inspector, Backup, log retention, key rotation, account separation), Azure, Google Cloud. Code: GitHub (incl. Dependabot fix deadlines), GitLab, Bitbucket. Vulnerabilities: Snyk, Tenable. Endpoints: CrowdStrike, SentinelOne, Intune, Jamf, Scalefusion (beta), Hexnode (beta). Monitoring and network: Datadog, Cloudflare. HR: Keka, Darwinbox, greytHR, Zoho People (all beta). IT ops: Freshservice, Jira |
+| Integrations | 25 integrations, 71 automated checks, all read-only except Jira issue creation (tasks and risks). Identity: Google Workspace, Microsoft 365, Okta. Cloud: AWS (incl. Security Hub, Inspector, Backup, log retention, key rotation, account separation), Azure, Google Cloud. Code: GitHub (incl. Dependabot fix deadlines), GitLab, Bitbucket. Vulnerabilities: Snyk, Tenable. Endpoints: CrowdStrike, SentinelOne, Intune, Jamf, Scalefusion (beta), Hexnode (beta). Monitoring and network: Datadog, Cloudflare. HR: Keka, Darwinbox, greytHR, Zoho People (all beta). IT ops: Freshservice, Jira |
 | Automation coverage | Integrations page shows the share of controls that collect their own evidence and ranks which integration to connect next. Any other tool can push results through the evidence API (`POST /api/v1/evidence`, `evidence:write` key) |
 | People & access | HR roster matched to identity accounts, leaver checks, quarterly access reviews |
 | Data discovery | PostgreSQL, MySQL and S3 scanning for Indian identifiers; **self-hosted scanner agent** for private networks |
@@ -131,12 +132,12 @@ Subclass `Connector` in `backend/app/integrations/`, declare `fields` and `tests
 
 ## Before customer launch
 
-1. **Content review.** Framework guidance, training courses and questionnaires are written in-house and marked draft. Have a privacy lawyer verify DPDP and CERT-In references against the Gazette text, and an ISO 27001 Lead Auditor review the control mappings. ISO and AICPA text is intentionally not reproduced.
+1. **Content review.** Framework guidance, training courses and questionnaires are written in-house and marked draft. Have a privacy lawyer verify DPDP, CERT-In and GDPR references, a banking/securities compliance specialist map the RBI and SEBI packs to paragraph numbers, a QSA review PCI DSS, a HIPAA specialist review HIPAA (watch the 2025 Security Rule update), and an ISO 27001/42001 Lead Auditor review the control mappings. ISO, AICPA and PCI SSC text is intentionally not reproduced.
 2. **Real-tenant connector tests.** Every connector is built from official API docs and tested with simulated responses. Test each against a real account before customers rely on it. Keka and Darwinbox field mappings need checking against customer datasets.
 3. **Independent penetration test** and an external review of [docs/security.md](docs/security.md).
 4. **Key management.** Move the master encryption key to AWS KMS (or an HSM) for the hosted service.
 5. **DPDP Consent Manager integration** once the Board publishes the interface (registration opens November 2026).
-6. **Sector packs**: RBI, SEBI CSCRF, IRDAI.
+6. **Sector packs**: IRDAI Information and Cyber Security Guidelines; deeper RBI and SEBI paragraph mapping.
 7. **Passkeys (WebAuthn) and SCIM provisioning.**
 
 ## Licence and IP

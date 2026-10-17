@@ -1,0 +1,78 @@
+# HIPAA Security Rule (45 CFR Part 164, Subpart C) and Breach Notification Rule (Subpart D).
+# US federal regulation (public domain). Guidance written in-house. (R) = required, (A) = addressable: implement it,
+# or document why it isn't reasonable and what you do instead.
+# Note: HHS published a proposed update to the Security Rule in January 2025 that would make most addressable
+# specifications required. Check its status before relying on the (A) labels.
+# CONTENT STATUS: draft. Review by a HIPAA compliance specialist before customer release.
+code: hipaa
+name: HIPAA Security and Breach Notification Rules
+short_name: HIPAA
+version: "45 CFR 164 (2013)"
+region: United States
+publisher: US Department of Health and Human Services (HHS)
+source_url: https://www.hhs.gov/hipaa/for-professionals/security/index.html
+content_version: "0.1.0"
+review_status: draft
+description: >
+  US rules for protecting electronic protected health information (ePHI). Apply to covered entities
+  (health plans, providers, clearinghouses) and to business associates that handle ePHI for them,
+  which includes Indian health-tech, BPO and SaaS companies serving US healthcare customers.
+requirements:
+  # ---- Administrative safeguards (164.308) ----
+  - {ref: "164.308(a)(1)(ii)(A)", section: "Administrative safeguards", title: "Risk analysis (R)", guidance: "Assess risks to the confidentiality, integrity and availability of all ePHI you create, receive, keep or send.", controls: [RISK-01]}
+  - {ref: "164.308(a)(1)(ii)(B)", section: "Administrative safeguards", title: "Risk management (R)", guidance: "Implement measures that reduce the risks found to a reasonable level.", controls: [RISK-02]}
+  - {ref: "164.308(a)(1)(ii)(C)", section: "Administrative safeguards", title: "Sanction policy (R)", guidance: "Apply sanctions to workforce members who break security policies.", controls: [HR-04]}
+  - {ref: "164.308(a)(1)(ii)(D)", section: "Administrative safeguards", title: "Information system activity review (R)", guidance: "Regularly review audit logs, access reports and security incident tracking.", controls: [LOG-02]}
+  - {ref: "164.308(a)(2)", section: "Administrative safeguards", title: "Assigned security responsibility (R)", guidance: "Name one security official responsible for the security programme.", controls: [GOV-04]}
+  - {ref: "164.308(a)(3)(ii)(A)", section: "Administrative safeguards", title: "Authorisation and supervision (A)", guidance: "Authorise and supervise workforce members who work with ePHI.", controls: [ACC-01]}
+  - {ref: "164.308(a)(3)(ii)(B)", section: "Administrative safeguards", title: "Workforce clearance (A)", guidance: "Check that a person's access to ePHI is appropriate (background checks where lawful).", controls: [HR-01]}
+  - {ref: "164.308(a)(3)(ii)(C)", section: "Administrative safeguards", title: "Termination procedures (A)", guidance: "Remove access to ePHI when employment ends.", controls: [HR-05, ACC-02]}
+  - {ref: "164.308(a)(4)(ii)(A)", section: "Administrative safeguards", title: "Isolating clearinghouse functions (R)", guidance: "A clearinghouse inside a larger organisation protects its ePHI from the rest of the organisation.", condition: hipaa_clearinghouse, controls: [NET-01, ACC-06]}
+  - {ref: "164.308(a)(4)(ii)(B)", section: "Administrative safeguards", title: "Access authorisation (A)", guidance: "Grant access to ePHI through a documented authorisation process.", controls: [ACC-01, ACC-06]}
+  - {ref: "164.308(a)(4)(ii)(C)", section: "Administrative safeguards", title: "Access establishment and modification (A)", guidance: "Establish, document, review and change access rights through a defined process.", controls: [ACC-02, ACC-05]}
+  - {ref: "164.308(a)(5)(ii)(A)", section: "Administrative safeguards", title: "Security reminders (A)", guidance: "Send periodic security updates and reminders to the workforce.", controls: [HR-03, GOV-09]}
+  - {ref: "164.308(a)(5)(ii)(B)", section: "Administrative safeguards", title: "Protection from malicious software (A)", guidance: "Guard against, detect and report malware, and train staff on it.", controls: [OPS-01]}
+  - {ref: "164.308(a)(5)(ii)(C)", section: "Administrative safeguards", title: "Log-in monitoring (A)", guidance: "Monitor log-in attempts and report discrepancies.", controls: [LOG-02]}
+  - {ref: "164.308(a)(5)(ii)(D)", section: "Administrative safeguards", title: "Password management (A)", guidance: "Create, change and protect passwords.", controls: [ACC-08]}
+  - {ref: "164.308(a)(6)(ii)", section: "Administrative safeguards", title: "Security incident response and reporting (R)", guidance: "Identify and respond to security incidents, mitigate harmful effects and document incidents and outcomes.", controls: [INC-01, HR-07]}
+  - {ref: "164.308(a)(7)(ii)(A)", section: "Administrative safeguards", title: "Data backup plan (R)", guidance: "Create and keep retrievable exact copies of ePHI.", controls: [OPS-06]}
+  - {ref: "164.308(a)(7)(ii)(B)", section: "Administrative safeguards", title: "Disaster recovery plan (R)", guidance: "Be able to restore any lost data.", controls: [BCP-01]}
+  - {ref: "164.308(a)(7)(ii)(C)", section: "Administrative safeguards", title: "Emergency mode operation plan (R)", guidance: "Keep critical processes that protect ePHI running during an emergency.", controls: [BCP-01]}
+  - {ref: "164.308(a)(7)(ii)(D)", section: "Administrative safeguards", title: "Testing and revision of contingency plans (A)", guidance: "Test and revise contingency plans periodically.", controls: [BCP-01]}
+  - {ref: "164.308(a)(7)(ii)(E)", section: "Administrative safeguards", title: "Applications and data criticality analysis (A)", guidance: "Rank applications and data by criticality to support the contingency plan.", controls: [BCP-01, AST-03]}
+  - {ref: "164.308(a)(8)", section: "Administrative safeguards", title: "Evaluation (R)", guidance: "Periodically evaluate technical and non-technical safeguards against the rule, and after changes.", controls: [GOV-13]}
+  - {ref: "164.308(b)(1)", section: "Administrative safeguards", title: "Business associate contracts (R)", guidance: "Have a business associate agreement (BAA) with anyone who handles ePHI for you, including your subcontractors.", controls: [VEN-02]}
+  # ---- Physical safeguards (164.310) ----
+  - {ref: "164.310(a)(2)(i)", section: "Physical safeguards", title: "Contingency operations (A)", guidance: "Allow facility access to restore data during an emergency.", controls: [BCP-01, PHY-01]}
+  - {ref: "164.310(a)(2)(ii)", section: "Physical safeguards", title: "Facility security plan (A)", guidance: "Protect facilities and equipment from unauthorised access, tampering and theft.", controls: [PHY-01]}
+  - {ref: "164.310(a)(2)(iii)", section: "Physical safeguards", title: "Access control and validation (A)", guidance: "Control and validate people's access to facilities based on role, including visitors.", controls: [PHY-01]}
+  - {ref: "164.310(a)(2)(iv)", section: "Physical safeguards", title: "Maintenance records (A)", guidance: "Record repairs and changes to physical security components such as doors and locks.", controls: [PHY-02]}
+  - {ref: "164.310(b)", section: "Physical safeguards", title: "Workstation use (R)", guidance: "Define proper use of workstations that access ePHI.", controls: [AST-02]}
+  - {ref: "164.310(c)", section: "Physical safeguards", title: "Workstation security (R)", guidance: "Physically protect workstations that access ePHI.", controls: [AST-05, PHY-03]}
+  - {ref: "164.310(d)(2)(i)", section: "Physical safeguards", title: "Disposal (R)", guidance: "Securely dispose of ePHI and the hardware or media holding it.", controls: [AST-04]}
+  - {ref: "164.310(d)(2)(ii)", section: "Physical safeguards", title: "Media re-use (R)", guidance: "Remove ePHI from media before it is re-used.", controls: [AST-04]}
+  - {ref: "164.310(d)(2)(iii)", section: "Physical safeguards", title: "Accountability for hardware and media (A)", guidance: "Record movements of hardware and media and who is responsible.", controls: [AST-01]}
+  - {ref: "164.310(d)(2)(iv)", section: "Physical safeguards", title: "Data backup before equipment moves (A)", guidance: "Make a retrievable copy of ePHI before moving equipment.", controls: [OPS-06]}
+  # ---- Technical safeguards (164.312) ----
+  - {ref: "164.312(a)(2)(i)", section: "Technical safeguards", title: "Unique user identification (R)", guidance: "Give every user a unique name or number; no shared accounts.", controls: [ACC-02]}
+  - {ref: "164.312(a)(2)(ii)", section: "Technical safeguards", title: "Emergency access procedure (R)", guidance: "Have a break-glass procedure to get to ePHI in an emergency.", controls: [ACC-04, BCP-01]}
+  - {ref: "164.312(a)(2)(iii)", section: "Technical safeguards", title: "Automatic logoff (A)", guidance: "End sessions or lock screens after inactivity.", controls: [AST-05, OPS-04]}
+  - {ref: "164.312(a)(2)(iv)", section: "Technical safeguards", title: "Encryption and decryption (A)", guidance: "Encrypt ePHI at rest. Encrypted data that is lost may not count as a reportable breach.", controls: [CRY-01]}
+  - {ref: "164.312(b)", section: "Technical safeguards", title: "Audit controls (R)", guidance: "Record and examine activity in systems that contain ePHI.", controls: [LOG-01]}
+  - {ref: "164.312(c)(2)", section: "Technical safeguards", title: "Mechanism to authenticate ePHI (A)", guidance: "Detect improper alteration or destruction of ePHI.", controls: [OPS-11]}
+  - {ref: "164.312(d)", section: "Technical safeguards", title: "Person or entity authentication (R)", guidance: "Verify that anyone accessing ePHI is who they claim to be (MFA recommended).", controls: [ACC-03]}
+  - {ref: "164.312(e)(2)(i)", section: "Technical safeguards", title: "Transmission integrity controls (A)", guidance: "Make sure ePHI isn't changed in transit without detection.", controls: [NET-02, OPS-11]}
+  - {ref: "164.312(e)(2)(ii)", section: "Technical safeguards", title: "Transmission encryption (A)", guidance: "Encrypt ePHI sent over networks.", controls: [NET-02]}
+  # ---- Organisational, policies and documentation (164.314, 164.316) ----
+  - {ref: "164.314(a)", section: "Organisational requirements", title: "Business associate contract terms", guidance: "BAAs must require the business associate to safeguard ePHI, report incidents and breaches, and flow terms down to subcontractors.", controls: [VEN-02]}
+  - {ref: "164.316(a)", section: "Policies and documentation", title: "Policies and procedures", guidance: "Write reasonable policies and procedures to comply with the rule, and change them as needed.", controls: [GOV-01, GOV-07]}
+  - {ref: "164.316(b)(2)(i)", section: "Policies and documentation", title: "Keep documentation for 6 years", guidance: "Keep policies, procedures and required records for 6 years from creation or last effective date.", controls: [GOV-07, AST-06]}
+  - {ref: "164.316(b)(2)(ii)", section: "Policies and documentation", title: "Documentation available to those responsible", guidance: "Make documentation available to the people who carry out the procedures.", controls: [GOV-07]}
+  - {ref: "164.316(b)(2)(iii)", section: "Policies and documentation", title: "Review and update documentation (R)", guidance: "Review documentation periodically and after environmental or operational changes.", controls: [GOV-07, GOV-01]}
+  # ---- Breach Notification Rule (164.400-414) ----
+  - {ref: "164.402", section: "Breach notification", title: "Breach risk assessment", guidance: "Presume an impermissible use or disclosure is a breach unless a four-factor risk assessment shows a low probability that PHI was compromised.", controls: [INC-03]}
+  - {ref: "164.404", section: "Breach notification", title: "Notice to individuals within 60 days", guidance: "Notify affected individuals without unreasonable delay and no later than 60 days after discovery.", controls: [INC-03]}
+  - {ref: "164.406", section: "Breach notification", title: "Notice to the media", guidance: "For breaches affecting more than 500 residents of a state, notify prominent media outlets in that state.", controls: [INC-03]}
+  - {ref: "164.408", section: "Breach notification", title: "Notice to the Secretary of HHS", guidance: "Notify HHS within 60 days for breaches of 500 or more people, and annually for smaller breaches.", controls: [INC-03]}
+  - {ref: "164.410", section: "Breach notification", title: "Notice by a business associate", guidance: "A business associate notifies the covered entity without unreasonable delay and within 60 days, identifying affected individuals.", controls: [INC-03, VEN-02]}
+  - {ref: "164.414", section: "Breach notification", title: "Burden of proof and records", guidance: "Be able to show that all notifications were made, or that an incident wasn't a breach.", controls: [INC-04, INC-05]}

@@ -1,0 +1,129 @@
+# NIST Cybersecurity Framework (CSF) 2.0, February 2024. All 106 subcategories.
+# CSF is a US government work (public domain). Titles are shortened paraphrases; guidance is written in-house.
+# CONTENT STATUS: draft. Review by a security practitioner before customer release.
+code: nist_csf
+name: NIST Cybersecurity Framework 2.0
+short_name: NIST CSF
+version: "2.0 (2024)"
+region: Global
+publisher: US National Institute of Standards and Technology (NIST)
+source_url: https://www.nist.gov/cyberframework
+content_version: "0.1.0"
+review_status: draft
+description: >
+  A voluntary framework of cybersecurity outcomes grouped into six functions: Govern, Identify,
+  Protect, Detect, Respond and Recover. Widely used by US customers and as a common language for
+  security programmes. SEBI's CSCRF is built on the same functions.
+requirements:
+  # ================= GOVERN =================
+  - {ref: "GV.OC-01", section: "Govern: Organisational context", title: "Mission informs cybersecurity risk management", guidance: "Write down your mission and critical services so security priorities follow them.", controls: [GOV-02]}
+  - {ref: "GV.OC-02", section: "Govern: Organisational context", title: "Stakeholder needs and expectations understood", guidance: "Know what customers, staff, investors and regulators expect of your security.", controls: [GOV-02]}
+  - {ref: "GV.OC-03", section: "Govern: Organisational context", title: "Legal, regulatory and contractual requirements managed", guidance: "Keep a register of laws, regulations and contract terms that apply, including privacy obligations.", controls: [GOV-12]}
+  - {ref: "GV.OC-04", section: "Govern: Organisational context", title: "Critical objectives and services others depend on understood", guidance: "Identify which of your services customers rely on and their availability expectations.", controls: [BCP-01, GOV-02]}
+  - {ref: "GV.OC-05", section: "Govern: Organisational context", title: "Dependencies understood", guidance: "Know the suppliers, cloud services and systems your own operations depend on.", controls: [VEN-01, AST-01]}
+  - {ref: "GV.RM-01", section: "Govern: Risk management strategy", title: "Risk management objectives agreed", guidance: "Leadership agrees what the risk programme must achieve.", controls: [RISK-01, GOV-06]}
+  - {ref: "GV.RM-02", section: "Govern: Risk management strategy", title: "Risk appetite and tolerance stated", guidance: "Write down how much risk you will accept and the thresholds for escalation.", controls: [RISK-02]}
+  - {ref: "GV.RM-03", section: "Govern: Risk management strategy", title: "Cyber risk part of enterprise risk management", guidance: "Report cyber risks alongside other business risks to leadership.", controls: [RISK-01, GOV-03]}
+  - {ref: "GV.RM-04", section: "Govern: Risk management strategy", title: "Risk response options defined", guidance: "Set the direction for accepting, mitigating, transferring (insurance) or avoiding risks.", controls: [RISK-02]}
+  - {ref: "GV.RM-05", section: "Govern: Risk management strategy", title: "Risk communication lines established", guidance: "Define how cyber risks are reported internally and with suppliers.", controls: [GOV-09, VEN-01]}
+  - {ref: "GV.RM-06", section: "Govern: Risk management strategy", title: "Standard method to score and prioritise risks", guidance: "Use one documented method to score, categorise and prioritise risks.", controls: [RISK-01]}
+  - {ref: "GV.RM-07", section: "Govern: Risk management strategy", title: "Strategic opportunities considered", guidance: "Record positive risks (opportunities) as well as threats.", controls: [RISK-01]}
+  - {ref: "GV.RR-01", section: "Govern: Roles and responsibilities", title: "Leadership accountable for cyber risk", guidance: "Leaders own cyber risk and promote a risk-aware culture.", controls: [GOV-03, GOV-04]}
+  - {ref: "GV.RR-02", section: "Govern: Roles and responsibilities", title: "Roles and authorities defined and communicated", guidance: "Assign and publish security roles and responsibilities.", controls: [GOV-04]}
+  - {ref: "GV.RR-03", section: "Govern: Roles and responsibilities", title: "Adequate resources allocated", guidance: "Fund people, tools and training in line with risk.", controls: [GOV-06]}
+  - {ref: "GV.RR-04", section: "Govern: Roles and responsibilities", title: "Cybersecurity in HR practices", guidance: "Include security in hiring checks, terms of employment, discipline and exits.", controls: [HR-01, HR-02, HR-04]}
+  - {ref: "GV.PO-01", section: "Govern: Policy", title: "Cybersecurity policy established and enforced", guidance: "Approve and communicate a security policy based on your context and strategy.", controls: [GOV-01]}
+  - {ref: "GV.PO-02", section: "Govern: Policy", title: "Policy reviewed and updated", guidance: "Review the policy regularly and after significant changes.", controls: [GOV-01, GOV-07]}
+  - {ref: "GV.OV-01", section: "Govern: Oversight", title: "Strategy outcomes reviewed", guidance: "Leadership reviews results of the security strategy and adjusts it.", controls: [GOV-03]}
+  - {ref: "GV.OV-02", section: "Govern: Oversight", title: "Strategy coverage reviewed", guidance: "Check the strategy still covers the organisation's requirements and risks.", controls: [GOV-03, GOV-18]}
+  - {ref: "GV.OV-03", section: "Govern: Oversight", title: "Risk management performance evaluated", guidance: "Measure and review how well risk management works.", controls: [GOV-14, GOV-13]}
+  - {ref: "GV.SC-01", section: "Govern: Supply chain risk management", title: "Supply chain risk programme established", guidance: "Set a strategy, objectives and policy for supplier security risk.", controls: [VEN-01]}
+  - {ref: "GV.SC-02", section: "Govern: Supply chain risk management", title: "Supplier security roles defined", guidance: "Define who manages supplier security, internally and at the supplier.", controls: [VEN-01, GOV-04]}
+  - {ref: "GV.SC-03", section: "Govern: Supply chain risk management", title: "Supplier risk integrated into risk management", guidance: "Include supplier risks in the risk register and improvement work.", controls: [VEN-01, RISK-01]}
+  - {ref: "GV.SC-04", section: "Govern: Supply chain risk management", title: "Suppliers known and prioritised by criticality", guidance: "Keep a supplier inventory with a risk tier for each.", controls: [VEN-01]}
+  - {ref: "GV.SC-05", section: "Govern: Supply chain risk management", title: "Security requirements in supplier contracts", guidance: "Put security and privacy terms into contracts with suppliers.", controls: [VEN-02]}
+  - {ref: "GV.SC-06", section: "Govern: Supply chain risk management", title: "Due diligence before onboarding suppliers", guidance: "Assess suppliers before signing (questionnaire, certifications, reports).", controls: [VEN-01]}
+  - {ref: "GV.SC-07", section: "Govern: Supply chain risk management", title: "Supplier risks monitored over the relationship", guidance: "Reassess suppliers periodically and track their issues.", controls: [VEN-01]}
+  - {ref: "GV.SC-08", section: "Govern: Supply chain risk management", title: "Suppliers included in incident planning", guidance: "Include key suppliers in incident response and recovery plans and exercises.", controls: [INC-01, VEN-02]}
+  - {ref: "GV.SC-09", section: "Govern: Supply chain risk management", title: "Supply chain security across the lifecycle", guidance: "Monitor supplier security practices from acquisition to end of life, including outsourced development.", controls: [VEN-01, SDL-06]}
+  - {ref: "GV.SC-10", section: "Govern: Supply chain risk management", title: "Exit provisions", guidance: "Plan data return, deletion and access removal when a supplier relationship ends.", controls: [VEN-02]}
+  # ================= IDENTIFY =================
+  - {ref: "ID.AM-01", section: "Identify: Asset management", title: "Hardware inventory", guidance: "Keep an inventory of laptops, servers and network devices.", controls: [AST-01]}
+  - {ref: "ID.AM-02", section: "Identify: Asset management", title: "Software, services and systems inventory", guidance: "Keep an inventory of software, SaaS services and systems.", controls: [AST-01]}
+  - {ref: "ID.AM-03", section: "Identify: Asset management", title: "Network communication and data flows documented", guidance: "Maintain network and data-flow diagrams.", controls: [NET-01, PRV-01]}
+  - {ref: "ID.AM-04", section: "Identify: Asset management", title: "Supplier services inventory", guidance: "List the services suppliers provide to you.", controls: [VEN-01, VEN-03]}
+  - {ref: "ID.AM-05", section: "Identify: Asset management", title: "Assets prioritised by classification and criticality", guidance: "Classify data and systems so protection matches their value.", controls: [AST-03]}
+  - {ref: "ID.AM-07", section: "Identify: Asset management", title: "Data inventory", guidance: "Inventory important data types (personal data, payment data, secrets) and where they live.", controls: [PRV-01, AST-03]}
+  - {ref: "ID.AM-08", section: "Identify: Asset management", title: "Assets managed through their lifecycle", guidance: "Manage systems and data from acquisition to secure disposal.", controls: [AST-01, AST-04]}
+  - {ref: "ID.RA-01", section: "Identify: Risk assessment", title: "Vulnerabilities identified and recorded", guidance: "Scan for and record vulnerabilities in assets.", controls: [OPS-02]}
+  - {ref: "ID.RA-02", section: "Identify: Risk assessment", title: "Threat intelligence received", guidance: "Receive threat alerts from CERT-In, vendors and industry groups.", controls: [RISK-05]}
+  - {ref: "ID.RA-03", section: "Identify: Risk assessment", title: "Threats identified and recorded", guidance: "Record internal and external threats relevant to you.", controls: [RISK-05, RISK-01]}
+  - {ref: "ID.RA-04", section: "Identify: Risk assessment", title: "Impacts and likelihoods identified", guidance: "Estimate the likelihood and impact of threats exploiting vulnerabilities.", controls: [RISK-01]}
+  - {ref: "ID.RA-05", section: "Identify: Risk assessment", title: "Inherent risk understood and prioritised", guidance: "Combine threats, vulnerabilities, likelihood and impact to prioritise responses.", controls: [RISK-01, RISK-02]}
+  - {ref: "ID.RA-06", section: "Identify: Risk assessment", title: "Risk responses planned and tracked", guidance: "Choose, plan and track a response for each risk.", controls: [RISK-02]}
+  - {ref: "ID.RA-07", section: "Identify: Risk assessment", title: "Changes and exceptions assessed for risk", guidance: "Assess the risk of changes and policy exceptions and record decisions.", controls: [RISK-04, SDL-05]}
+  - {ref: "ID.RA-08", section: "Identify: Risk assessment", title: "Vulnerability disclosure handled", guidance: "Have a way for researchers and customers to report vulnerabilities, and act on reports.", controls: [OPS-02]}
+  - {ref: "ID.RA-09", section: "Identify: Risk assessment", title: "Hardware and software integrity checked before use", guidance: "Check the authenticity and integrity of software and hardware before you use it (signed packages, dependency scanning).", controls: [SDL-03, VEN-01]}
+  - {ref: "ID.RA-10", section: "Identify: Risk assessment", title: "Critical suppliers assessed before acquisition", guidance: "Assess critical suppliers before buying.", controls: [VEN-01]}
+  - {ref: "ID.IM-01", section: "Identify: Improvement", title: "Improvements from evaluations", guidance: "Turn audit and assessment findings into improvements.", controls: [GOV-15, GOV-13]}
+  - {ref: "ID.IM-02", section: "Identify: Improvement", title: "Improvements from tests and exercises", guidance: "Learn from pen tests, DR tests and incident exercises, including with suppliers.", controls: [GOV-15, OPS-03, BCP-01]}
+  - {ref: "ID.IM-03", section: "Identify: Improvement", title: "Improvements from operations", guidance: "Improve processes based on how they perform day to day and after incidents.", controls: [GOV-15, INC-04]}
+  - {ref: "ID.IM-04", section: "Identify: Improvement", title: "Incident response and other plans maintained", guidance: "Keep incident response, continuity and recovery plans current and communicated.", controls: [INC-01, BCP-01]}
+  # ================= PROTECT =================
+  - {ref: "PR.AA-01", section: "Protect: Identity and access", title: "Identities and credentials managed", guidance: "Create, change and remove accounts and credentials through a controlled process.", controls: [ACC-02, ACC-08]}
+  - {ref: "PR.AA-02", section: "Protect: Identity and access", title: "Identities proofed and bound to credentials", guidance: "Verify who a person is before issuing credentials.", controls: [ACC-02, HR-01]}
+  - {ref: "PR.AA-03", section: "Protect: Identity and access", title: "Users, services and hardware authenticated", guidance: "Authenticate users and services, with MFA for sensitive access.", controls: [ACC-03]}
+  - {ref: "PR.AA-04", section: "Protect: Identity and access", title: "Identity assertions protected", guidance: "Protect SSO tokens and assertions in transit and verify them.", controls: [ACC-03, NET-02]}
+  - {ref: "PR.AA-05", section: "Protect: Identity and access", title: "Least privilege and access reviews", guidance: "Define permissions in policy, enforce least privilege and separation of duties, and review access regularly.", controls: [ACC-01, ACC-05, ACC-06, GOV-05]}
+  - {ref: "PR.AA-06", section: "Protect: Identity and access", title: "Physical access managed", guidance: "Control and monitor physical access to offices and equipment.", controls: [PHY-01]}
+  - {ref: "PR.AT-01", section: "Protect: Awareness and training", title: "Security awareness for everyone", guidance: "Train all staff on security risks and their responsibilities.", controls: [HR-03]}
+  - {ref: "PR.AT-02", section: "Protect: Awareness and training", title: "Training for specialised roles", guidance: "Give engineers, admins and leaders role-specific security training.", controls: [GOV-17, HR-03]}
+  - {ref: "PR.DS-01", section: "Protect: Data security", title: "Data at rest protected", guidance: "Encrypt and protect the integrity of stored data.", controls: [CRY-01, OPS-11]}
+  - {ref: "PR.DS-02", section: "Protect: Data security", title: "Data in transit protected", guidance: "Encrypt data in transit with current TLS.", controls: [NET-02]}
+  - {ref: "PR.DS-10", section: "Protect: Data security", title: "Data in use protected", guidance: "Limit who and what can access data while it's being processed, and prevent leakage.", controls: [ACC-06, OPS-09]}
+  - {ref: "PR.DS-11", section: "Protect: Data security", title: "Backups created, protected and tested", guidance: "Back up data, protect the backups and test restores.", controls: [OPS-06]}
+  - {ref: "PR.PS-01", section: "Protect: Platform security", title: "Configuration management", guidance: "Apply secure configuration baselines and manage drift.", controls: [OPS-04]}
+  - {ref: "PR.PS-02", section: "Protect: Platform security", title: "Software maintained and patched", guidance: "Patch, upgrade or remove software in line with risk.", controls: [OPS-02, AST-05]}
+  - {ref: "PR.PS-03", section: "Protect: Platform security", title: "Hardware maintained and retired", guidance: "Maintain and securely retire hardware.", controls: [PHY-02, AST-04]}
+  - {ref: "PR.PS-04", section: "Protect: Platform security", title: "Logs generated for monitoring", guidance: "Generate logs and make them available for continuous monitoring.", controls: [LOG-01]}
+  - {ref: "PR.PS-05", section: "Protect: Platform security", title: "Unauthorised software prevented", guidance: "Prevent installation and execution of unauthorised software.", controls: [OPS-01, AST-05]}
+  - {ref: "PR.PS-06", section: "Protect: Platform security", title: "Secure software development", guidance: "Build security into the development lifecycle and measure it.", controls: [SDL-01, SDL-02, SDL-03]}
+  - {ref: "PR.IR-01", section: "Protect: Infrastructure resilience", title: "Networks protected from unauthorised access", guidance: "Segment networks and restrict logical access.", controls: [NET-01]}
+  - {ref: "PR.IR-02", section: "Protect: Infrastructure resilience", title: "Assets protected from environmental threats", guidance: "Protect equipment from fire, flood, power and temperature problems (or rely on certified cloud providers).", controls: [PHY-02]}
+  - {ref: "PR.IR-03", section: "Protect: Infrastructure resilience", title: "Resilience mechanisms in place", guidance: "Use redundancy and failover to meet resilience requirements.", controls: [OPS-07, BCP-01]}
+  - {ref: "PR.IR-04", section: "Protect: Infrastructure resilience", title: "Adequate capacity maintained", guidance: "Monitor and plan capacity to stay available.", controls: [OPS-05]}
+  # ================= DETECT =================
+  - {ref: "DE.CM-01", section: "Detect: Continuous monitoring", title: "Networks monitored", guidance: "Monitor networks and network services for adverse events.", controls: [LOG-02, NET-01]}
+  - {ref: "DE.CM-02", section: "Detect: Continuous monitoring", title: "Physical environment monitored", guidance: "Monitor offices and facilities (CCTV, access logs).", controls: [PHY-01]}
+  - {ref: "DE.CM-03", section: "Detect: Continuous monitoring", title: "Personnel activity and technology use monitored", guidance: "Monitor user activity for anomalies and data leakage.", controls: [LOG-02, OPS-09]}
+  - {ref: "DE.CM-06", section: "Detect: Continuous monitoring", title: "External service provider activity monitored", guidance: "Monitor cloud and supplier activity in your environment.", controls: [VEN-03, LOG-02]}
+  - {ref: "DE.CM-09", section: "Detect: Continuous monitoring", title: "Computing hardware, software and data monitored", guidance: "Monitor endpoints, servers, runtime environments and data for adverse events.", controls: [LOG-02, OPS-01]}
+  - {ref: "DE.AE-02", section: "Detect: Adverse event analysis", title: "Adverse events analysed", guidance: "Analyse alerts to understand what happened.", controls: [LOG-02, INC-01]}
+  - {ref: "DE.AE-03", section: "Detect: Adverse event analysis", title: "Information correlated from multiple sources", guidance: "Correlate logs from several sources (SIEM).", controls: [LOG-01, LOG-02]}
+  - {ref: "DE.AE-04", section: "Detect: Adverse event analysis", title: "Impact and scope estimated", guidance: "Estimate the impact and scope of adverse events.", controls: [INC-01]}
+  - {ref: "DE.AE-06", section: "Detect: Adverse event analysis", title: "Information shared with authorised staff", guidance: "Route adverse event information to the right people and tools, including staff reports.", controls: [LOG-02, HR-07]}
+  - {ref: "DE.AE-07", section: "Detect: Adverse event analysis", title: "Threat intelligence used in analysis", guidance: "Use threat intelligence and context when analysing events.", controls: [RISK-05, LOG-02]}
+  - {ref: "DE.AE-08", section: "Detect: Adverse event analysis", title: "Incidents declared using criteria", guidance: "Declare incidents when events meet defined criteria.", controls: [INC-01]}
+  # ================= RESPOND =================
+  - {ref: "RS.MA-01", section: "Respond: Incident management", title: "Incident response plan executed", guidance: "Run the incident plan with relevant third parties once an incident is declared.", controls: [INC-01]}
+  - {ref: "RS.MA-02", section: "Respond: Incident management", title: "Incident reports triaged and validated", guidance: "Triage and validate incident reports.", controls: [INC-01]}
+  - {ref: "RS.MA-03", section: "Respond: Incident management", title: "Incidents categorised and prioritised", guidance: "Categorise and prioritise incidents.", controls: [INC-01]}
+  - {ref: "RS.MA-04", section: "Respond: Incident management", title: "Incidents escalated as needed", guidance: "Escalate incidents to leadership, legal and regulators as needed.", controls: [INC-01]}
+  - {ref: "RS.MA-05", section: "Respond: Incident management", title: "Recovery criteria applied", guidance: "Apply criteria for starting recovery.", controls: [INC-01, BCP-01]}
+  - {ref: "RS.AN-03", section: "Respond: Incident analysis", title: "Root cause established", guidance: "Investigate what happened and the root cause.", controls: [INC-04]}
+  - {ref: "RS.AN-06", section: "Respond: Incident analysis", title: "Investigation actions recorded", guidance: "Record investigation actions and protect the records' integrity.", controls: [INC-05]}
+  - {ref: "RS.AN-07", section: "Respond: Incident analysis", title: "Incident data collected and preserved", guidance: "Collect evidence and preserve its integrity and provenance.", controls: [INC-05]}
+  - {ref: "RS.AN-08", section: "Respond: Incident analysis", title: "Incident magnitude estimated", guidance: "Estimate and validate how big the incident is.", controls: [INC-01]}
+  - {ref: "RS.CO-02", section: "Respond: Incident communication", title: "Stakeholders notified", guidance: "Notify internal and external stakeholders, including regulators (CERT-In within 6 hours, data protection authorities).", controls: [INC-02, INC-03]}
+  - {ref: "RS.CO-03", section: "Respond: Incident communication", title: "Information shared with designated stakeholders", guidance: "Share incident information with designated parties.", controls: [INC-02, GOV-11]}
+  - {ref: "RS.MI-01", section: "Respond: Incident mitigation", title: "Incidents contained", guidance: "Contain incidents to limit damage.", controls: [INC-01]}
+  - {ref: "RS.MI-02", section: "Respond: Incident mitigation", title: "Incidents eradicated", guidance: "Remove the cause of incidents.", controls: [INC-01]}
+  # ================= RECOVER =================
+  - {ref: "RC.RP-01", section: "Recover: Incident recovery plan", title: "Recovery plan executed", guidance: "Run the recovery part of the incident plan.", controls: [BCP-01, INC-01]}
+  - {ref: "RC.RP-02", section: "Recover: Incident recovery plan", title: "Recovery actions prioritised and performed", guidance: "Select, scope and prioritise recovery actions.", controls: [BCP-01]}
+  - {ref: "RC.RP-03", section: "Recover: Incident recovery plan", title: "Backup integrity verified before restore", guidance: "Check backups are intact and clean before restoring from them.", controls: [OPS-06]}
+  - {ref: "RC.RP-04", section: "Recover: Incident recovery plan", title: "Post-incident operating norms set", guidance: "Decide how to operate safely after an incident.", controls: [BCP-01]}
+  - {ref: "RC.RP-05", section: "Recover: Incident recovery plan", title: "Restored assets verified", guidance: "Verify restored systems and confirm normal operation.", controls: [BCP-01, OPS-06]}
+  - {ref: "RC.RP-06", section: "Recover: Incident recovery plan", title: "End of recovery declared and documented", guidance: "Declare the end of recovery against criteria and complete documentation.", controls: [INC-04]}
+  - {ref: "RC.CO-03", section: "Recover: Recovery communication", title: "Recovery progress communicated", guidance: "Keep stakeholders informed of recovery progress.", controls: [BCP-01, GOV-10]}
+  - {ref: "RC.CO-04", section: "Recover: Recovery communication", title: "Public updates shared using approved messaging", guidance: "Publish approved public updates about recovery.", controls: [GOV-10, INC-01]}

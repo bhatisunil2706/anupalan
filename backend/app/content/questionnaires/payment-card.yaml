@@ -1,0 +1,18 @@
+slug: payment-card
+title: "Add-on: Payment card data (PCI DSS)"
+kind: addon
+order: 13
+recommended_for: [high, critical]
+description: >
+  For payment gateways, processors and any vendor that stores, processes or transmits card data for you,
+  or can affect the security of your payment pages.
+questions:
+  - {id: pci-01, section: Compliance, text: "Are you PCI DSS v4.0.1 compliant for the services you provide to us?", type: yes_no, weight: 3, good: "yes", evidence: true, guidance: "Upload your Attestation of Compliance (AOC), dated within the last 12 months."}
+  - {id: pci-02, section: Compliance, text: "What is your PCI DSS validation level and method?", type: choice, options: ["Service provider level 1 (QSA ROC)", "Service provider level 2 (SAQ D)", "Merchant level 1", "Merchant level 2-4", "Not validated"], weight: 0}
+  - {id: pci-03, section: Compliance, text: "Will you provide a responsibility matrix showing which PCI DSS requirements you manage and which remain with us?", type: yes_no, weight: 2, good: "yes", refs: "PCI 12.9"}
+  - {id: pci-04, section: Card data handling, text: "Do you tokenise card numbers so that we never need to store PAN?", type: yes_no, weight: 2, good: "yes", allow_na: true}
+  - {id: pci-05, section: Card data handling, text: "Do you comply with RBI's card-on-file tokenisation rules (no storage of actual card data by merchants and their gateways)?", type: yes_no, weight: 2, good: "yes", allow_na: true}
+  - {id: pci-06, section: Card data handling, text: "Is sensitive authentication data (CVV, full track, PIN) never stored after authorisation?", type: yes_no, weight: 3, good: "yes", refs: "PCI 3.3"}
+  - {id: pci-07, section: Payment pages, text: "If your script or iframe runs on our payment page, do you manage script integrity and notify us of changes?", type: yes_no, weight: 2, good: "yes", allow_na: true, refs: "PCI 6.4.3, 11.6.1"}
+  - {id: pci-08, section: Testing, text: "Do you run quarterly ASV external scans and annual penetration tests of the cardholder data environment?", type: yes_no, weight: 2, good: "yes", refs: "PCI 11.3, 11.4"}
+  - {id: pci-09, section: Incidents, text: "Will you notify us within 24 hours of a suspected compromise of card data?", type: yes_no, weight: 3, good: "yes", refs: "PCI 12.10"}

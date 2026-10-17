@@ -1,0 +1,61 @@
+slug: data-handling
+audience: Everyone
+category: Privacy
+order: 7
+title: Classifying and sharing data safely
+minutes: 8
+pass_mark: 80
+control_codes: [HR-03, AST-03, OPS-09]
+summary: Our data classes, what you may do with each, and safe ways to share files with colleagues, customers and vendors.
+body_md: |
+  ## Four classes of information
+
+  | Class | Examples | Rules |
+  | --- | --- | --- |
+  | **Public** | Website content, published blog posts | Share freely |
+  | **Internal** | Org charts, internal wiki, project plans | Staff only; not outside without approval |
+  | **Confidential** | Customer data, contracts, financials, source code | Need to know; approved tools only; encrypted |
+  | **Restricted** | Passwords and keys, Aadhaar/PAN, health or payment data, security reports | Smallest group possible; never in email or chat |
+
+  When unsure, treat information as **Confidential**.
+
+  ## Sharing safely
+
+  - **Use approved tools** (the company drive or document system) with access limited to named people. Avoid
+    "anyone with the link" for anything above Public.
+  - **Check the recipient** before you hit send; autocomplete is the most common cause of data leaks.
+  - **Don't move work data to personal accounts**, personal email, personal cloud storage or USB drives.
+  - **Share the minimum.** Send a filtered report rather than a full customer export.
+  - **Vendors get data only under a contract** that the security or legal team has approved.
+
+  ## Personal data
+
+  Under DPDP, we may use personal data only for the purpose it was collected for, keep it only as long as needed, and
+  protect it with reasonable safeguards. Don't copy customer data into spreadsheets for convenience, and delete
+  extracts once you're done.
+
+  ## Printing and screens
+
+  Collect printouts straight away, shred confidential paper, lock your screen when you step away and watch out for
+  shoulder-surfing in public places.
+quiz:
+  - q: How should you treat information you're unsure how to classify?
+    options: ["As Public", "As Internal", "As Confidential", "Ask a friend"]
+    answer: 2
+    explain: Default to Confidential until you know otherwise.
+  - q: What's the safest way to share a contract with a customer?
+    options: ["Personal Gmail", "A company drive link limited to the customer's named contacts", "A public 'anyone with the link' share", "WhatsApp"]
+    answer: 1
+    explain: Approved tools with access limited to named people.
+  - q: A colleague asks you to send them the database password over chat. What do you do?
+    options: ["Send it", "Refuse; restricted secrets go only through the approved secrets manager", "Send half in chat and half by email", "Post it in the team channel"]
+    answer: 1
+    explain: Secrets never go through email or chat.
+  - q: You need customer data for an analysis. What's best?
+    options: ["Export everything to your laptop", "Request only the fields you need, and delete the extract afterwards", "Copy it to personal cloud storage", "Email it to yourself"]
+    answer: 1
+    explain: Minimise what you take and delete it when done.
+  - q: Which of these is Restricted information?
+    options: ["The company's public blog", "An internal project plan", "Customers' PAN numbers", "The office address"]
+    answer: 2
+    explain: Government identifiers, payment and health data, and secrets are Restricted.

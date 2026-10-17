@@ -9,12 +9,24 @@ import type { FrameworkCatalogItem, Me } from "@/lib/types";
 
 const SECTORS = ["B2B SaaS", "IT services", "Fintech / payments", "NBFC / lending", "Insurance", "Healthtech", "Edtech", "E-commerce", "Other"];
 const SIZES = ["1-50", "51-200", "201-500", "501-1000", "1000+"];
-const STEPS = ["Company", "What applies to you", "Frameworks"];
+const STEPS = ["Company", "Frameworks", "What applies to you"];
+// Suggested starting frameworks by sector; people can change the selection.
+const SUGGEST: Record<string, string[]> = {
+  "B2B SaaS": ["dpdp", "certin", "iso27001", "soc2"],
+  "IT services": ["dpdp", "certin", "iso27001", "soc2"],
+  "Fintech / payments": ["dpdp", "certin", "iso27001", "pci_dss"],
+  "NBFC / lending": ["dpdp", "certin", "rbi_itgrc", "iso27001"],
+  "Insurance": ["dpdp", "certin", "iso27001"],
+  "Healthtech": ["dpdp", "certin", "iso27001", "hipaa"],
+  "Edtech": ["dpdp", "certin", "iso27001"],
+  "E-commerce": ["dpdp", "certin", "pci_dss"],
+  "Other": ["dpdp", "certin"],
+};
 
 export default function OnboardingPage() {
   const router = useRouter();
   const [me, setMe] = useState<Me | null>(null);
-  const [flags, setFlags] = useState<{ key: string; label: string }[]>([]);
+  const [flags, setFlags] = useState<{ key: string; label: string; framework: string | null }[]>([]);
   const [frameworks, setFrameworks] = useState<FrameworkCatalogItem[]>([]);
   const [step, setStep] = useState(0);
   const [sector, setSector] = useState(SECTORS[0]);
@@ -40,6 +52,7 @@ export default function OnboardingPage() {
 
   if (!me) return <Loading label="Preparing setup" />;
   const isAdmin = me.role === "owner" || me.role === "admin";
+  const relevantFlags = flags.filter((f) => !f.framework || selected.includes(f.framework));
 
   async function finish() {
     setBusy(true);
@@ -86,7 +99,7 @@ export default function OnboardingPage() {
               </div>
               <Field label="Sector">
                 {(id) => (
-                  <Select id={id} value={sector} onChange={(e) => setSector(e.target.value)}>
+                  <Select id={id} value={sector} onChange={(e) => { setSector(e.target.value); setSelected(SUGGEST[e.target.value] ?? ["dpdp", "certin"]); }}>
                     {SECTORS.map((s) => <option key={s}>{s}</option>)}
                   </Select>
                 )}
@@ -101,23 +114,32 @@ export default function OnboardingPage() {
             </div>
           )}
 
-          {step === 1 && (
+          {step === 2 && (
             <div className="space-y-5">
               <div>
                 <h1 className="text-xl font-bold">Which of these apply to you?</h1>
                 <p className="mt-1 text-sm text-muted">
-                  These switch on extra obligations under DPDP and CERT-In. You can change them later in settings.
+                  These switch on extra obligations in the frameworks you picked. You can change them later in settings.
                 </p>
               </div>
-              <div className="space-y-4">
-                {flags.map((f) => (
-                  <Checkbox key={f.key} label={f.label} checked={!!profile[f.key]} onChange={(v) => setProfile({ ...profile, [f.key]: v })} />
-                ))}
-              </div>
+              {relevantFlags.length ? (
+                <div className="space-y-6">
+                  {frameworks.filter((fw) => relevantFlags.some((f) => f.framework === fw.code)).map((fw) => (
+                    <fieldset key={fw.code} className="space-y-3">
+                      <legend className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted">{fw.short_name}</legend>
+                      {relevantFlags.filter((f) => f.framework === fw.code).map((f) => (
+                        <Checkbox key={f.key} label={f.label} checked={!!profile[f.key]} onChange={(v) => setProfile({ ...profile, [f.key]: v })} />
+                      ))}
+                    </fieldset>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-sm text-muted">Nothing extra to ask for the frameworks you picked.</p>
+              )}
             </div>
           )}
 
-          {step === 2 && (
+          {step === 1 && (
             <div className="space-y-5">
               <div>
                 <h1 className="text-xl font-bold">Choose your frameworks</h1>
@@ -152,16 +174,16 @@ export default function OnboardingPage() {
                   );
                 })}
               </div>
-              <FormError error={error} />
             </div>
           )}
 
-          <div className="mt-8 flex justify-between">
+          <div className="mt-4"><FormError error={error} /></div>
+          <div className="mt-6 flex justify-between">
             <Button variant="ghost" onClick={() => setStep(step - 1)} disabled={step === 0}>
               Back
             </Button>
             {step < 2 ? (
-              <Button onClick={() => setStep(step + 1)}>Continue</Button>
+              <Button onClick={() => setStep(step + 1)} disabled={step === 1 && !selected.length}>Continue</Button>
             ) : (
               <Button onClick={finish} busy={busy} disabled={!selected.length}>
                 Set up workspace

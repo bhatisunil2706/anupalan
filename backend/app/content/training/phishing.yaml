@@ -1,4 +1,7 @@
 slug: phishing
+audience: Everyone
+category: Foundations
+order: 2
 title: Spotting phishing and social engineering
 minutes: 10
 pass_mark: 80
@@ -70,3 +73,25 @@ quiz:
       - Send it by chat instead
       - Give only the first three digits
     answer: 1
+scenarios:
+  - from: "IT Support <it-support@acme-helpdesk.co>"
+    subject: "Mailbox full: verify within 24 hours or lose email"
+    body: "Your mailbox has reached its limit. Incoming mail will be rejected. Click here to verify your account and increase storage: http://acme-helpdesk.co/verify"
+    verdict: phish
+    explain: "Urgency, a look-alike domain (acme-helpdesk.co, not your company's domain) and a sign-in link. Real IT teams don't ask you to verify accounts by email."
+  - from: "Rohan Gupta <rohan.gupta@yourcompany.in>"
+    subject: "Notes from today's sprint review"
+    body: "Hi team, notes from today are in the usual Confluence space under Sprint 42. Ping me if I missed anything."
+    verdict: legit
+    explain: "A known colleague, your own domain, an expected topic, and it points you to a place you already use rather than a strange link."
+  - from: "Accounts <accounts@trusted-supplier.com>"
+    subject: "Updated bank details for future payments"
+    body: "Please note our bank account has changed due to an audit. Kindly update our details below before processing this month's invoice. This is urgent as the old account is frozen."
+    verdict: phish
+    explain: "Bank-detail change requests are the most common payment fraud. Even if the sender looks right, call the supplier on a number you already have before changing anything."
+  - from: "Payroll <payroll@yourcompany.in>"
+    subject: "Your payslip for September is ready"
+    body: "Your payslip is available in the HR portal. Sign in as usual from the intranet to view it. We'll never ask for your password by email."
+    verdict: legit
+    explain: "It tells you to go to the portal yourself instead of clicking a link, and the sender is your own payroll address."
+

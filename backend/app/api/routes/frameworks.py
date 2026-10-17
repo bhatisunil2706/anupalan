@@ -16,17 +16,29 @@ def _get(db, code: str) -> Framework:
     return fw
 
 
+# Catalogue grouping: India first, then global standards, then other regions' laws.
+CATALOG = {
+    "dpdp": ("India", 1), "certin": ("India", 2), "rbi_itgrc": ("India: sector regulators", 3),
+    "sebi_cscrf": ("India: sector regulators", 4),
+    "iso27001": ("Global standards", 10), "soc2": ("Global standards", 11),
+    "nist_csf": ("Global standards", 12), "pci_dss": ("Global standards", 13), "iso42001": ("Global standards", 14),
+    "gdpr": ("Other regions", 20), "hipaa": ("Other regions", 21),
+}
+
+
 @router.get("")
 def catalog(db: DB, ctx: Ctx):
     enabled = set(db.scalars(select(OrgFramework.framework_id).where(OrgFramework.org_id == ctx.org_id)))
     counts = dict(db.execute(select(Requirement.framework_id, func.count()).group_by(Requirement.framework_id)).all())
-    return [
+    rows = [
         {"id": fw.id, "code": fw.code, "name": fw.name, "short_name": fw.short_name, "version": fw.version,
          "region": fw.region, "publisher": fw.publisher, "description": fw.description,
          "source_url": fw.source_url, "review_status": fw.review_status,
+         "group": CATALOG.get(fw.code, ("Other", 99))[0],
          "requirement_count": counts.get(fw.id, 0), "enabled": fw.id in enabled}
-        for fw in db.scalars(select(Framework).order_by(Framework.region.desc(), Framework.name))
+        for fw in db.scalars(select(Framework))
     ]
+    return sorted(rows, key=lambda r: (CATALOG.get(r["code"], ("", 99))[1], r["name"]))
 
 
 @router.get("/readiness")

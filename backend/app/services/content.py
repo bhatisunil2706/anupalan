@@ -55,6 +55,20 @@ def read_yaml_dir(name: str) -> list[dict]:
     return items
 
 
+def merge_requirement_mappings(frameworks: list[dict], controls: list[dict]) -> None:
+    """Frameworks may list their covering controls per requirement (`controls: [ACC-03, ...]`) instead of the control
+    library listing the framework. Fold those into each control's `maps` so the rest of the loader sees one shape."""
+    by_code = {c["code"]: c for c in controls}
+    for fw in frameworks:
+        for r in fw["requirements"]:
+            for code in r.get("controls", []) or []:
+                if code not in by_code:
+                    raise ContentError(f"{fw['code']} {r['ref']}: unknown control {code}")
+                refs = by_code[code].setdefault("maps", {}).setdefault(fw["code"], [])
+                if r["ref"] not in refs:
+                    refs.append(r["ref"])
+
+
 def validate_content(frameworks: list[dict], controls: list[dict]) -> None:
     """Every requirement must map to at least one control, and every mapping must point at a real requirement."""
     codes = [c["code"] for c in controls]
@@ -73,9 +87,40 @@ def validate_content(frameworks: list[dict], controls: list[dict]) -> None:
             raise ContentError(f"{fw['code']}: controls map to unknown refs: {unknown}")
 
 
+QUESTION_TYPES = ("yes_no", "text", "choice")
+
+
+def validate_questions(questions: list[dict], where: str) -> None:
+    """Shared by built-in content and companies' own questionnaires."""
+    ids = [q.get("id") for q in questions]
+    if len(ids) != len(set(ids)) or not all(ids):
+        raise ContentError(f"{where}: every question needs a unique id")
+    for q in questions:
+        if q.get("type") not in QUESTION_TYPES:
+            raise ContentError(f"{where} {q['id']}: type must be one of {QUESTION_TYPES}")
+        if not str(q.get("text", "")).strip():
+            raise ContentError(f"{where} {q['id']}: question text is empty")
+        if q["type"] == "yes_no" and int(q.get("weight") or 0) > 0 and q.get("good") not in ("yes", "no"):
+            raise ContentError(f"{where} {q['id']}: scored yes/no questions need an expected answer")
+        if q["type"] == "choice" and len(q.get("options") or []) < 2:
+            raise ContentError(f"{where} {q['id']}: choice questions need at least two options")
+
+
+def check_content() -> dict:
+    """Read and validate all framework content without touching the database."""
+    frameworks, controls = read_frameworks(), read_controls()
+    merge_requirement_mappings(frameworks, controls)
+    validate_content(frameworks, controls)
+    for q in read_yaml_dir("questionnaires"):
+        validate_questions(q["questions"], q["slug"])
+    return {"frameworks": len(frameworks), "requirements": sum(len(f["requirements"]) for f in frameworks),
+            "controls": len(controls)}
+
+
 def load_content(db: Session) -> dict:
     frameworks = read_frameworks()
     controls = read_controls()
+    merge_requirement_mappings(frameworks, controls)
     validate_content(frameworks, controls)
 
     req_index: dict[tuple[str, str], Requirement] = {}
@@ -137,12 +182,18 @@ def load_content(db: Session) -> dict:
         row.title, row.summary, row.minutes = c["title"], c.get("summary", ""), int(c.get("minutes", 10))
         row.body_md, row.quiz, row.pass_mark = c["body_md"], c["quiz"], int(c.get("pass_mark", 80))
         row.control_codes = c.get("control_codes", [])
+        row.scenarios = c.get("scenarios", [])
+        row.audience, row.category = c.get("audience", "Everyone"), c.get("category", "Security")
+        row.order = int(c.get("order", 100))
         db.add(row)
 
     for q in read_yaml_dir("questionnaires"):
+        validate_questions(q["questions"], q["slug"])
         row = db.scalar(select(QuestionnaireTemplate).where(QuestionnaireTemplate.slug == q["slug"])) or \
             QuestionnaireTemplate(slug=q["slug"])
         row.title, row.description, row.questions = q["title"], (q.get("description") or "").strip(), q["questions"]
+        row.kind, row.order = q.get("kind", "core"), int(q.get("order", 100))
+        row.recommended_for = list(q.get("recommended_for", []))
         db.add(row)
 
     db.commit()

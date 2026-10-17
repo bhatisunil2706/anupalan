@@ -2,7 +2,7 @@
 
 import { Search, TerminalSquare } from "lucide-react";
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 
 import { useSession } from "@/components/session";
 import { Badge, Button, Drawer, Field, FormError, Input, LoadError, Loading, PageHeader, Panel, Textarea, cx, useToast } from "@/components/ui";
@@ -42,6 +42,10 @@ export default function IntegrationsPage() {
   const [values, setValues] = useState<Record<string, string>>({});
   const [formError, setFormError] = useState<string | null>(null);
   const [busy, setBusy] = useState<string | null>(null);
+  useEffect(() => {
+    const q = new URLSearchParams(window.location.search).get("q");
+    if (q) setQuery(q);
+  }, []);
 
   function openConnect(item: IntegrationItem) {
     setFormError(null);

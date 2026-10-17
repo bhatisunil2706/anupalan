@@ -75,3 +75,11 @@ body {
 .policy-editor td, .policy-editor th { vertical-align: top; position: relative; }
 .policy-editor .selectedCell:after { content: ""; position: absolute; inset: 0; background: color-mix(in srgb, var(--color-ink) 10%, transparent); pointer-events: none; }
 .policy-editor li > p { margin: 0; }
+
+/* Printing a certificate: show only the certificate. */
+@media print {
+  body * { visibility: hidden; }
+  #certificate, #certificate * { visibility: visible; }
+  #certificate { position: absolute; inset: 0; margin: 0; border-color: #1f2a5c; }
+  .no-print { display: none; }
+}

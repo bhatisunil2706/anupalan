@@ -711,3 +711,102 @@ controls:
     description: Maintain KYC and financial transaction records for at least 5 years.
     evidence_hint: KYC records retention configuration.
     maps: {certin: ["(vii)"]}
+
+  # ===================== Added with GDPR, NIST CSF, HIPAA, PCI DSS, ISO 42001, RBI and SEBI =====================
+  # These controls are mapped from the framework files (requirement-side `controls:` lists).
+  - code: GOV-18
+    title: Board-level oversight of IT and cyber risk
+    category: Governance
+    frequency: quarterly
+    description: A board committee (or the board itself) oversees IT strategy and cyber risk, meets on a fixed schedule, reviews the cyber risk posture and major incidents, and records its decisions.
+    evidence_hint: Committee charter, meeting calendar and minutes showing cyber risk items and decisions.
+  - code: OPS-11
+    title: Data integrity protection
+    category: Operations
+    frequency: continuous
+    description: Protect important data, logs and backups from unauthorised change using checksums, file-integrity monitoring, write-once or immutable storage, and alerts on unexpected changes.
+    evidence_hint: File-integrity monitoring configuration, immutable backup or log storage settings, sample alert.
+  - code: OPS-12
+    title: Processing integrity checks
+    category: Operations
+    frequency: continuous
+    description: Validate inputs, reconcile processing results and check outputs for completeness and accuracy in systems that customers rely on for correct results (billing, payments, reports), and correct errors promptly.
+    evidence_hint: Input validation rules, reconciliation reports, error queue or exception handling records.
+  - code: PRV-15
+    title: Data protection impact assessment (DPIA)
+    category: Privacy
+    frequency: annual
+    description: Assess processing that is likely to be high risk to individuals (large-scale sensitive data, monitoring, profiling, new technology, AI) before it starts, record the risks and measures, and consult the regulator where residual risk stays high.
+    evidence_hint: DPIA screening checklist and completed DPIAs with sign-off.
+  - code: PRV-16
+    title: EU representative appointed
+    category: Privacy
+    frequency: annual
+    description: Where you offer goods or services to, or monitor, people in the EU or UK without an establishment there, appoint a representative in writing and name them in your privacy notice.
+    evidence_hint: Representative appointment letter and privacy notice naming the representative.
+  - code: PCI-01
+    title: Cardholder data environment scope and segmentation
+    category: Payments
+    frequency: annual
+    description: Document every system, network and process that stores, processes or transmits cardholder data or can affect its security, keep a data-flow diagram, segment the cardholder data environment and confirm the scope at least every 12 months.
+    evidence_hint: Scope document, cardholder data-flow diagram, segmentation test results.
+  - code: PCI-02
+    title: Protection of stored account data
+    category: Payments
+    frequency: continuous
+    description: Keep stored card data to a minimum with a retention limit, never store sensitive authentication data after authorisation, mask PAN when displayed and render it unreadable wherever stored (tokenisation, truncation or strong encryption).
+    evidence_hint: Data retention settings, PAN masking screenshot, tokenisation or encryption configuration.
+  - code: PCI-03
+    title: Payment page script integrity
+    category: Payments
+    frequency: continuous
+    description: Inventory and authorise every script loaded on payment pages, check their integrity, and detect unauthorised changes to payment page content and HTTP headers at least weekly.
+    evidence_hint: Script inventory with justification, Content-Security-Policy or integrity checks, change-detection alerts.
+  - code: PCI-04
+    title: Approved Scanning Vendor and internal vulnerability scans
+    category: Payments
+    frequency: quarterly
+    description: Run internal vulnerability scans and external scans by a PCI SSC Approved Scanning Vendor at least once every three months and after significant changes, and rescan until passing.
+    evidence_hint: Four quarters of passing ASV scan reports and internal scan reports.
+  - code: PCI-05
+    title: Payment terminal protection
+    category: Payments
+    frequency: quarterly
+    description: Keep a list of card-reading devices, inspect them regularly for tampering or substitution, and train staff at points of sale to spot and report suspicious behaviour.
+    evidence_hint: Device inventory, inspection log, point-of-sale staff training record.
+  - code: AI-01
+    title: AI governance, policy and inventory
+    category: AI governance
+    frequency: annual
+    description: Publish an AI policy approved by leadership, keep an inventory of AI systems you build and use (purpose, owner, data, model, risk level), and assign roles for AI oversight and for raising concerns.
+    evidence_hint: AI policy, AI system inventory, roles and escalation route for AI concerns.
+  - code: AI-02
+    title: AI risk and impact assessment
+    category: AI governance
+    frequency: annual
+    description: Assess each AI system's risks and its potential impact on individuals, groups and society (bias, safety, privacy, misuse) before release and on significant change, and record treatment decisions.
+    evidence_hint: Completed AI impact assessments with risk treatment and approval.
+  - code: AI-03
+    title: AI system lifecycle controls
+    category: AI governance
+    frequency: continuous
+    description: Define requirements, document design decisions, verify and validate models against acceptance criteria before deployment, log events, and monitor performance and drift in production.
+    evidence_hint: Model cards or design docs, evaluation results against acceptance criteria, monitoring dashboard.
+  - code: AI-04
+    title: Data quality and provenance for AI
+    category: AI governance
+    frequency: annual
+    description: Record where training, validation and input data comes from and the rights to use it, check its quality and representativeness, and document how it is prepared.
+    evidence_hint: Dataset register with source, licence or consent basis, quality checks and preparation steps.
+  - code: AI-05
+    title: AI transparency and information for users
+    category: AI governance
+    frequency: annual
+    description: Tell users when they interact with AI or receive AI-assisted decisions, explain intended use and limitations, provide a way to contest or get human review where outcomes matter, and communicate AI incidents.
+    evidence_hint: User-facing AI disclosures, documentation of limitations, human review route, incident communication template.
+  - code: AI-06
+    title: Responsible use and third-party AI
+    category: AI governance
+    frequency: annual
+    description: Set rules for responsible use of AI by staff (approved tools, no confidential data in unapproved tools), assess AI suppliers and models you depend on, and define responsibilities with customers who use your AI.
+    evidence_hint: Acceptable AI use rules, AI supplier assessments, customer-facing responsibility terms.

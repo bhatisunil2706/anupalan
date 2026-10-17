@@ -10,7 +10,6 @@ from datetime import date, datetime, timedelta, timezone
 from sqlalchemy import delete, select
 from sqlalchemy.orm import Session
 
-from app.api.routes.training import ensure_assignments
 from app.api.routes.vendor_dd import score_answers
 from app.integrations import REGISTRY
 from app.integrations.base import AccountRecord
@@ -31,6 +30,8 @@ from app.models import (
     Organization,
     OrgFramework,
     Person,
+    PhishingCampaign,
+    PhishingTarget,
     Policy,
     PolicyTemplate,
     QuestionnaireTemplate,
@@ -51,6 +52,7 @@ from app.services.compliance import provision_controls
 from app.services.integrations import sync_accounts
 from app.services.platform_checks import run_feature_checks, run_platform_checks
 from app.services.policies import approve_policy, create_policy_from_template
+from app.services.training import ensure_assignments
 
 DEMO_DOMAIN_SUFFIX = ".example"  # RFC 2606: never delivered
 DEFAULT_PASSWORD = "Demo-Anupalan-2026!"  # nosec B105 - demo-only password, refused in production
@@ -274,13 +276,21 @@ def _seed_company(db: Session, spec: dict, pw_hash: str) -> dict:
         ("Missed 6-hour CERT-In reporting window", "Compliance", 2, 4, ["INC-02"]),
         ("Ransomware on employee laptops", "Endpoints", 3, 4, ["AST-05", "OPS-01"]),
     ]:
-        db.add(Risk(org_id=org.id, title=title, category=cat, likelihood=lik, impact=imp, owner_id=admin.id,
+        risk = Risk(org_id=org.id, title=title, category=cat, likelihood=lik, impact=imp, owner_id=admin.id,
                     control_codes=codes, treatment="mitigate", status=rnd.choice(["open", "treated"]),
                     residual_likelihood=max(1, lik - 2), residual_impact=imp, review_date=TODAY + timedelta(days=90),
-                    treatment_plan="Tracked through the linked controls."))
+                    treatment_plan="Tracked through the linked controls.")
+        if readiness >= 0.7:  # simulated Jira links (no real Jira behind the demo)
+            n = 101 + len([r for r in db.new if isinstance(r, Risk)])
+            risk.external_ref = f"SEC-{n}"
+            risk.external_url = f"https://jira.{spec['domain']}/browse/SEC-{n}"
+            risk.external_status = "Done" if risk.status == "treated" else rnd.choice(["To Do", "In Progress"])
+            risk.external_synced_at = NOW - timedelta(minutes=rnd.randint(5, 300))
+        db.add(risk)
 
     # vendors, documents and questionnaires
     tpl = db.scalar(select(QuestionnaireTemplate).where(QuestionnaireTemplate.slug == "vendor-security-baseline"))
+    tpls = {t.slug: t for t in db.scalars(select(QuestionnaireTemplate))}
     for i, (vname, tier, services, processor, certs) in enumerate(spec["vendors"]):
         v = Vendor(org_id=org.id, name=vname, tier=tier, services=services, is_processor=processor,
                    dpa_signed=processor and i % 3 != 2, data_location="India" if i % 2 == 0 else "India, Singapore",
@@ -296,19 +306,39 @@ def _seed_company(db: Session, spec: dict, pw_hash: str) -> dict:
                                   file_key=key, file_name=name, size_bytes=size, uploaded_by_id=admin.id,
                                   valid_until=TODAY + timedelta(days=[25, 400, -3, 200, 600][i % 5])))
         if tpl and i in (1, 3):
-            answers = {q["id"]: {"answer": (q.get("good", "yes") if rnd.random() < 0.85 else
-                                            ("no" if q.get("good") == "yes" else "yes")) if q["type"] == "yes_no"
-                                 else "India (Mumbai, Hyderabad)", "comment": ""} for q in tpl.questions}
-            score, rating, _ = score_answers(tpl.questions, answers)
+            t = tpls.get("standard-full" if tier in ("critical", "high") else "standard-lite", tpl)
+
+            def answer(q):
+                if q["type"] == "yes_no":
+                    good = q.get("good", "yes")
+                    return good if rnd.random() < 0.85 else ("no" if good == "yes" else "yes")
+                if q["type"] == "choice":
+                    return q["options"][rnd.randint(0, min(1, len(q["options"]) - 1))]
+                return "India (Mumbai, Hyderabad)"
+
+            answers = {q["id"]: {"answer": answer(q), "comment": ""} for q in t.questions}
+            score, rating, _ = score_answers(t.questions, answers)
             _, token_hash = new_token()
-            db.add(VendorAssessment(org_id=org.id, vendor_id=v.id, template_slug=tpl.slug, token_hash=token_hash,
+            db.add(VendorAssessment(org_id=org.id, vendor_id=v.id, template_slug=t.slug, template_title=t.title,
+                                    questions=t.questions, token_hash=token_hash,
                                     sent_to_email=f"security@{vname.split()[0].lower()}.example", status="submitted",
                                     answers=answers, respondent_name=f"{vname} security team", score=score,
                                     rating=rating, submitted_at=NOW - timedelta(days=3), created_by_id=admin.id,
                                     expires_at=NOW + timedelta(days=18)))
+        if i == 4 and "standard-lite" in tpls:
+            t = tpls["standard-lite"]
+            partial = {q["id"]: {"answer": q.get("good", "yes"), "comment": ""}
+                       for q in t.questions[:20] if q["type"] == "yes_no"}
+            _, token_hash = new_token()
+            db.add(VendorAssessment(org_id=org.id, vendor_id=v.id, template_slug=t.slug, template_title=t.title,
+                                    questions=t.questions, token_hash=token_hash, status="in_progress",
+                                    answers=partial, sent_to_email=f"it@{vname.split()[0].lower()}.example",
+                                    created_by_id=admin.id, expires_at=NOW + timedelta(days=2)))
         if tpl and i == 2:
             _, token_hash = new_token()
             db.add(VendorAssessment(org_id=org.id, vendor_id=v.id, template_slug="dpdp-processor",
+                                    template_title=tpls["dpdp-processor"].title if "dpdp-processor" in tpls else "",
+                                    questions=tpls["dpdp-processor"].questions if "dpdp-processor" in tpls else [],
                                     token_hash=token_hash, sent_to_email=f"dpo@{vname.split()[0].lower()}.example",
                                     status="sent", created_by_id=admin.id, expires_at=NOW + timedelta(days=14)))
 
@@ -379,6 +409,30 @@ def _seed_company(db: Session, spec: dict, pw_hash: str) -> dict:
                 db.add(TrainingCompletion(org_id=org.id, course_slug=slug, user_id=u.id, email=u.email,
                                           score=rnd.choice([80, 90, 100]), passed=True, source="platform",
                                           completed_at=NOW - timedelta(days=rnd.randint(3, 200))))
+
+    # role-based assignments and a past phishing simulation
+    assignments = ensure_assignments(db, org.id)
+    depts = {d for _, _, d in staff}
+    if "Engineering" in depts and "secure-development" in assignments:
+        a = assignments["secure-development"]
+        a.required, a.departments, a.required_since = True, ["Engineering"], TODAY - timedelta(days=45)
+    if readiness >= 0.4:
+        from app.services import training as tr
+
+        campaign = PhishingCampaign(org_id=org.id, name="Overdue invoice test", template_slug="invoice-overdue",
+                                    status="closed", enroll_clickers=True, created_by_id=admin.id,
+                                    sent_at=NOW - timedelta(days=40), closed_at=NOW - timedelta(days=26))
+        db.add(campaign)
+        db.flush()
+        for p in db.scalars(select(Person).where(Person.org_id == org.id, Person.status == "active")):
+            _, th = new_token()
+            clicked = rnd.random() < (0.12 if readiness >= 0.7 else 0.3)
+            db.add(PhishingTarget(org_id=org.id, campaign_id=campaign.id, email=p.email, full_name=p.full_name,
+                                  department=p.department, token_hash=th, sent_at=campaign.sent_at,
+                                  clicked_at=campaign.sent_at + timedelta(minutes=rnd.randint(3, 600))
+                                  if clicked else None))
+            if clicked:
+                tr.enroll(db, org.id, p.email, "phishing", "Clicked the 'Overdue invoice test' phishing simulation")
 
     # tasks, access review and an auditor request
     for title, prio, due in [("Collect signed DPAs from processors", "high", 10),

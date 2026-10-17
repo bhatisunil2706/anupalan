@@ -1,4 +1,7 @@
 slug: secure-development
+audience: Engineering
+category: Role-based
+order: 20
 title: Secure development for engineers
 minutes: 15
 pass_mark: 80

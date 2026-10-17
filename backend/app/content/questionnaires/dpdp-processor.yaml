@@ -1,5 +1,8 @@
 slug: dpdp-processor
-title: DPDP Data Processor due diligence
+title: "Add-on: DPDP Data Processor"
+kind: addon
+order: 10
+recommended_for: [medium, high, critical]
 description: >
   For vendors that process personal data on your behalf. Under the DPDP Act your company remains responsible for
   processing done by its Data Processors (s.8(1)) and must engage them only under a valid contract (s.8(2)).

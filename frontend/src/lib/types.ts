@@ -118,6 +118,7 @@ export interface FrameworkCatalogItem {
   review_status: string;
   requirement_count: number;
   enabled: boolean;
+  group: string;
 }
 
 export interface RequirementRow {
@@ -166,6 +167,11 @@ export interface Risk {
   control_codes: string[];
   review_date: string | null;
   created_at: string;
+  source: "manual" | "jira";
+  external_ref: string;
+  external_url: string;
+  external_status: string;
+  external_synced_at: string | null;
 }
 
 export interface Vendor {

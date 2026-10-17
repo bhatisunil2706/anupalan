@@ -36,6 +36,20 @@ PROFILE_FLAGS = {
     "uses_consent_manager": "Accepts consent through a registered DPDP Consent Manager",
     "is_infra_provider": "Provides data centre, VPS, cloud or VPN services (CERT-In subscriber records)",
     "is_virtual_asset_provider": "Virtual asset service provider, exchange or custodian wallet (CERT-In KYC records)",
+    "soc2_processing_integrity": "SOC 2 report includes the Processing Integrity category",
+    "soc2_privacy": "SOC 2 report includes the Privacy category",
+    "eu_representative_required": "Serves people in the EU without an EU office (GDPR Art. 27 representative)",
+    "pci_card_present": "Accepts card payments in person with payment terminals",
+    "pci_service_provider": "Is a PCI DSS service provider (stores, processes or transmits card data for others)",
+    "hipaa_clearinghouse": "Operates a healthcare clearinghouse inside a larger organisation",
+}
+
+# Which framework each profile question belongs to, so onboarding and settings only ask relevant questions.
+FLAG_FRAMEWORK = {
+    "processes_children_data": "dpdp", "is_significant_data_fiduciary": "dpdp", "uses_consent_manager": "dpdp",
+    "is_infra_provider": "certin", "is_virtual_asset_provider": "certin",
+    "soc2_processing_integrity": "soc2", "soc2_privacy": "soc2", "eu_representative_required": "gdpr",
+    "pci_card_present": "pci_dss", "pci_service_provider": "pci_dss", "hipaa_clearinghouse": "hipaa",
 }
 
 

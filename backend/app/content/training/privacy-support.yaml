@@ -1,0 +1,64 @@
+slug: privacy-support
+audience: Customer support and operations
+category: Role-based
+order: 22
+title: Handling personal data in customer support
+minutes: 10
+pass_mark: 80
+control_codes: [HR-03, PRV-10]
+summary: For teams who talk to customers. Verifying identity, handling DPDP rights requests and avoiding the social engineering that targets support desks.
+body_md: |
+  ## Support desks are a favourite target
+
+  Attackers call or chat with support pretending to be a customer, aiming to change an email or phone number, reset
+  MFA or get account details. One successful call can hand over a whole account.
+
+  ## Verify before you act
+
+  - **Follow the verification steps** for the request type every time, even for friendly, urgent or senior-sounding
+    callers.
+  - **Never change contact details or reset MFA** based only on information an attacker could find, such as name,
+    date of birth or address. Use the verification method our process specifies (for example a code sent to the
+    existing registered email or phone).
+  - **Don't confirm whether someone is a customer** to an unverified caller.
+  - Be suspicious of pressure: "I'm travelling", "my boss will fire me", "I'll complain on social media".
+
+  ## Share the minimum
+
+  Only read out or send the data needed to resolve the issue. Mask what you can (last 4 digits only). Don't paste
+  customer data into personal notes, chat with colleagues outside the ticket, or unapproved tools, including AI tools.
+
+  ## DPDP rights requests
+
+  Under the DPDP Act, people can ask to **access**, **correct** or **erase** their personal data, **withdraw
+  consent**, nominate someone, and raise a grievance. When a customer asks for any of these, in any words:
+
+  1. Log it in the privacy request system straight away; the legal clock starts when they ask.
+  2. Verify identity before sharing or changing anything.
+  3. Don't promise a specific outcome; the privacy team decides, within the timelines.
+  4. Withdrawal of consent must be as easy as giving it: never discourage or delay it.
+
+  ## Mistakes
+
+  Sent data to the wrong customer? Report it to security immediately; it may be a reportable personal data breach.
+quiz:
+  - q: A caller knows a customer's name, birthday and address and asks to change the account email urgently. What do you do?
+    options: ["Change it; they know the details", "Follow the verification process, such as a code to the existing registered email or phone", "Change it if they sound genuine", "Ask their favourite colour"]
+    answer: 1
+    explain: Public details aren't proof of identity. Use the defined verification step.
+  - q: A customer emails "please delete all my data". What is it?
+    options: ["A normal ticket to close", "A DPDP erasure request to log in the privacy request system now", "Spam", "Something to ignore unless they repeat it"]
+    answer: 1
+    explain: Rights requests can use any words; log them so legal timelines are met.
+  - q: A customer wants to withdraw marketing consent. What's right?
+    options: ["Try to talk them out of it", "Process it promptly; withdrawal must be as easy as giving consent", "Ask them to write a letter", "Wait until next month"]
+    answer: 1
+    explain: DPDP requires withdrawal to be easy.
+  - q: How much card or ID data should you read out on a call?
+    options: ["The full number to be sure", "Only the minimum, such as the last 4 digits", "Everything on file", "Whatever the caller asks"]
+    answer: 1
+    explain: Share the minimum and mask the rest.
+  - q: You sent one customer's invoice to another customer. What now?
+    options: ["Ask them to delete it and move on", "Report it to security immediately", "Wait to see if they complain", "Delete it from the sent folder"]
+    answer: 1
+    explain: It may be a personal data breach with reporting deadlines.

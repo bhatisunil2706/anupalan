@@ -7,6 +7,7 @@ import smtplib
 import uuid
 from datetime import datetime, timezone
 from email.message import EmailMessage
+from email.utils import formataddr, parseaddr
 from urllib.parse import urlparse
 
 import httpx
@@ -96,13 +97,13 @@ def _abs_link(link: str) -> str:
     return f"{get_settings().public_url.rstrip('/')}{link}" if link.startswith("/") else link
 
 
-def send_email(to: list[str], subject: str, text: str) -> None:
+def send_email(to: list[str], subject: str, text: str, from_name: str | None = None) -> None:
     s = get_settings()
     if not s.smtp_host:
         log.info("email (SMTP not configured) to=%s subject=%s\n%s", to, subject, text)
         return
     msg = EmailMessage()
-    msg["From"] = s.smtp_from
+    msg["From"] = formataddr((from_name, parseaddr(s.smtp_from)[1])) if from_name else s.smtp_from
     msg["To"] = ", ".join(to)
     msg["Subject"] = subject
     msg.set_content(text)

@@ -1,12 +1,16 @@
 """Tasks, policies, risks and vendors."""
+import logging
 import re
 import uuid
 from datetime import datetime, timezone
 
-from fastapi import APIRouter, File, HTTPException, UploadFile, status
+import httpx
+from fastapi import APIRouter, File, HTTPException, Response, UploadFile, status
 from sqlalchemy import func, select
 
+from app.config import get_settings
 from app.deps import DB, AdminCtx, Ctx, WriterCtx, ensure_assignable, ensure_member, get_owned
+from app.integrations.base import ConnectorError
 from app.models import (
     Control,
     Membership,
@@ -31,9 +35,10 @@ from app.schemas import (
     VendorIn,
     VendorOut,
 )
-from app.services import audit, doc_import, notify
+from app.services import audit, doc_import, integrations, notify
 from app.services.policies import approve_policy, create_policy_from_template
 
+log = logging.getLogger(__name__)
 router = APIRouter()
 
 
@@ -283,25 +288,102 @@ def list_risks(db: DB, ctx: Ctx):
     return sorted((_risk_out(r) for r in rows), key=lambda r: (r.status == "closed", -r.score))
 
 
+def _jira_push(db, ctx, r: Risk, create: bool) -> str | None:
+    """Best-effort Jira update straight after a save; the scheduled sync retries anything that fails here."""
+    integ, jira = integrations.jira_for_org(db, ctx.org_id, timeout=10)
+    if not jira:
+        return None
+    url = get_settings().public_url.rstrip("/") + "/risks"
+    try:
+        if create and not r.external_ref and jira.risk_sync_enabled and r.status != "closed":
+            jira.create_risk_issue(r, url)
+        elif r.external_ref and r.source != "jira":
+            jira.update_risk_issue(r, url)
+    except Exception as e:  # never fail the user's save because Jira is slow or down
+        log.warning("jira risk push failed for %s: %s", r.id, e)
+        return "Saved, but Jira didn't respond. It will be retried on the next sync."
+    return None
+
+
 @router.post("/risks", response_model=RiskOut, status_code=201, tags=["risks"])
-def create_risk(body: RiskIn, db: DB, ctx: WriterCtx):
+def create_risk(body: RiskIn, db: DB, ctx: WriterCtx, response: Response):
     ensure_member(db, ctx, body.owner_id)
     r = Risk(org_id=ctx.org_id, **body.model_dump())
     db.add(r)
     db.flush()
     audit.record(db, ctx, "risk.created", r, title=r.title)
     db.commit()
+    warning = _jira_push(db, ctx, r, create=True)
+    if r.external_ref:
+        audit.record(db, ctx, "risk.jira_linked", r, key=r.external_ref)
+    db.commit()
     db.refresh(r)
+    if warning:
+        response.headers["X-Warning"] = warning
     return _risk_out(r)
 
 
 @router.put("/risks/{risk_id}", response_model=RiskOut, tags=["risks"])
-def update_risk(risk_id: uuid.UUID, body: RiskIn, db: DB, ctx: WriterCtx):
+def update_risk(risk_id: uuid.UUID, body: RiskIn, db: DB, ctx: WriterCtx, response: Response):
     r = get_owned(db, Risk, risk_id, ctx)
     ensure_member(db, ctx, body.owner_id)
     for k, v in body.model_dump().items():
         setattr(r, k, v)
     audit.record(db, ctx, "risk.updated", r)
+    db.commit()
+    warning = _jira_push(db, ctx, r, create=False)
+    db.commit()
+    db.refresh(r)
+    if warning:
+        response.headers["X-Warning"] = warning
+    return _risk_out(r)
+
+
+@router.get("/risks/jira", tags=["risks"])
+def risk_jira_status(db: DB, ctx: Ctx):
+    integ, jira = integrations.jira_for_org(db, ctx.org_id)
+    if not jira:
+        return {"connected": False}
+    return {"connected": True, "auto_create": jira.risk_sync_enabled, "project": jira.project,
+            "importing": bool((integ.config or {}).get("risk_import_jql")), "status": integ.status,
+            "last_synced_at": integ.last_synced_at, "last_error": integ.last_error}
+
+
+@router.post("/risks/jira/sync", tags=["risks"])
+def risk_jira_sync(db: DB, ctx: WriterCtx):
+    """Push new risks, pull Jira statuses and import risks matching the JQL filter, now."""
+    integ, jira = integrations.jira_for_org(db, ctx.org_id)
+    if not jira:
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, "Connect Jira on the Integrations page first")
+    try:
+        result = jira.sync_risks(db, ctx.org_id, get_settings().public_url)
+    except ConnectorError as e:
+        db.rollback()
+        raise HTTPException(status.HTTP_502_BAD_GATEWAY, str(e)) from e
+    except httpx.HTTPError as e:
+        db.rollback()
+        raise HTTPException(status.HTTP_502_BAD_GATEWAY, "Couldn't reach Jira. Try again in a minute.") from e
+    audit.record(db, ctx, "risk.jira_synced", None, **result)
+    db.commit()
+    return result
+
+
+@router.post("/risks/{risk_id}/jira", response_model=RiskOut, tags=["risks"])
+def risk_create_jira_issue(risk_id: uuid.UUID, db: DB, ctx: WriterCtx):
+    """Create the Jira issue for one risk now (e.g. a risk added before Jira was connected)."""
+    r = get_owned(db, Risk, risk_id, ctx)
+    integ, jira = integrations.jira_for_org(db, ctx.org_id, timeout=15)
+    if not jira:
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, "Connect Jira on the Integrations page first")
+    if r.external_ref:
+        raise HTTPException(status.HTTP_409_CONFLICT, f"Already linked to {r.external_ref}")
+    try:
+        jira.create_risk_issue(r, get_settings().public_url.rstrip("/") + "/risks")
+    except ConnectorError as e:
+        raise HTTPException(status.HTTP_502_BAD_GATEWAY, str(e)) from e
+    except httpx.HTTPError as e:
+        raise HTTPException(status.HTTP_502_BAD_GATEWAY, "Couldn't reach Jira. Try again in a minute.") from e
+    audit.record(db, ctx, "risk.jira_linked", r, key=r.external_ref)
     db.commit()
     db.refresh(r)
     return _risk_out(r)

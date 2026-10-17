@@ -1,0 +1,66 @@
+# EU General Data Protection Regulation (Regulation (EU) 2016/679). Guidance written in-house in plain language.
+# Article references point to the official text on EUR-Lex. The UK GDPR follows the same structure for these articles.
+# CONTENT STATUS: draft. Review by a privacy lawyer before customer release.
+code: gdpr
+name: EU GDPR (Regulation 2016/679)
+short_name: GDPR
+version: "2016/679"
+region: European Union
+publisher: European Parliament and Council of the EU
+source_url: https://eur-lex.europa.eu/eli/reg/2016/679/oj
+content_version: "0.1.0"
+review_status: draft
+description: >
+  The EU's data protection law. Applies to organisations established in the EU, and to organisations
+  outside the EU (including Indian companies) that offer goods or services to people in the EU or
+  monitor their behaviour. Fines reach EUR 20 million or 4% of worldwide annual turnover.
+requirements:
+  # ---- Principles and lawful basis ----
+  - {ref: "Art.5(1)(a)", section: "Principles", title: "Lawfulness, fairness and transparency", guidance: "Process personal data lawfully, fairly and in a way people can understand. Your record of processing and privacy notice show this.", controls: [PRV-01, PRV-02]}
+  - {ref: "Art.5(1)(b)", section: "Principles", title: "Purpose limitation", guidance: "Collect data for specified, explicit purposes and don't reuse it for incompatible ones.", controls: [PRV-01, PRV-14]}
+  - {ref: "Art.5(1)(c)", section: "Principles", title: "Data minimisation", guidance: "Collect only the data you need for each purpose.", controls: [PRV-14]}
+  - {ref: "Art.5(1)(d)", section: "Principles", title: "Accuracy", guidance: "Keep data accurate and up to date, and correct or delete inaccurate data without delay.", controls: [PRV-07]}
+  - {ref: "Art.5(1)(e)", section: "Principles", title: "Storage limitation", guidance: "Keep identifiable data no longer than needed, with a retention schedule you actually enforce.", controls: [PRV-08]}
+  - {ref: "Art.5(1)(f)", section: "Principles", title: "Integrity and confidentiality", guidance: "Protect data against unauthorised access, loss and damage with appropriate technical and organisational measures.", controls: [CRY-01, NET-02, ACC-06]}
+  - {ref: "Art.5(2)", section: "Principles", title: "Accountability", guidance: "Be able to show compliance: assigned responsibilities, records, policies and evidence.", controls: [GOV-04, PRV-14]}
+  - {ref: "Art.6", section: "Lawful basis", title: "Lawful basis for each processing activity", guidance: "Rely on one of the six lawful bases (consent, contract, legal obligation, vital interests, public task, legitimate interests) and record it per activity. Document a balancing test for legitimate interests.", controls: [PRV-01, PRV-06]}
+  - {ref: "Art.7", section: "Lawful basis", title: "Conditions for consent", guidance: "Consent must be freely given, specific, informed and unambiguous, recorded, and as easy to withdraw as to give.", controls: [PRV-03, PRV-04]}
+  - {ref: "Art.8", section: "Lawful basis", title: "Children's consent for online services", guidance: "For online services offered directly to children, get parental consent below the national age (13 to 16) and make reasonable efforts to verify it.", controls: [PRV-11]}
+  - {ref: "Art.9", section: "Lawful basis", title: "Special category data", guidance: "Health, biometric, genetic, racial or ethnic origin, political, religious, trade union and sex life or orientation data need an Article 9(2) condition in addition to a lawful basis.", controls: [PRV-01, AST-03]}
+  - {ref: "Art.10", section: "Lawful basis", title: "Criminal convictions and offences data", guidance: "Process criminal record data (for example in background checks) only where EU or member state law authorises it.", controls: [PRV-01, HR-01]}
+  # ---- Rights of the data subject ----
+  - {ref: "Art.12", section: "Data subject rights", title: "Transparent communication and response times", guidance: "Respond to rights requests within one month (extendable by two months for complex requests), free of charge, after verifying identity.", controls: [PRV-10, PRV-02]}
+  - {ref: "Art.13", section: "Data subject rights", title: "Information when data is collected from the person", guidance: "At collection, tell people who you are, your purposes and lawful bases, recipients, transfers, retention, their rights and how to complain.", controls: [PRV-02]}
+  - {ref: "Art.14", section: "Data subject rights", title: "Information when data comes from elsewhere", guidance: "When you get data from a third party, give the same information within a month, plus the source and categories of data.", controls: [PRV-02]}
+  - {ref: "Art.15", section: "Data subject rights", title: "Right of access", guidance: "Confirm whether you process someone's data and give them a copy with the supporting information.", controls: [PRV-10]}
+  - {ref: "Art.16", section: "Data subject rights", title: "Right to rectification", guidance: "Correct inaccurate data and complete incomplete data on request.", controls: [PRV-10, PRV-07]}
+  - {ref: "Art.17", section: "Data subject rights", title: "Right to erasure", guidance: "Delete data on request when one of the grounds applies, including in backups on their normal cycle, and tell recipients.", controls: [PRV-10, PRV-08]}
+  - {ref: "Art.18", section: "Data subject rights", title: "Right to restriction of processing", guidance: "Be able to pause processing of a person's data (keep but not use) while a dispute is resolved.", controls: [PRV-10]}
+  - {ref: "Art.19", section: "Data subject rights", title: "Notify recipients of corrections and erasure", guidance: "Tell each recipient about rectification, erasure or restriction unless impossible or disproportionate.", controls: [PRV-10, VEN-02]}
+  - {ref: "Art.20", section: "Data subject rights", title: "Right to data portability", guidance: "Give people the data they provided in a structured, machine-readable format when processing is based on consent or contract and automated.", controls: [PRV-10]}
+  - {ref: "Art.21", section: "Data subject rights", title: "Right to object", guidance: "Stop processing based on legitimate interests unless you have compelling grounds, and always stop direct marketing on objection.", controls: [PRV-10, PRV-04]}
+  - {ref: "Art.22", section: "Data subject rights", title: "Automated decisions and profiling", guidance: "Decisions with legal or similarly significant effects based solely on automated processing need a lawful exception, human review on request and an explanation of the logic.", controls: [PRV-14, AI-05]}
+  # ---- Controller and processor obligations ----
+  - {ref: "Art.24", section: "Controller and processor", title: "Responsibility of the controller", guidance: "Implement and review measures appropriate to the risk, including data protection policies.", controls: [GOV-01, PRV-14]}
+  - {ref: "Art.25", section: "Controller and processor", title: "Data protection by design and by default", guidance: "Build privacy into systems from the start, and by default process only the data needed for each purpose.", controls: [PRV-14, SDL-01]}
+  - {ref: "Art.26", section: "Controller and processor", title: "Joint controllers", guidance: "Where you decide purposes and means with another organisation, agree who does what in a written arrangement.", controls: [VEN-02]}
+  - {ref: "Art.27", section: "Controller and processor", title: "Representative in the EU", guidance: "If you have no EU establishment but target or monitor people in the EU, appoint an EU representative in writing (limited exemptions apply).", condition: eu_representative_required, controls: [PRV-16]}
+  - {ref: "Art.28", section: "Controller and processor", title: "Processors", guidance: "Use only processors with sufficient guarantees, under a contract with the Article 28(3) terms, and approve their sub-processors.", controls: [VEN-02, VEN-01]}
+  - {ref: "Art.29", section: "Controller and processor", title: "Processing under authority", guidance: "Staff and processors process personal data only on documented instructions.", controls: [ACC-06, HR-02]}
+  - {ref: "Art.30", section: "Controller and processor", title: "Records of processing activities", guidance: "Keep a record of processing (as controller and as processor) with purposes, categories, recipients, transfers, retention and security measures.", controls: [PRV-01]}
+  - {ref: "Art.31", section: "Controller and processor", title: "Cooperation with the supervisory authority", guidance: "Cooperate with data protection authorities on request.", controls: [GOV-11]}
+  # ---- Security and breaches ----
+  - {ref: "Art.32", section: "Security and breaches", title: "Security of processing", guidance: "Apply measures appropriate to the risk: encryption or pseudonymisation, confidentiality, integrity, availability and resilience, timely restore, and regular testing of effectiveness.", controls: [RISK-01, CRY-01, NET-02, OPS-06, BCP-01, OPS-03]}
+  - {ref: "Art.33", section: "Security and breaches", title: "Breach notification to the supervisory authority", guidance: "Notify the lead authority within 72 hours of becoming aware of a breach unless it is unlikely to result in a risk to people. Document every breach. Processors notify the controller without undue delay.", controls: [INC-03, INC-01]}
+  - {ref: "Art.34", section: "Security and breaches", title: "Communicating a breach to data subjects", guidance: "Tell affected people without undue delay when a breach is likely to result in a high risk to them.", controls: [INC-03]}
+  - {ref: "Art.35", section: "Security and breaches", title: "Data protection impact assessment", guidance: "Run a DPIA before high-risk processing such as large-scale special category data, systematic monitoring or new technologies.", controls: [PRV-15]}
+  - {ref: "Art.36", section: "Security and breaches", title: "Prior consultation", guidance: "Consult the supervisory authority before processing when a DPIA shows high residual risk you can't mitigate.", controls: [PRV-15, GOV-11]}
+  # ---- Data Protection Officer ----
+  - {ref: "Art.37", section: "Data Protection Officer", title: "Designation of a DPO", guidance: "Appoint a DPO when your core activities involve large-scale regular monitoring or special category data (or you are a public body), and publish their contact details.", controls: [PRV-09, GOV-04]}
+  - {ref: "Art.38", section: "Data Protection Officer", title: "Position of the DPO", guidance: "Involve the DPO early, give them resources and independence, and have them report to the highest management level.", controls: [PRV-09]}
+  - {ref: "Art.39", section: "Data Protection Officer", title: "Tasks of the DPO", guidance: "The DPO advises, monitors compliance, trains staff, advises on DPIAs and is the contact point for the authority.", controls: [PRV-09, HR-03]}
+  # ---- International transfers ----
+  - {ref: "Art.44", section: "International transfers", title: "General principle for transfers", guidance: "Transfer personal data outside the EEA only under the conditions of Chapter V, including onward transfers.", controls: [PRV-13]}
+  - {ref: "Art.45", section: "International transfers", title: "Transfers based on adequacy decisions", guidance: "Transfers to countries with a Commission adequacy decision need no further safeguard. India does not have an adequacy decision.", controls: [PRV-13]}
+  - {ref: "Art.46", section: "International transfers", title: "Transfers with appropriate safeguards", guidance: "Use the EU Standard Contractual Clauses (or another Article 46 tool) and a transfer impact assessment, with supplementary measures where needed.", controls: [PRV-13, VEN-02]}
+  - {ref: "Art.49", section: "International transfers", title: "Derogations for specific situations", guidance: "Use derogations (explicit consent, contract necessity) only for occasional transfers, and document the reason.", controls: [PRV-13]}

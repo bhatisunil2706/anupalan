@@ -4,6 +4,7 @@ from datetime import datetime, timezone
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from app.config import get_settings
 from app.integrations import REGISTRY
 from app.integrations.base import CheckResult, Connector, ConnectorError
 from app.models import Account, Integration, Organization
@@ -73,6 +74,8 @@ def sync_integration(db: Session, integration: Integration) -> list[CheckResult]
     if getattr(connector, "syncs_tasks", False):
         try:
             connector.sync_tasks(db, integration.org_id)
+            if getattr(connector, "syncs_risks", False):
+                connector.sync_risks(db, integration.org_id, get_settings().public_url)
         except ConnectorError as e:
             integration.status, integration.last_error = "error", str(e)
             db.commit()
@@ -90,3 +93,13 @@ def sync_integration(db: Session, integration: Integration) -> list[CheckResult]
     integration.last_synced_at = datetime.now(timezone.utc)
     db.commit()
     return results
+
+
+def jira_for_org(db: Session, org_id, timeout: float = 30):
+    """The connected Jira connector for an organisation, or None."""
+    integ = db.scalar(select(Integration).where(Integration.org_id == org_id, Integration.provider == "jira",
+                                                Integration.status != "disabled"))
+    if not integ:
+        return None, None
+    cls = REGISTRY["jira"]
+    return integ, cls(integ.config or {}, decrypt_json(integ.secret_encrypted), timeout=timeout)

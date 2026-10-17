@@ -109,7 +109,7 @@ def consent_check(db: Session, org_id: uuid.UUID) -> tuple[str, str, dict] | Non
 
 
 def training_check(db: Session, org_id: uuid.UUID) -> tuple[str, str, dict] | None:
-    from app.api.routes.training import report_rows
+    from app.services.training import report_rows
 
     rows, required = report_rows(db, org_id)
     if not rows or not required:

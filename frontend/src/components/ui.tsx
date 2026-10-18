@@ -320,17 +320,23 @@ export function Drawer({
   wide?: boolean;
 }) {
   const panel = useRef<HTMLDivElement>(null);
+  // Keep the latest onClose without re-running the focus effect: callers often pass a new function on every
+  // render, which would otherwise move focus back to the first field while someone is typing.
+  const closeRef = useRef(onClose);
+  useEffect(() => {
+    closeRef.current = onClose;
+  }, [onClose]);
   useEffect(() => {
     if (!open) return;
     const prev = document.activeElement as HTMLElement | null;
-    const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && closeRef.current();
     document.addEventListener("keydown", onKey);
     panel.current?.querySelector<HTMLElement>("input, textarea, select, button")?.focus();
     return () => {
       document.removeEventListener("keydown", onKey);
       prev?.focus();
     };
-  }, [open, onClose]);
+  }, [open]);
   if (!open) return null;
   return (
     <div className="fixed inset-0 z-50 flex justify-end">

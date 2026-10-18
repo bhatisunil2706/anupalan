@@ -491,7 +491,28 @@ class Incident(TimestampMixin, Base):
     lessons_learned: Mapped[str] = mapped_column(Text, default="")
     closed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
-    lead: Mapped[User | None] = relationship()
+    # Who reported it, and who else gets every update by email (user ids). Email updates for one incident are
+    # sent as one thread with a fixed subject, so they stay together in people's inboxes.
+    reported_by_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("users.id", ondelete="SET NULL"))
+    follower_ids: Mapped[list] = mapped_column(JSON, default=list, server_default="[]")
+    email_subject: Mapped[str] = mapped_column(String(400), default="", server_default="")
+
+    lead: Mapped[User | None] = relationship(foreign_keys=[lead_id])
+    reported_by: Mapped[User | None] = relationship(foreign_keys=[reported_by_id])
+
+
+class IncidentEvent(Base):
+    """The incident timeline: what happened, when and by whom. Append-only, like the audit log."""
+    __tablename__ = "incident_events"
+    id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uid)
+    org_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("organizations.id", ondelete="CASCADE"), index=True)
+    incident_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("incidents.id", ondelete="CASCADE"), index=True)
+    user_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("users.id", ondelete="SET NULL"))
+    kind: Mapped[str] = mapped_column(String(30))  # reported | note | status | severity | lead | regulatory | ...
+    message: Mapped[str] = mapped_column(Text, default="")
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+
+    user: Mapped[User | None] = relationship()
 
 
 # --------------------------------------------------------------------------------------
@@ -571,6 +592,10 @@ class Notification(Base):
     link: Mapped[str] = mapped_column(String(500), default="")
     recipients: Mapped[list] = mapped_column(JSON, default=list)  # email addresses
     broadcast: Mapped[bool] = mapped_column(Boolean, default=False)  # also post to Slack / Teams
+    # Email threading: notifications with the same thread key reply to one another (Message-ID/References), and
+    # `subject` (when set) replaces the title as the email subject so the thread keeps one subject line.
+    thread: Mapped[str] = mapped_column(String(200), default="", server_default="")
+    subject: Mapped[str] = mapped_column(String(400), default="", server_default="")
     status: Mapped[str] = mapped_column(String(20), default="pending", index=True)  # pending | sent | failed
     attempts: Mapped[int] = mapped_column(Integer, default=0)
     last_error: Mapped[str] = mapped_column(Text, default="")

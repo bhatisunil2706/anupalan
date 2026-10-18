@@ -12,7 +12,7 @@ CONTENT_TABLES = {"frameworks", "requirements", "control_templates", "mappings",
                   "training_courses", "questionnaire_templates"}
 # Append-only tables: the runtime role may insert and read, never update or delete. Consent events are the
 # legal record of consent (DPDP s.6(10)), so they get the same protection as the audit log.
-APPEND_ONLY = {"audit_logs", "consent_events"}
+APPEND_ONLY = {"audit_logs", "consent_events", "incident_events"}
 
 BYPASS = "current_setting('app.rls_bypass', true) = 'on'"
 CUR_ORG = "nullif(current_setting('app.org_id', true), '')::uuid"

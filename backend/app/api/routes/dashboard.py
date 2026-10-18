@@ -22,7 +22,9 @@ def dashboard(db: DB, ctx: Ctx):
     my_tasks = [t for t in tasks if t.assignee_id == ctx.user.id]
 
     deadlines = []
-    for i in db.scalars(select(Incident).where(Incident.org_id == ctx.org_id, Incident.status != "closed")):
+    open_incidents = db.scalars(select(Incident).where(Incident.org_id == ctx.org_id, Incident.status != "closed")
+                                .order_by(Incident.severity, Incident.detected_at.desc())).all()
+    for i in open_incidents:
         if i.certin_due_at and not i.certin_reported_at:
             deadlines.append({"kind": "certin", "label": f"CERT-In report: INC-{i.number} {i.title}",
                               "due_at": i.certin_due_at, "link": f"/incidents/{i.id}"})
@@ -74,6 +76,8 @@ def dashboard(db: DB, ctx: Ctx):
         "my_tasks": [{"id": t.id, "title": t.title, "due_date": t.due_date, "priority": t.priority}
                      for t in sorted(my_tasks, key=lambda t: (t.due_date is None, t.due_date))[:6]],
         "deadlines": [{**d, "overdue": d["due_at"] < now} for d in deadlines[:10]],
+        "open_incidents": [{"id": i.id, "number": i.number, "title": i.title, "severity": i.severity,
+                            "status": i.status, "detected_at": i.detected_at} for i in open_incidents[:6]],
         "policies_to_acknowledge": to_ack,
         "vendor_reviews_due": [{"id": v.id, "name": v.name, "next_review_date": v.next_review_date}
                                for v in vendors_due],

@@ -27,6 +27,7 @@ from app.models import (
     EvidenceSampleItem,
     Framework,
     Incident,
+    IncidentEvent,
     Integration,
     Membership,
     Organization,
@@ -501,20 +502,39 @@ def _seed_company(db: Session, spec: dict, pw_hash: str) -> dict:
                              closed_at=received + timedelta(days=9) if status == "completed" else None,
                              resolution="Corrected the address in the CRM." if status == "completed" else ""))
     detected = NOW - timedelta(days=21)
-    db.add(Incident(org_id=org.id, number=1, title="Credential-stuffing attempts on customer login",
+    inc1 = Incident(org_id=org.id, number=1, title="Credential-stuffing attempts on customer login",
                     description="Spike of failed logins from a botnet; rate limits held, 3 accounts locked.",
                     severity="sev2", category="Unauthorised access attempt", detected_at=detected, status="closed",
-                    lead_id=admin.id, certin_reportable=True, certin_due_at=detected + timedelta(hours=6),
-                    certin_reported_at=detected + timedelta(hours=4), root_cause="Reused passwords from a third-"
-                    "party breach.", actions_taken="Blocked IP ranges, forced resets, enabled breached-password "
-                    "checks."))
+                    lead_id=admin.id, reported_by_id=admin.id, certin_reportable=True,
+                    certin_due_at=detected + timedelta(hours=6), certin_reported_at=detected + timedelta(hours=4),
+                    root_cause="Reused passwords from a third-party breach.", closed_at=detected + timedelta(days=3),
+                    actions_taken="Blocked IP ranges, forced resets, enabled breached-password checks.",
+                    follower_ids=[str(admin.id)],
+                    email_subject="INC-1: Credential-stuffing attempts on customer login")
+    db.add(inc1)
+    db.flush()
+    for hours, kind, msg in (
+        (0, "reported", "Reported a SEV-2 incident. Clocks running: CERT-In report within 6 hours."),
+        (1, "note", "Blocked the attacking IP ranges at the WAF. 3 customer accounts locked as a precaution."),
+        (4, "regulatory", "Reported to CERT-In."),
+        (30, "note", "Forced password resets for affected accounts; breached-password checks turned on."),
+        (72, "status", "INC-1 was closed. Root cause: Reused passwords from a third-party breach."),
+    ):
+        db.add(IncidentEvent(org_id=org.id, incident_id=inc1.id, user_id=admin.id, kind=kind, message=msg,
+                             created_at=detected + timedelta(hours=hours)))
     if readiness < 0.5:
         d2 = NOW - timedelta(hours=3)
-        db.add(Incident(org_id=org.id, number=2, title="Laptop stolen from a delivery hub", severity="sev3",
+        inc2 = Incident(org_id=org.id, number=2, title="Laptop stolen from a delivery hub", severity="sev3",
                         description="Unencrypted laptop with order exports was stolen.", category="Device loss",
-                        detected_at=d2, status="open", lead_id=admin.id, certin_reportable=False,
-                        personal_data_breach=True, affected_principals_estimate=1200,
-                        dpb_due_at=d2 + timedelta(hours=72)))
+                        detected_at=d2, status="open", lead_id=admin.id, reported_by_id=admin.id,
+                        certin_reportable=False, personal_data_breach=True, affected_principals_estimate=1200,
+                        dpb_due_at=d2 + timedelta(hours=72), follower_ids=[str(admin.id)],
+                        email_subject="INC-2: Laptop stolen from a delivery hub")
+        db.add(inc2)
+        db.flush()
+        db.add(IncidentEvent(org_id=org.id, incident_id=inc2.id, user_id=admin.id, kind="reported", created_at=d2,
+                             message="Reported a SEV-3 incident. Clocks running: Data Protection Board detailed "
+                                     "report within 72 hours."))
 
     # training
     for u in [x for r, x in users.items() if r != "auditor"]:

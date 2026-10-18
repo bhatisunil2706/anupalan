@@ -505,6 +505,9 @@ class IncidentOut(ORM):
     lessons_learned: str
     closed_at: datetime | None
     created_at: datetime
+    reported_by: UserBrief | None = None
+    follower_ids: list[uuid.UUID] = []
+    email_subject: str = ""
 
 
 # ---------------------------------------------------------------- integrations

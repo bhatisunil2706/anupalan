@@ -268,7 +268,7 @@ def test_notification_queue_dedupes_and_delivers(owner, db, monkeypatch):
     posted, emailed = [], []
     monkeypatch.setattr(notify.httpx, "post", lambda url, json, timeout: posted.append((url, json)) or
                         httpx.Response(200, request=httpx.Request("POST", url)))
-    monkeypatch.setattr(notify, "send_email", lambda to, subject, text: emailed.append((to, subject)))
+    monkeypatch.setattr(notify, "send_email", lambda to, subject, text, headers=None: emailed.append((to, subject)))
     db.expire_all()
     assert notify.deliver_pending(db) >= 1
     assert any("Hello" in p[1]["text"] for p in posted)

@@ -1,10 +1,13 @@
 "use client";
 
+import { Siren } from "lucide-react";
 import Link from "next/link";
+import { useState } from "react";
 
+import { OpenIncidents, ReportIncidentDrawer } from "@/components/incidents";
 import { Seal } from "@/components/seal";
 import { useSession } from "@/components/session";
-import { Badge, HEALTH, HealthBadge, LoadError, Loading, PageHeader, Panel, cx } from "@/components/ui";
+import { Badge, Button, HEALTH, HealthBadge, LoadError, Loading, PageHeader, Panel, cx } from "@/components/ui";
 import { useApi } from "@/lib/api";
 import { countdown, fmtDate, fmtDateTime, humanize } from "@/lib/format";
 import type { Health, Readiness } from "@/lib/types";
@@ -18,6 +21,7 @@ interface Dashboard {
   overdue_tasks: number;
   my_tasks: { id: string; title: string; due_date: string | null; priority: string }[];
   deadlines: { kind: string; label: string; due_at: string; link: string; overdue: boolean }[];
+  open_incidents: { id: string; number: number; title: string; severity: string; status: string; detected_at: string }[];
   policies_to_acknowledge: { id: string; title: string; version: number }[];
   vendor_reviews_due: { id: string; name: string; next_review_date: string }[];
   activity: { at: string; action: string; user: string }[];
@@ -42,8 +46,9 @@ const BAR_COLOR: Record<Health, string> = {
 };
 
 export default function DashboardPage() {
-  const { me } = useSession();
+  const { me, canWrite } = useSession();
   const { data, error, loading, reload } = useApi<Dashboard>("/dashboard");
+  const [reporting, setReporting] = useState(false);
 
   if (loading && !data) return <Loading />;
   if (error || !data) return <LoadError error={error ?? "Could not load"} retry={reload} />;
@@ -52,7 +57,16 @@ export default function DashboardPage() {
 
   return (
     <>
-      <PageHeader title="Dashboard" description={`Compliance status for ${orgName}`} />
+      <PageHeader
+        title="Dashboard"
+        description={`Compliance status for ${orgName}`}
+        actions={canWrite && (
+          <Button variant="danger" onClick={() => setReporting(true)}>
+            <Siren className="h-4 w-4" aria-hidden /> Report incident
+          </Button>
+        )}
+      />
+      <ReportIncidentDrawer open={reporting} onClose={() => { setReporting(false); reload(); }} />
 
       <Panel className="mb-6">
         <div className="grid grid-cols-2 gap-6 py-2 sm:grid-cols-4">
@@ -71,6 +85,15 @@ export default function DashboardPage() {
 
       <div className="grid grid-cols-1 gap-6 [&>*]:min-w-0 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
         <div className="space-y-6">
+          {data.open_incidents.length > 0 && (
+            <Panel
+              title="Open incidents"
+              actions={<Link href="/incidents" className="text-xs font-medium text-ink hover:underline">All incidents</Link>}
+              flush
+            >
+              <OpenIncidents items={data.open_incidents} />
+            </Panel>
+          )}
           <Panel title="Deadlines" flush>
             {data.deadlines.length ? (
               <ul>

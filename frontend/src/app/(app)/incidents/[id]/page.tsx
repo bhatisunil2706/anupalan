@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
+import { IncidentActivity } from "@/components/incidents";
 import { MemberSelect } from "@/components/pickers";
 import { useSession } from "@/components/session";
 import { Badge, Button, Checkbox, Field, Input, LoadError, Loading, Panel, Select, Textarea, cx, useToast } from "@/components/ui";
@@ -29,6 +30,7 @@ export default function IncidentPage() {
   const toast = useToast();
   const now = useNow();
   const { data: inc, error, loading, reload } = useApi<Incident>(`/incidents/${id}`);
+  const [version, setVersion] = useState(0);
   const [form, setForm] = useState({ status: "open", severity: "sev3", lead_id: "", root_cause: "", actions_taken: "", lessons_learned: "", affected: "" });
 
   useEffect(() => {
@@ -47,6 +49,7 @@ export default function IncidentPage() {
       await api(`/incidents/${id}`, { method: "PATCH", json: body });
       toast(msg);
       reload();
+      setVersion((v) => v + 1);
     } catch (e) {
       toast(e instanceof Error ? e.message : "Failed", "error");
     }
@@ -70,6 +73,7 @@ export default function IncidentPage() {
           <span className="text-sm text-muted">Noticed {fmtDateTime(inc.detected_at)}</span>
         </div>
         <h1 className="mt-1 text-[22px] font-bold tracking-[-0.01em]">{inc.title}</h1>
+        {inc.reported_by && <p className="mt-1 text-xs text-muted">Reported by {inc.reported_by.full_name} · {fmtDateTime(inc.created_at)}</p>}
         {inc.description && <p className="mt-2 max-w-[72ch] whitespace-pre-wrap text-sm text-muted">{inc.description}</p>}
       </header>
 
@@ -141,6 +145,8 @@ export default function IncidentPage() {
             </Panel>
           )}
 
+          <IncidentActivity incident={inc} version={version} part="timeline" />
+
           <Panel title="Investigation">
             <div className="space-y-4">
               <Field label="Root cause">{(fid) => <Textarea id={fid} value={form.root_cause} disabled={!canWrite} onChange={(e) => setForm({ ...form, root_cause: e.target.value })} />}</Field>
@@ -155,6 +161,7 @@ export default function IncidentPage() {
               )}
             </div>
           </Panel>
+
         </div>
 
         <aside>
@@ -194,6 +201,7 @@ export default function IncidentPage() {
               )}
             </div>
           </Panel>
+          <IncidentActivity incident={inc} version={version} part="followers" />
         </aside>
       </div>
     </>

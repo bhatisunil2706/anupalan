@@ -22,8 +22,9 @@ Set up in **Settings → Notifications** (admins):
 | Event | Who | When |
 | --- | --- | --- |
 | Check failed | Control owner or admins, plus Slack/Teams | An integration check starts failing (a Fix: task is created at the same time) |
-| Incident reported | Admins, plus Slack/Teams | Immediately, with the clocks that are running |
-| Regulatory deadlines | Incident lead or admins | CERT-In 2 hours before and overdue; Board report 24 hours before and overdue; rights requests 3 days before and overdue |
+| Incident reported | Incident followers (reporter, lead, admins), plus Slack/Teams | Immediately, with the clocks that are running |
+| Incident updates | Incident followers, except whoever made the change | Updates, status, severity, lead, classification and regulatory reports, all in one email thread per incident. See [Incidents](/docs/incidents#tracking-by-email) |
+| Regulatory deadlines | Incident followers, lead and admins; rights request assignee or admins | CERT-In 2 hours before and overdue; Board report 24 hours before and overdue; rights requests 3 days before and overdue |
 | Task assigned or created | Assignee (or admins) | When assigned; tasks the platform creates |
 | Task due | Assignee | The day before, and when overdue |
 | Control assigned | New owner | When you're made owner of controls |
@@ -36,7 +37,7 @@ Set up in **Settings → Notifications** (admins):
 | Vendor document expiring | Vendor owner or admins | Before and after expiry |
 | Training due | Each person | At most weekly while training is overdue |
 
-Emails link straight to the relevant page. The same event is never sent twice.
+Emails link straight to the relevant page. The same event is never sent twice. Emails about one incident are threaded together in your inbox.
 
 ## Email setup
 

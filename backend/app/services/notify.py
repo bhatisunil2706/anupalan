@@ -76,13 +76,19 @@ def queue(
     link: str = "",
     to: list[str] | None = None,
     broadcast: bool = False,
+    thread: str = "",
+    subject: str = "",
 ) -> None:
-    """Queue a notification once per (org, key). Safe to call repeatedly."""
+    """Queue a notification once per (org, key). Safe to call repeatedly.
+
+    `thread` groups emails into one conversation in the recipient's inbox; `subject` fixes the email subject for
+    the whole thread (mail clients thread on matching subjects as well as on reply headers)."""
     stmt = (
         insert(Notification)
         .values(
             id=uuid.uuid4(), org_id=org_id, dedupe_key=key[:200], event=event, title=title[:300], body=body,
             link=link, recipients=sorted({e.lower() for e in (to or []) if e}), broadcast=broadcast,
+            thread=thread[:200], subject=subject[:400],
             status="pending", attempts=0, last_error="", created_at=datetime.now(timezone.utc),
         )
         .on_conflict_do_nothing(index_elements=["org_id", "dedupe_key"])
@@ -97,15 +103,39 @@ def _abs_link(link: str) -> str:
     return f"{get_settings().public_url.rstrip('/')}{link}" if link.startswith("/") else link
 
 
-def send_email(to: list[str], subject: str, text: str, from_name: str | None = None) -> None:
+def mail_domain() -> str:
+    s = get_settings()
+    return parseaddr(s.smtp_from)[1].rpartition("@")[2] or urlparse(s.public_url).hostname or "localhost"
+
+
+def thread_headers(db: Session, n: Notification) -> dict[str, str]:
+    """Reply headers that make every email in a thread appear as one conversation.
+
+    The first email of a thread carries the thread's root Message-ID; later ones reply to it."""
+    if not n.thread:
+        return {}
+    domain = mail_domain()
+    root = f"<{n.thread}@{domain}>"
+    earlier = db.scalar(select(Notification.id).where(
+        Notification.org_id == n.org_id, Notification.thread == n.thread, Notification.id != n.id,
+        Notification.created_at < n.created_at).limit(1))
+    if earlier is None:
+        return {"Message-ID": root}
+    return {"Message-ID": f"<{n.thread}.{n.id}@{domain}>", "In-Reply-To": root, "References": root}
+
+
+def send_email(to: list[str], subject: str, text: str, from_name: str | None = None,
+               headers: dict[str, str] | None = None) -> None:
     s = get_settings()
     if not s.smtp_host:
-        log.info("email (SMTP not configured) to=%s subject=%s\n%s", to, subject, text)
+        log.info("email (SMTP not configured) to=%s subject=%s headers=%s\n%s", to, subject, headers or {}, text)
         return
     msg = EmailMessage()
     msg["From"] = formataddr((from_name, parseaddr(s.smtp_from)[1])) if from_name else s.smtp_from
     msg["To"] = ", ".join(to)
     msg["Subject"] = subject
+    for k, v in (headers or {}).items():
+        msg[k] = v
     msg.set_content(text)
     with smtplib.SMTP(s.smtp_host, s.smtp_port, timeout=20) as smtp:
         if s.smtp_starttls:
@@ -156,7 +186,9 @@ def deliver(db: Session, n: Notification) -> None:
     errors = []
     if n.recipients and org.notify_email:
         try:
-            send_email(n.recipients, f"[{org.name}] {n.title}", f"{n.body}\n\n{link}".strip())
+            send_email(n.recipients, f"[{org.name}] {n.subject or n.title}",
+                       (f"{n.title}\n\n" if n.subject else "") + f"{n.body}\n\n{link}".strip(),
+                       headers=thread_headers(db, n))
         except Exception as e:  # noqa: BLE001 - record and retry
             errors.append(f"email: {e}")
     if n.broadcast:

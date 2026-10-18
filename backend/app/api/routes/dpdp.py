@@ -3,10 +3,12 @@ import uuid
 from datetime import datetime, timedelta, timezone
 
 from fastapi import APIRouter
+from pydantic import BaseModel, Field
 from sqlalchemy import func, select
+from sqlalchemy.orm import selectinload
 
 from app.deps import DB, Ctx, WriterCtx, ensure_member, get_owned
-from app.models import DataAsset, Incident, RightsRequest
+from app.models import DataAsset, Incident, IncidentEvent, RightsRequest
 from app.schemas import (
     DataAssetIn,
     DataAssetOut,
@@ -17,7 +19,7 @@ from app.schemas import (
     RightsRequestOut,
     RightsRequestUpdate,
 )
-from app.services import audit, notify
+from app.services import audit, incidents
 
 router = APIRouter()
 
@@ -135,19 +137,15 @@ def list_incidents(db: DB, ctx: Ctx):
 @router.post("/incidents", response_model=IncidentOut, status_code=201, tags=["incidents"])
 def create_incident(body: IncidentIn, db: DB, ctx: WriterCtx):
     ensure_member(db, ctx, body.lead_id)
-    i = Incident(org_id=ctx.org_id, number=_next_number(db, Incident, ctx.org_id), **body.model_dump())
+    i = Incident(org_id=ctx.org_id, number=_next_number(db, Incident, ctx.org_id), reported_by_id=ctx.user.id,
+                 **body.model_dump())
     _apply_deadlines(i)
     db.add(i)
     db.flush()
+    i.follower_ids = incidents.initial_followers(db, i)
     audit.record(db, ctx, "incident.created", i, severity=i.severity, certin=i.certin_reportable,
                  breach=i.personal_data_breach)
-    clocks = [c for c, on in (("CERT-In report within 6 hours", i.certin_reportable),
-                              ("DPDP Board report within 72 hours", i.personal_data_breach)) if on]
-    notify.queue(db, ctx.org_id, key=f"inc:{i.id}:created", event="incident", broadcast=True,
-                 to=notify.admin_emails(db, ctx.org_id),
-                 title=f"Incident reported: INC-{i.number} {i.title} ({i.severity.upper()})",
-                 body=("Clocks running: " + "; ".join(clocks)) if clocks else f"Reported by {ctx.user.full_name}.",
-                 link=f"/incidents/{i.id}")
+    incidents.reported(db, i, ctx.user)
     db.commit()
     db.refresh(i)
     return i
@@ -164,12 +162,70 @@ def update_incident(incident_id: uuid.UUID, body: IncidentUpdate, db: DB, ctx: W
     data = body.model_dump(exclude_unset=True)
     if "lead_id" in data:
         ensure_member(db, ctx, data["lead_id"])
+    before = {k: getattr(i, k) for k in data}
     for k, v in data.items():
         setattr(i, k, v)
     _apply_deadlines(i)
     if data.get("status") == "closed":
         i.closed_at = i.closed_at or datetime.now(timezone.utc)
+    elif "status" in data and i.status != "closed":
+        i.closed_at = None
+    db.flush()
+    db.expire(i, ["lead"])
+    incidents.changes(db, i, ctx.user, before, data)
     audit.record(db, ctx, "incident.updated", i, fields=list(data))
     db.commit()
     db.refresh(i)
     return i
+
+
+class IncidentNoteIn(BaseModel):
+    message: str = Field(min_length=1, max_length=5000)
+
+
+def _event_out(e: IncidentEvent) -> dict:
+    return {"id": e.id, "kind": e.kind, "message": e.message, "created_at": e.created_at,
+            "user": {"id": e.user.id, "full_name": e.user.full_name, "email": e.user.email} if e.user else None}
+
+
+@router.get("/incidents/{incident_id}/activity", tags=["incidents"])
+def incident_activity(incident_id: uuid.UUID, db: DB, ctx: Ctx):
+    """The timeline and who receives email updates."""
+    i = get_owned(db, Incident, incident_id, ctx)
+    events = db.scalars(select(IncidentEvent).where(IncidentEvent.incident_id == i.id)
+                        .options(selectinload(IncidentEvent.user)).order_by(IncidentEvent.created_at.desc())).all()
+    people = incidents.followers(db, i)
+    return {"events": [_event_out(e) for e in events],
+            "followers": [{"id": u.id, "full_name": u.full_name, "email": u.email} for u in people],
+            "following": any(u.id == ctx.user.id for u in people),
+            "reported_by": ({"id": i.reported_by.id, "full_name": i.reported_by.full_name,
+                             "email": i.reported_by.email} if i.reported_by else None)}
+
+
+@router.post("/incidents/{incident_id}/updates", status_code=201, tags=["incidents"])
+def post_incident_update(incident_id: uuid.UUID, body: IncidentNoteIn, db: DB, ctx: WriterCtx):
+    """Post an update to the timeline; it is emailed to everyone following the incident."""
+    i = get_owned(db, Incident, incident_id, ctx)
+    ev = incidents.record(db, i, ctx.user, "note", body.message.strip())
+    audit.record(db, ctx, "incident.update_posted", i)
+    db.commit()
+    db.refresh(ev)
+    return _event_out(ev)
+
+
+@router.post("/incidents/{incident_id}/follow", tags=["incidents"])
+def follow_incident(incident_id: uuid.UUID, db: DB, ctx: Ctx):
+    i = get_owned(db, Incident, incident_id, ctx)
+    incidents.follow(i, ctx.user.id)
+    audit.record(db, ctx, "incident.followed", i)
+    db.commit()
+    return {"following": True}
+
+
+@router.delete("/incidents/{incident_id}/follow", tags=["incidents"])
+def unfollow_incident(incident_id: uuid.UUID, db: DB, ctx: Ctx):
+    i = get_owned(db, Incident, incident_id, ctx)
+    incidents.unfollow(i, ctx.user.id)
+    audit.record(db, ctx, "incident.unfollowed", i)
+    db.commit()
+    return {"following": False}

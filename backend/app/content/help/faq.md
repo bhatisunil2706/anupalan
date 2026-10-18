@@ -63,7 +63,7 @@ Within the service level you set (30 days by default). The platform starts the c
 
 ### We had a data breach. What do I do first?
 
-Report it in **Incidents** straight away. The platform starts the CERT-In and Data Protection Board clocks and lists what to do and who to tell. See [Incidents and breaches](/docs/incidents).
+Report it straight away with **Report incident** on the dashboard; anyone except auditors can. You'll get every update by email, in one thread. The platform starts the CERT-In and Data Protection Board clocks and lists what to do and who to tell. See [Incidents and breaches](/docs/incidents).
 
 ## AI and data
 

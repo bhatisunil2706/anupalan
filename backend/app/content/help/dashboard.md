@@ -2,7 +2,7 @@
 title: Dashboard
 section: Get started
 order: 5
-summary: Your daily starting point - readiness per framework, deadlines, controls that need attention and your own work.
+summary: Your daily starting point - readiness per framework, deadlines, open incidents, controls that need attention, your own work, and one-click incident reporting.
 routes: /dashboard
 ---
 
@@ -21,6 +21,14 @@ Legal and operational deadlines, soonest first, with overdue items highlighted:
 - **Notifying affected people** about a personal data breach;
 - **Rights requests** (DPR numbers) approaching their due date;
 - **Tasks** with due dates.
+
+## Reporting an incident
+
+**Report incident** (top right) lets anyone except auditors report a security incident or possible data breach in under a minute. Admins are alerted straight away, and you'll get every update about it by email, in one thread. See [Incidents and breaches](/docs/incidents#reporting-an-incident).
+
+## Open incidents
+
+Shown at the top of the dashboard whenever an incident is not closed yet: up to six, most severe first, with when each was noticed and its status. Open one to see its timeline or post an update.
 
 ## Controls that need attention
 

@@ -3,6 +3,7 @@
 Runs from the worker every few minutes. Every action is idempotent (dedupe keys / task sources), so running it
 often is safe.
 """
+import functools
 from datetime import date, datetime, timedelta, timezone
 
 from sqlalchemy import func, select
@@ -23,7 +24,7 @@ from app.models import (
     Vendor,
     VendorDocument,
 )
-from app.services import notify, questionnaires
+from app.services import incidents, notify, questionnaires
 from app.services.platform_checks import run_feature_checks
 
 RENEW_WINDOW_DAYS = 14
@@ -55,23 +56,26 @@ def _task_created(db: Session, org: Organization, t: Task) -> None:
 def incident_reminders(db: Session, org: Organization, now: datetime) -> None:
     admins = notify.admin_emails(db, org.id)
     for i in db.scalars(select(Incident).where(Incident.org_id == org.id, Incident.status != "closed")):
-        to = sorted(set(admins + [e for e in [_email(db, i.lead_id)] if e]))
+        # Deadline reminders go to everyone following the incident (plus the lead and admins), in its email thread.
+        to = sorted(set(admins + [e for e in [_email(db, i.lead_id)] if e]
+                        + [u.email for u in incidents.followers(db, i)]))
         label = f"INC-{i.number} {i.title}"
         link = f"/incidents/{i.id}"
+        queue = functools.partial(notify.queue, thread=incidents.thread_key(i), subject=i.email_subject)
         if i.certin_due_at and not i.certin_reported_at:
             if i.certin_due_at <= now:
-                notify.queue(db, org.id, key=f"inc:{i.id}:certin:overdue", event="deadline", broadcast=True, to=to,
+                queue(db, org.id, key=f"inc:{i.id}:certin:overdue", event="deadline", broadcast=True, to=to,
                              title=f"CERT-In report overdue: {label}", link=link,
                              body="The 6-hour CERT-In reporting deadline has passed.")
             elif i.certin_due_at - now <= timedelta(hours=2):
-                notify.queue(db, org.id, key=f"inc:{i.id}:certin:2h", event="deadline", broadcast=True, to=to,
+                queue(db, org.id, key=f"inc:{i.id}:certin:2h", event="deadline", broadcast=True, to=to,
                              title=f"CERT-In report due within 2 hours: {label}", link=link)
         if i.dpb_due_at and not i.dpb_detailed_reported_at:
             if i.dpb_due_at <= now:
-                notify.queue(db, org.id, key=f"inc:{i.id}:dpb:overdue", event="deadline", broadcast=True, to=to,
+                queue(db, org.id, key=f"inc:{i.id}:dpb:overdue", event="deadline", broadcast=True, to=to,
                              title=f"Data Protection Board report overdue: {label}", link=link)
             elif i.dpb_due_at - now <= timedelta(hours=24):
-                notify.queue(db, org.id, key=f"inc:{i.id}:dpb:24h", event="deadline", broadcast=True, to=to,
+                queue(db, org.id, key=f"inc:{i.id}:dpb:24h", event="deadline", broadcast=True, to=to,
                              title=f"Board detailed report due within 24 hours: {label}", link=link)
 
 

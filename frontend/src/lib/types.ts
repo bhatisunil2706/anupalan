@@ -282,6 +282,9 @@ export interface Incident {
   lessons_learned: string;
   closed_at: string | null;
   created_at: string;
+  reported_by: UserBrief | null;
+  follower_ids: string[];
+  email_subject: string;
 }
 
 export interface IntegrationField {

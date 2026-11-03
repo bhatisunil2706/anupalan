@@ -145,6 +145,43 @@ COMPANIES = [
                    ("Delivery partner KYC", ["delivery partners"], ["name", "aadhaar", "bank_account", "phone"],
                     "Onboard and pay delivery partners", "legitimate_use", "Duration of engagement + 3 years")],
     },
+    {
+        "name": "FinBox (Demo)", "domain": "finbox-demo.example",
+        "sector": "Fintech (digital lending infrastructure for banks and NBFCs)",
+        "employees": "201-500", "readiness": 0.64,
+        "frameworks": ["dpdp", "certin", "iso27001", "soc2", "rbi_digital_lending", "rbi_it_outsourcing"],
+        "profile": {"uses_consent_manager": True}, "seed": 53,
+        # Sample data for a FinBox demo: people, findings and incidents are invented, not FinBox's real records.
+        "people": [("Ishaan Bhatia", "Co-founder & CEO (sample)", "Leadership", "owner"),
+                   ("Tanvi Deshpande", "Head of Information Security (sample)", "Security", "admin"),
+                   ("Varun Krishnan", "Engineering Manager, Lending Platform (sample)", "Engineering", "member"),
+                   ("Ritu Saxena", "Partner, Aksha Assurance (sample auditor)", "External", "auditor")],
+        "staff": [("Siddharth Rao", "Backend Engineer", "Engineering"), ("Nandini Iyer", "Product Manager, BRE",
+                                                                         "Product"),
+                  ("Kunal Arora", "SRE", "Engineering"), ("Pallavi Menon", "Compliance Manager", "Risk"),
+                  ("Yash Thakur", "Data Scientist, Credit Models", "Data"), ("Ayesha Siddiqui", "Customer Success",
+                                                                             "Operations"),
+                  ("Abhinav Goyal", "Security Engineer", "Security"), ("Riya Chopra", "Finance Manager", "Finance"),
+                  ("Manav Sethi", "Solutions Engineer (lender integrations)", "Engineering")],
+        "leaver": ("Devansh Kapoor", "Data Engineer", "Data"),
+        "vendors": [("Amazon Web Services", "critical", "Cloud hosting (ap-south-1, Mumbai)", True,
+                     ["ISO 27001", "SOC 2"]),
+                    ("Google Workspace", "medium", "Email and documents", True, ["ISO 27001", "SOC 2"]),
+                    ("Freshworks", "high", "Lender and borrower support desk", True, ["ISO 27001", "SOC 2"]),
+                    ("Lendbridge Collections (sample vendor)", "high", "Collections and recovery partner", True, []),
+                    ("Slack", "medium", "Internal chat", False, ["SOC 2"])],
+        "assets": [("Borrower KYC records", ["borrowers"], ["name", "pan", "aadhaar", "phone", "address", "photo"],
+                    "KYC for lender partners under RBI directions", "legitimate_use",
+                    "As instructed by the lender (typically 5 years after loan closure)"),
+                   ("Bank statements and Account Aggregator data", ["borrowers"], ["name", "bank_account", "income"],
+                    "Credit assessment for lender partners", "consent", "Deleted 30 days after the decision"),
+                   ("Credit bureau reports", ["borrowers"], ["name", "pan", "credit_score"],
+                    "Underwriting on behalf of lenders", "consent", "Duration of the loan"),
+                   ("Lender partner contacts", ["lender staff"], ["name", "email", "phone"],
+                    "Run lender integrations and support", "legitimate_use", "Duration of contract + 1 year"),
+                   ("Employee records", ["employees"], ["name", "pan", "bank_account", "address"], "Payroll and HR",
+                    "legitimate_use", "7 years after exit")],
+    },
 ]
 
 
@@ -261,13 +298,18 @@ def _demo_docx(body: str, modified: str) -> bytes:
 
 
 def seed(db: Session, password: str = DEFAULT_PASSWORD, reset: bool = False) -> list[dict]:
-    existing = db.scalar(select(Organization).where(Organization.name == COMPANIES[0]["name"]))
-    if existing and not reset:
+    """Create the demo companies. Without `reset`, only companies that don't exist yet are added, so a new demo
+    company can be added without discarding changes made to the others."""
+    existing = set(db.scalars(select(Organization.name).where(Organization.name.in_([c["name"] for c in COMPANIES]))))
+    if reset:
+        _wipe(db)
+        existing = set()
+    todo = [c for c in COMPANIES if c["name"] not in existing]
+    if not todo:
         raise RuntimeError("Demo data already exists. Run with --reset to recreate it.")
-    _wipe(db)
     pw_hash = hash_password(password)
     out = []
-    for spec in COMPANIES:
+    for spec in todo:
         out.append(_seed_company(db, spec, pw_hash))
         db.commit()
     return out

@@ -3,7 +3,7 @@
 python -m app.cli load-content     Load / refresh frameworks, controls, mappings and policy templates
 python -m app.cli check-content    Validate content mapping coverage without touching the database
 python -m app.cli sync-runtime-role  Create/update the restricted app role, RLS policies and grants (owner role)
-python -m app.cli seed-demo [--reset] [--password PW]   Create 3 demo companies (refuses in production)
+python -m app.cli seed-demo [--reset] [--password PW]   Add missing demo companies (refuses in production)
 python -m app.cli remove-demo      Delete the demo companies and users
 python -m app.cli verify-audit     Verify every organisation's audit hash chain
 """

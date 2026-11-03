@@ -77,7 +77,8 @@ class Ctx:
 COMPANIES = [
     {
         "name": "Paisa Setu Fintech", "domain": "paisasetu.example", "sector": "Fintech (payments, NBFC partner)",
-        "employees": "51-200", "frameworks": ["dpdp", "certin", "iso27001", "soc2"], "readiness": 0.72,
+        "employees": "51-200", "readiness": 0.72,
+        "frameworks": ["dpdp", "certin", "iso27001", "soc2", "rbi_pso", "rbi_pa"],
         "profile": {"uses_consent_manager": False}, "seed": 11,
         "people": [("Priya Sharma", "CEO & Co-founder", "Leadership", "owner"),
                    ("Arjun Mehta", "Head of Security", "Security", "admin"),

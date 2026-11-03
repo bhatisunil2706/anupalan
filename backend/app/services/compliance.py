@@ -42,6 +42,19 @@ PROFILE_FLAGS = {
     "pci_card_present": "Accepts card payments in person with payment terminals",
     "pci_service_provider": "Is a PCI DSS service provider (stores, processes or transmits card data for others)",
     "hipaa_clearinghouse": "Operates a healthcare clearinghouse inside a larger organisation",
+    "rbi_nbfc_small": (
+        "NBFC in the Base Layer below the asset threshold in the NBFC Directions (published as Rs 2,500 crore), "
+        "or a Core Investment Company: only the baseline requirements apply"
+    ),
+    "rbi_nbfc_bl_large": "NBFC in the Base Layer at or above that asset threshold (Chapter IV of the NBFC Directions)",
+    "dpsc_internet_banking": "Offers internet banking or a web portal for payments",
+    "dpsc_mobile_app": "Offers a mobile banking or payments app",
+    "dpsc_card_payments": "Issues cards or acquires card payments (ATMs, PoS terminals)",
+    "pso_card_or_atm": "Operates a card network, ATM network or white-label ATMs",
+    "pso_ppi_issuer": "Issues prepaid payment instruments (wallets or prepaid cards)",
+    "pa_physical": "Payment aggregator for in-person payments (PA-Physical)",
+    "pa_cross_border": "Payment aggregator for cross-border payments (PA-Cross Border)",
+    "irdai_intermediary": "Insurance intermediary (broker, corporate agent, web aggregator or TPA), not an insurer",
 }
 
 # Which framework each profile question belongs to, so onboarding and settings only ask relevant questions.
@@ -50,7 +63,14 @@ FLAG_FRAMEWORK = {
     "is_infra_provider": "certin", "is_virtual_asset_provider": "certin",
     "soc2_processing_integrity": "soc2", "soc2_privacy": "soc2", "eu_representative_required": "gdpr",
     "pci_card_present": "pci_dss", "pci_service_provider": "pci_dss", "hipaa_clearinghouse": "hipaa",
+    "rbi_nbfc_small": "rbi_cyber", "rbi_nbfc_bl_large": "rbi_cyber",
+    "dpsc_internet_banking": "rbi_dpsc", "dpsc_mobile_app": "rbi_dpsc", "dpsc_card_payments": "rbi_dpsc",
+    "pso_card_or_atm": "rbi_pso", "pso_ppi_issuer": "rbi_pso", "pa_physical": "rbi_pa", "pa_cross_border": "rbi_pa",
+    "irdai_intermediary": "irdai_cyber",
 }
+
+# Frameworks replaced by a newer one: organisations using the old one are moved to the new one when content loads.
+RETIRED_FRAMEWORKS = {"rbi_itgrc": "rbi_cyber"}
 
 
 def default_valid_until(frequency: str, collected: date | None = None) -> date | None:
@@ -60,8 +80,26 @@ def default_valid_until(frequency: str, collected: date | None = None) -> date |
     return (collected or date.today()) + timedelta(days=days)
 
 
+def condition_holds(condition: str | None, profile: dict | None) -> bool:
+    """A requirement condition is a profile flag, optionally negated with `!`, combined with `&` (and) and `|` (or;
+    lower precedence). For example `!rbi_nbfc_small&!rbi_nbfc_bl_large` applies unless either flag is set."""
+    if not condition:
+        return True
+    profile = profile or {}
+
+    def term(t: str) -> bool:
+        t = t.strip()
+        return not profile.get(t[1:]) if t.startswith("!") else bool(profile.get(t))
+
+    return any(all(term(t) for t in group.split("&")) for group in condition.split("|"))
+
+
+def condition_flags(condition: str | None) -> set[str]:
+    return {t.strip().lstrip("!") for g in (condition or "").split("|") for t in g.split("&") if t.strip()}
+
+
 def requirement_applies(req: Requirement, org: Organization) -> bool:
-    return req.condition is None or bool((org.profile or {}).get(req.condition))
+    return condition_holds(req.condition, org.profile)
 
 
 def enabled_framework_ids(db: Session, org_id: uuid.UUID) -> list[uuid.UUID]:

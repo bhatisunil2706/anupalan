@@ -443,6 +443,19 @@ class RightsRequestOut(ORM):
     closed_at: datetime | None
 
 
+RegulatorKey = Literal["rbi", "sebi", "irdai", "ifsca"]
+ClockKey = Literal["rbi", "sebi", "irdai", "ifsca", "ifsca_interim", "ifsca_rca"]
+
+
+class RegulatorClockOut(BaseModel):
+    key: str
+    regulator: str
+    title: str
+    rule: str
+    due_at: datetime | None
+    reported_at: datetime | None
+
+
 class IncidentIn(BaseModel):
     title: str = Field(min_length=1, max_length=300)
     description: str = ""
@@ -453,6 +466,7 @@ class IncidentIn(BaseModel):
     personal_data_breach: bool = False
     affected_principals_estimate: int | None = None
     lead_id: uuid.UUID | None = None
+    regulators: list[RegulatorKey] = Field(default_factory=list, max_length=4)
 
     @field_validator("detected_at")
     @classmethod
@@ -479,6 +493,17 @@ class IncidentUpdate(BaseModel):
     root_cause: str | None = None
     actions_taken: str | None = None
     lessons_learned: str | None = None
+    regulators: list[RegulatorKey] | None = Field(default=None, max_length=4)
+    # Record (or correct, or clear with null) when a regulator clock was met: {"rbi": "2026-11-03T10:15:00+05:30"}.
+    regulator_reported: dict[ClockKey, datetime | None] | None = None
+
+    @field_validator("regulator_reported")
+    @classmethod
+    def tz_on_reports(cls, v):
+        for t in (v or {}).values():
+            if t is not None and t.tzinfo is None:
+                raise ValueError("report times must include a timezone offset")
+        return v
 
 
 class IncidentOut(ORM):
@@ -508,6 +533,8 @@ class IncidentOut(ORM):
     reported_by: UserBrief | None = None
     follower_ids: list[uuid.UUID] = []
     email_subject: str = ""
+    regulators: list[str] = []
+    regulator_clocks: list[RegulatorClockOut] = []
 
 
 # ---------------------------------------------------------------- integrations

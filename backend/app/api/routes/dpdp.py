@@ -1,4 +1,5 @@
 """DPDP module: data inventory, data principal requests and incidents / breaches."""
+import copy
 import uuid
 from datetime import datetime, timedelta, timezone
 
@@ -8,7 +9,8 @@ from sqlalchemy import func, select
 from sqlalchemy.orm import selectinload
 
 from app.deps import DB, Ctx, WriterCtx, ensure_member, get_owned
-from app.models import DataAsset, Incident, IncidentEvent, RightsRequest
+from app.models import DataAsset, Framework, Incident, IncidentEvent, OrgFramework, RightsRequest
+from app.regulators import REGULATORS
 from app.schemas import (
     DataAssetIn,
     DataAssetOut,
@@ -151,6 +153,15 @@ def create_incident(body: IncidentIn, db: DB, ctx: WriterCtx):
     return i
 
 
+@router.get("/incident-regulators", tags=["incidents"])
+def incident_regulators(db: DB, ctx: Ctx):
+    """Sector regulators an incident can be reported to, with the ones suggested by the organisation's frameworks."""
+    enabled = set(db.scalars(select(Framework.code).join(OrgFramework, OrgFramework.framework_id == Framework.id)
+                             .where(OrgFramework.org_id == ctx.org_id)))
+    return [{"key": r.key, "label": r.name, "hint": r.hint, "suggested": bool(r.frameworks & enabled)}
+            for r in REGULATORS.values()]
+
+
 @router.get("/incidents/{incident_id}", response_model=IncidentOut, tags=["incidents"])
 def get_incident(incident_id: uuid.UUID, db: DB, ctx: Ctx):
     return get_owned(db, Incident, incident_id, ctx)
@@ -162,9 +173,20 @@ def update_incident(incident_id: uuid.UUID, body: IncidentUpdate, db: DB, ctx: W
     data = body.model_dump(exclude_unset=True)
     if "lead_id" in data:
         ensure_member(db, ctx, data["lead_id"])
-    before = {k: getattr(i, k) for k in data}
+    before = {k: copy.deepcopy(getattr(i, k)) for k in data}
+    reported = data.pop("regulator_reported", None)
+    if reported is not None:
+        merged = dict(i.regulator_reported or {})
+        for key, at in reported.items():
+            if at is None:
+                merged.pop(key, None)
+            else:
+                merged[key] = at.isoformat()
+        i.regulator_reported = merged
+        data["regulator_reported"] = reported
     for k, v in data.items():
-        setattr(i, k, v)
+        if k != "regulator_reported":
+            setattr(i, k, v)
     _apply_deadlines(i)
     if data.get("status") == "closed":
         i.closed_at = i.closed_at or datetime.now(timezone.utc)

@@ -55,7 +55,10 @@ export default function IncidentsPage() {
                       <div className="flex flex-wrap gap-1">
                         {i.certin_reportable && <Badge tone={i.certin_reported_at ? "pass" : "fail"}>CERT-In {i.certin_reported_at ? "reported" : "pending"}</Badge>}
                         {i.personal_data_breach && <Badge tone={i.dpb_detailed_reported_at ? "pass" : "fail"}>DPDP {i.dpb_detailed_reported_at ? "reported" : "pending"}</Badge>}
-                        {!i.certin_reportable && !i.personal_data_breach && <span className="text-muted">None required</span>}
+                        {i.regulator_clocks.filter((c) => !c.key.includes("_")).map((c) => (
+                          <Badge key={c.key} tone={c.reported_at ? "pass" : "fail"}>{c.regulator.toUpperCase()} {c.reported_at ? "reported" : "pending"}</Badge>
+                        ))}
+                        {!i.certin_reportable && !i.personal_data_breach && !i.regulators.length && <span className="text-muted">None required</span>}
                       </div>
                     </td>
                     <td className={`${tbl.td} text-muted`}>{humanize(i.status)}</td>

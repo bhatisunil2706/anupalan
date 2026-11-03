@@ -64,6 +64,19 @@ The timeline can't be edited or deleted, so it's a reliable record for regulator
 
 Record each report as you make it under **Regulatory reporting**: CERT-In reported at, Board initial report at, Board detailed report at, people notified at. A clock stops when its time is recorded. The initial report to the Board is also due without delay; record when you sent it, even though it has no countdown. The dashboard shows every running clock with its countdown.
 
+## Financial regulator clocks
+
+If you're regulated by the RBI, SEBI, IRDAI or IFSCA, the incident form and incident page show **Reportable to RBI** (or SEBI, IRDAI, IFSCA). These options appear when you use one of that regulator's frameworks. Ticking one adds its clocks:
+
+| Regulator | Clock | Due |
+| --- | --- | --- |
+| RBI | Report to RBI on the DAKSH portal (non-bank PSOs use the Annex 1 format; housing finance companies report to NHB) | 6 hours after detection |
+| SEBI | Report to SEBI through its portal (CSCRF) | 6 hours after detection |
+| IRDAI | Copy the CERT-In report to IRDAI | 6 hours after detection |
+| IFSCA | Initial report, interim report, root cause analysis | 6 hours, 3 days and 30 days after detection |
+
+Each clock has **Mark done now** and can be corrected later. Reminders go to the incident's followers 2 hours before a 6-hour clock (a day before longer ones) and when overdue, in the incident's email thread, and running clocks appear in the dashboard's deadlines.
+
 > CERT-In reports go to incident@cert-in.org.in using their reporting format; breach reports go to the Data Protection Board. The platform tracks the deadlines and keeps the record; it doesn't submit reports for you.
 
 ## Investigating and closing

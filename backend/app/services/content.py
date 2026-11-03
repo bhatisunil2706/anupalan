@@ -6,15 +6,19 @@ import yaml
 from sqlalchemy import delete, select
 from sqlalchemy.orm import Session
 
+from app.db import set_tenant
 from app.models import (
     ControlTemplate,
     Framework,
     Mapping,
+    Organization,
+    OrgFramework,
     PolicyTemplate,
     QuestionnaireTemplate,
     Requirement,
     TrainingCourse,
 )
+from app.services.compliance import PROFILE_FLAGS, condition_flags
 
 CONTENT_DIR = Path(__file__).resolve().parent.parent / "content"
 _FRONTMATTER = re.compile(r"^---\n(.*?)\n---\n(.*)$", re.S)
@@ -85,6 +89,12 @@ def validate_content(frameworks: list[dict], controls: list[dict]) -> None:
         refs = [r["ref"] for r in fw["requirements"]]
         if len(refs) != len(set(refs)):
             raise ContentError(f"{fw['code']}: duplicate requirement refs")
+        for r in fw["requirements"]:
+            unknown_flags = condition_flags(r.get("condition")) - set(PROFILE_FLAGS)
+            if unknown_flags:
+                raise ContentError(f"{fw['code']} {r['ref']}: unknown profile flag(s) {sorted(unknown_flags)}")
+            if len(r.get("condition") or "") > 50:
+                raise ContentError(f"{fw['code']} {r['ref']}: condition is longer than 50 characters")
         mapped = {ref for c in controls for ref in c.get("maps", {}).get(fw["code"], [])}
         unmapped = [r for r in refs if r not in mapped]
         unknown = sorted(mapped - set(refs))
@@ -125,6 +135,38 @@ def check_content() -> dict:
         validate_questions(q["questions"], q["slug"])
     return {"frameworks": len(frameworks), "requirements": sum(len(f["requirements"]) for f in frameworks),
             "controls": len(controls)}
+
+
+def migrate_retired_frameworks(db: Session) -> list[str]:
+    """Move organisations from a retired framework to its successor, then remove the retired one.
+
+    Controls are shared between frameworks, so existing controls and evidence carry over; controls the successor
+    needs that the organisation doesn't have yet are created."""
+    from app.services import audit
+    from app.services.compliance import RETIRED_FRAMEWORKS, provision_controls  # noqa: PLC0415
+
+    set_tenant(db, rls_bypass=True)
+    moved = []
+    for old_code, new_code in RETIRED_FRAMEWORKS.items():
+        old = db.scalar(select(Framework).where(Framework.code == old_code))
+        new = db.scalar(select(Framework).where(Framework.code == new_code))
+        if not old or not new:
+            continue
+        for of in db.scalars(select(OrgFramework).where(OrgFramework.framework_id == old.id)).all():
+            has_new = db.scalar(select(OrgFramework).where(OrgFramework.org_id == of.org_id,
+                                                           OrgFramework.framework_id == new.id))
+            if not has_new:
+                db.add(OrgFramework(org_id=of.org_id, framework_id=new.id, target_date=of.target_date))
+            db.delete(of)
+            db.flush()
+            org = db.get(Organization, of.org_id)
+            created = provision_controls(db, org)
+            audit.write(db, org_id=of.org_id, user_id=None, action="framework.replaced", entity=None,
+                        detail={"from": old_code, "to": new_code, "controls_added": created})
+            moved.append(str(of.org_id))
+        db.execute(delete(Framework).where(Framework.id == old.id))  # requirements and mappings cascade
+        db.expunge(old)
+    return moved
 
 
 def load_content(db: Session) -> dict:
@@ -207,6 +249,7 @@ def load_content(db: Session) -> dict:
         row.recommended_for = list(q.get("recommended_for", []))
         db.add(row)
 
+    migrate_retired_frameworks(db)
     db.commit()
     return {
         "frameworks": len(frameworks),

@@ -31,6 +31,10 @@ def dashboard(db: DB, ctx: Ctx):
         if i.dpb_due_at and not i.dpb_detailed_reported_at:
             deadlines.append({"kind": "dpb", "label": f"Board detailed report: INC-{i.number} {i.title}",
                               "due_at": i.dpb_due_at, "link": f"/incidents/{i.id}"})
+        for c in i.regulator_clocks:
+            if c["due_at"] and not c["reported_at"]:
+                deadlines.append({"kind": "regulator", "label": f"{c['title']}: INC-{i.number} {i.title}",
+                                  "due_at": c["due_at"], "link": f"/incidents/{i.id}"})
         if i.personal_data_breach and not i.principals_notified_at:
             deadlines.append({"kind": "principals", "label": f"Notify affected users: INC-{i.number}",
                               "due_at": i.detected_at, "link": f"/incidents/{i.id}"})

@@ -25,6 +25,8 @@ New to compliance? These are the words you'll see most often, in plain language.
 
 **Control**: Something your company does to manage a risk, such as "MFA is required for all staff". One control can satisfy requirements in several frameworks. See [Key concepts](/docs/concepts#controls).
 
+**DAKSH**: The RBI's supervisory portal, where RBI-regulated entities report cyber incidents within 6 hours.
+
 **Data Fiduciary**: Under the DPDP Act, the business that decides why and how personal data is processed: usually you.
 
 **Data Principal**: The person the personal data is about: your customer, user or employee. For a child, the parent or guardian acts for them.
@@ -55,9 +57,17 @@ New to compliance? These are the words you'll see most often, in plain language.
 
 **ISMS**: Information Security Management System: the policies, processes and people ISO 27001 asks you to run. This platform is where yours lives.
 
+**LSP (lending service provider)**: A company that does lending work (sourcing, app, collections) for a bank or NBFC under the RBI Digital Lending Directions.
+
 **MFA / two-step verification**: Signing in with something you know (a password) and something you have (a phone app code).
 
+**NBFC layers**: The RBI groups NBFCs into Base, Middle, Upper and Top Layers by size and risk. The 2026 Cybersecurity Directions apply lighter requirements to smaller Base Layer NBFCs.
+
 **Offboarding**: Removing a leaver's access to every system, quickly and provably.
+
+**Payment aggregator (PA)**: A company that collects payments for merchants, online or in person, authorised by the RBI. Payment gateways only provide the technology.
+
+**Payment system operator (PSO)**: A company authorised by the RBI to run a payment system, such as a wallet (PPI) issuer, card network or ATM network.
 
 **Phishing**: Fake messages that trick people into clicking a link or giving away a password. See [Phishing simulations](/docs/phishing-simulations).
 

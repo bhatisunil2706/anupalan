@@ -285,6 +285,24 @@ export interface Incident {
   reported_by: UserBrief | null;
   follower_ids: string[];
   email_subject: string;
+  regulators: string[];
+  regulator_clocks: RegulatorClock[];
+}
+
+export interface RegulatorClock {
+  key: string;
+  regulator: string;
+  title: string;
+  rule: string;
+  due_at: string | null;
+  reported_at: string | null;
+}
+
+export interface RegulatorOption {
+  key: string;
+  label: string;
+  hint: string;
+  suggested: boolean;
 }
 
 export interface IntegrationField {

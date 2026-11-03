@@ -13,7 +13,7 @@ Follow [First steps](/docs/first-steps). In short: turn on the frameworks your c
 
 ### Which framework should I start with?
 
-If you process personal data of people in India, **DPDP** applies to you by law. **CERT-In** incident reporting applies to almost every Indian company. Customers selling to enterprises usually also ask for **ISO 27001** or **SOC 2**. Because controls are shared, work done for one framework counts towards the others. See [Frameworks](/docs/frameworks).
+If you process personal data of people in India, **DPDP** applies to you by law. **CERT-In** incident reporting applies to almost every Indian company. Customers selling to enterprises usually also ask for **ISO 27001** or **SOC 2**. Financial companies add their regulator's rules: the **RBI** Directions for banks, NBFCs, payment and lending companies, **SEBI CSCRF**, **IRDAI** or **IFSCA**; see [Indian financial regulators](/docs/frameworks#indian-financial-regulators). Because controls are shared, work done for one framework counts towards the others. See [Frameworks](/docs/frameworks).
 
 ### Does using this platform make us compliant or certified?
 

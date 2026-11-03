@@ -1,0 +1,52 @@
+# RBI Digital Payment Security Controls Directions, 2026 (31 July 2026), issued per entity type, for example
+# Commercial Banks RBI/DoS/2026-27/411 (DoS.CO.CSITEG.5/31.01.015/2026-27), and separate Directions for small finance
+# banks, payments banks, urban co-operative banks and credit-card issuing NBFCs. In force on issue; they replace the
+# 2021 Master Direction on Digital Payment Security Controls for these entities.
+# References are the paragraph numbers of the Commercial Banks Direction; other entity Directions use similar
+# chapters with different numbering. Guidance is written in-house.
+# CONTENT STATUS: draft. Verify against the entity-specific Direction before customer release.
+code: rbi_dpsc
+name: RBI Digital Payment Security Controls Directions (2026)
+short_name: RBI DPSC 2026
+version: "2026"
+region: India
+publisher: Reserve Bank of India
+source_url: https://www.rbi.org.in/Scripts/BS_ViewMasDirections.aspx
+content_version: "0.1.0"
+review_status: draft
+description: >
+  Security controls for digital payment products and services of banks and credit-card issuing NBFCs: governance,
+  secure application development, customer authentication, fraud risk, reconciliation, customer protection, and
+  specific controls for internet banking, mobile payment apps and card payments. They also cover non-financial
+  digital actions such as balance enquiry, PIN set and change, and mobile banking registration. Non-bank payment
+  system operators follow the separate PSO Directions.
+requirements:
+  # ---- Governance ----
+  - {ref: "7-9", section: "Governance", title: "Board-approved digital payment policy", guidance: "The Board approves a policy for digital payment products (data confidentiality and integrity, infrastructure and backup, secure build and testing, availability, dispute handling) and reviews it at least annually.", controls: [GOV-01, GOV-18]}
+  - {ref: "10", section: "Governance", title: "Documented payment path and sign-off for each product", guidance: "Document each product's digital payment path, UAT stages, multi-stakeholder sign-off and data archival.", controls: [SDL-05, GOV-16]}
+  - {ref: "11", section: "Governance", title: "External assessment of payment applications", guidance: "Have the application's logic, build and security assessed externally.", controls: [OPS-03, SDL-03]}
+  - {ref: "13", section: "Governance", title: "Product security risk limits and KPIs", guidance: "Set security risk limits and KPIs per product, including RTO/RPO, uptime and fraud losses.", controls: [GOV-14, BCP-01]}
+  - {ref: "14-16", section: "Governance", title: "Risk assessment before launch and vendor oversight", guidance: "Assess security risks before launch and periodically (with RCSA, inherent and residual risk), keep a register of systems storing customer data with PCI compliance status, and evaluate vendors' risk assessments.", controls: [RISK-01, RISK-04, VEN-01]}
+  - {ref: "20", section: "Governance", title: "Half-yearly backup and application restore tests", guidance: "Test backed-up data and applications at least half-yearly.", controls: [OPS-06, BCP-01]}
+  # ---- Generic security controls ----
+  - {ref: "21-24", section: "Generic security controls", title: "Encryption, WAF and DDoS protection", guidance: "Use secure protocols and current, non-deprecated encryption; keep sensitive data out of hidden fields, cookies and client-side storage; protect applications with a WAF and DDoS mitigation.", controls: [NET-02, CRY-01, NET-01]}
+  - {ref: "25-26", section: "Generic security controls", title: "Certificate renewal and activity logging", guidance: "Renew digital certificates on time; log user activity, security changes and anomalies in internet and mobile banking.", controls: [LOG-01, LOG-02, OPS-04]}
+  # ---- Application security lifecycle ----
+  - {ref: "27-30", section: "Application security", title: "Secure by design, multi-tier architecture and threat modelling", guidance: "Use a multi-tier architecture, build security objectives into each lifecycle phase and threat-model applications.", controls: [SDL-01, NET-01]}
+  - {ref: "31", section: "Application security", title: "Source code escrow for licensed applications", guidance: "Arrange source code escrow or equivalent continuity for licensed third-party applications.", controls: [SDL-06, VEN-02]}
+  - {ref: "32-35", section: "Application security", title: "VA half-yearly, PT annually and on major change", guidance: "Vulnerability assessment at least half-yearly and penetration testing at least annually and on any major change, OWASP-compliant, authenticated scans, and time-bound fixes.", controls: [OPS-02, OPS-03, SDL-03]}
+  - {ref: "37-38", section: "Application security", title: "Rogue apps and genuine-app checks", guidance: "Monitor app stores and the web for rogue or fake apps and block transactions from non-genuine apps with server-side checks.", controls: [FIN-06]}
+  - {ref: "40", section: "Application security", title: "Masked account and card numbers in messages", guidance: "Mask account and card numbers in SMS and email.", controls: [FIN-04]}
+  # ---- Authentication ----
+  - {ref: "41-44", section: "Authentication", title: "Multi-factor authentication for payments", guidance: "MFA for electronic payments, fund transfers and cash withdrawals, with at least one dynamic or non-replicable factor; risk-based design, optionally adaptive.", controls: [FIN-03]}
+  - {ref: "46-47", section: "Authentication", title: "MFA and alerts for account changes; merchant name in OTPs", guidance: "MFA and alerts for debits and credits, new beneficiaries, account detail changes and limit revisions; OTPs and alerts name the merchant, not only the payment aggregator.", controls: [FIN-03, FIN-04]}
+  - {ref: "48-51", section: "Authentication", title: "Session protection and login lockout", guidance: "Protect against man-in-the-middle, browser and application attacks; end sessions on interference or app closure; block after a maximum number of failed logins and notify the customer.", controls: [FIN-03, ACC-01]}
+  # ---- Fraud, reconciliation, customers ----
+  - {ref: "52-56", section: "Fraud risk", title: "Fraud monitoring rules, RCA and incident SOPs", guidance: "Documented rules for suspicious behaviour (velocity, high-risk MCCs, geo-location, IP, behavioural biometrics, declines), alerts on failed authentication, fraud root-cause analysis, staff training, and SOPs and contact lists for payment-ecosystem incidents.", controls: [FIN-05, RISK-03, INC-01]}
+  - {ref: "57", section: "Reconciliation", title: "Near-real-time reconciliation", guidance: "Reconcile with all stakeholders in real time or near real time, and settlement files within 24 hours of receipt.", controls: [FIN-09]}
+  - {ref: "58-66", section: "Customer protection", title: "Customer guidance, grievances, ODR and fraud reporting", guidance: "Secure-usage guidance at onboarding and after major updates, in-app grievance and fraud-reporting facility with timelines, online dispute resolution, customer education, disclosure of risks and terms, and no bundling of channels without consent.", controls: [FIN-08]}
+  # ---- Channel-specific ----
+  - {ref: "67", section: "Internet banking", title: "Internet banking controls", guidance: "Adaptive authentication or CAPTCHA with server-side validation, DNS poisoning protection, secure cookies, virtual keyboard, inactivity timeout, time-limited system passwords changed on first login.", condition: dpsc_internet_banking, controls: [FIN-03, NET-01]}
+  - {ref: "68", section: "Mobile payments", title: "Mobile payment app controls", guidance: "Device policy checks, phase out old versions within six months, block remote-access apps, minimal permissions, obfuscation, encrypted storage, published checksum, device binding with new-device alerts, re-authentication, no stored credentials, encrypted local database.", condition: dpsc_mobile_app, controls: [FIN-06, FIN-03]}
+  - {ref: "69(1)-(5)", section: "Card payments", title: "PCI standards, terminals, key management and HSMs", guidance: "Comply with PCI PIN, PTS, HSM and P2PE, report status to the IT Strategy Committee, use PCI-validated terminals, DUKPT/UKPT/TLE key management and hardened, clustered HSMs with privileged access control.", condition: dpsc_card_payments, controls: [PCI-05, PCI-02, CRY-01]}
+  - {ref: "69(6)-(8)", section: "Card payments", title: "ATM hardening, card limits and 24x7 monitoring", guidance: "Harden ATMs (BIOS passwords, USB disabled, whitelisting, anti-skimming); set card, BIN and bank-level limits at the network switch with separate domestic and international limits; monitor breaches 24x7; never store card details in plain text; control card-data scanning tools.", condition: dpsc_card_payments, controls: [FIN-05, PCI-02, OPS-04]}

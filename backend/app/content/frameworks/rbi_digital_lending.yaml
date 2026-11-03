@@ -1,0 +1,37 @@
+# Reserve Bank of India (Digital Lending) Directions, 2025. RBI/DOR/2025-26/136, 8 May 2025. Consolidates the
+# Guidelines on Digital Lending (2 September 2022), the FAQs (14 February 2023), the Default Loss Guarantee guidelines
+# (8 June 2023) and the multi-lender aggregation directions.
+# References are in-house topic codes; map to the Direction's paragraphs before release. Guidance is written in-house.
+# CONTENT STATUS: draft. Verify against the Direction before customer release.
+code: rbi_digital_lending
+name: RBI Digital Lending Directions (2025)
+short_name: RBI Digital Lending
+version: "2025"
+region: India
+publisher: Reserve Bank of India
+source_url: https://www.rbi.org.in/Scripts/BS_ViewMasDirections.aspx
+content_version: "0.1.0"
+review_status: draft
+description: >
+  For banks, co-operative banks and NBFCs that lend digitally, and the lending service providers (LSPs) and digital
+  lending apps (DLAs) that work for them. Covers borrower data, consent, storage in India, app permissions, the Key
+  Fact Statement, cooling-off, grievance redressal, LSP due diligence and reporting of apps to RBI. The regulated
+  entity stays accountable for anything it outsources to an LSP.
+requirements:
+  - {ref: "DL.1", section: "Governance", title: "Board-approved digital lending policy and accountability", guidance: "The regulated entity keeps accountability for digital lending, including credit decisions and pricing, even when LSPs perform functions.", controls: [GOV-01, GOV-04]}
+  - {ref: "DL.2", section: "Lending service providers", title: "Enhanced due diligence on LSPs", guidance: "Assess each LSP's technical capability, data security, conduct and compliance before onboarding and periodically.", controls: [VEN-01, FIN-10]}
+  - {ref: "DL.3", section: "Lending service providers", title: "Written agreements with audit rights and data clauses", guidance: "Outsourcing agreements define data processing limits, audit and RBI inspection rights and exit; LSPs access only the data the RE permits.", controls: [VEN-02, VEN-04]}
+  - {ref: "DL.4", section: "Lending service providers", title: "Register of LSPs and DLAs reported to RBI", guidance: "Keep a register of LSPs and DLAs, publish them on the website and report DLAs to RBI through its reporting portal (CIMS).", controls: [FIN-11, GOV-12]}
+  - {ref: "DL.5", section: "Borrower data", title: "Need-based collection with explicit, revocable consent", guidance: "Collect only data needed for the loan, with prior explicit consent and an audit trail; borrowers can refuse or revoke consent for specific data and restrict sharing.", controls: [FIN-11, PRV-03, PRV-04]}
+  - {ref: "DL.6", section: "Borrower data", title: "No access to phone resources", guidance: "DLAs do not access files, media, contacts, call logs or telephony; one-time camera, microphone or location access only for onboarding or KYC with consent.", controls: [FIN-11, FIN-06]}
+  - {ref: "DL.7", section: "Borrower data", title: "Borrower data stored only in India", guidance: "Store borrower data only on servers located in India.", controls: [FIN-11, FIN-07]}
+  - {ref: "DL.8", section: "Borrower data", title: "Minimal storage, no biometrics, deletion on request", guidance: "LSPs and DLAs keep only the minimum data (no biometric data unless permitted), with retention limits, and borrowers can have their data deleted.", controls: [PRV-08, OPS-09]}
+  - {ref: "DL.9", section: "Borrower data", title: "Comprehensive privacy policy", guidance: "Publish a privacy policy on the DLA and website that lists the third parties allowed to collect data, aligned with the DPDP Act.", controls: [PRV-02]}
+  - {ref: "DL.10", section: "Technology", title: "Technology and cyber security standards", guidance: "LSPs and DLAs meet the technology and cyber security standards the RE applies (RBI IT governance and outsourcing rules): secure SDLC, VAPT, encryption, MFA and API security.", controls: [SDL-01, OPS-03, CRY-01, ACC-03]}
+  - {ref: "DL.11", section: "Technology", title: "Breach and incident reporting", guidance: "Report data breaches and cyber incidents to the RE without delay so it can report to RBI and CERT-In within 6 hours.", controls: [INC-02, INC-06, INC-03]}
+  - {ref: "DL.12", section: "Borrower protection", title: "Key Fact Statement and all-inclusive APR", guidance: "Give a standard Key Fact Statement with the all-inclusive annual percentage rate before the contract; no charges that are not in the KFS.", controls: [FIN-11]}
+  - {ref: "DL.13", section: "Borrower protection", title: "Disbursal and repayment directly to and from the RE", guidance: "Loans are disbursed to the borrower's bank account and repaid to the RE's account, never through an LSP's pool account.", controls: [FIN-09]}
+  - {ref: "DL.14", section: "Borrower protection", title: "Cooling-off (look-up) period", guidance: "Let borrowers exit during the Board-set cooling-off period by repaying principal and proportionate APR without penalty.", controls: [FIN-11]}
+  - {ref: "DL.15", section: "Borrower protection", title: "Grievance redressal officer and escalation", guidance: "Name a grievance redressal officer for digital lending, publish contact details on the DLA and website, and resolve complaints within 30 days (then the RBI Ombudsman).", controls: [FIN-08, PRV-10]}
+  - {ref: "DL.16", section: "Borrower protection", title: "Recovery agents and conduct", guidance: "Tell borrowers which recovery agent is authorised, and make sure LSPs and agents follow the fair practices code.", controls: [VEN-02, GOV-08]}
+  - {ref: "DL.17", section: "Default loss guarantee", title: "Default loss guarantee within limits", guidance: "Default loss guarantee arrangements stay within the permitted cap, are backed by a written contract and are disclosed.", controls: [VEN-02, GOV-12]}

@@ -1,0 +1,37 @@
+# IRDAI Information and Cyber Security Guidelines, 2026 (issued 6 April 2026), replacing the 2023 Guidelines.
+# Applies to insurers, foreign reinsurance branches (comply or explain) and intermediaries such as brokers, corporate
+# agents, web aggregators and TPAs. References are in-house topic codes; map to the Guidelines' clauses before release.
+# CONTENT STATUS: draft. Verify against the IRDAI Guidelines and review with an insurance compliance specialist.
+code: irdai_cyber
+name: IRDAI Information and Cyber Security Guidelines (2026)
+short_name: IRDAI Cyber 2026
+version: "2026"
+region: India
+publisher: Insurance Regulatory and Development Authority of India
+source_url: https://irdai.gov.in
+content_version: "0.1.0"
+review_status: draft
+description: >
+  IRDAI's cyber security rules for insurers and insurance intermediaries (brokers, corporate agents, web aggregators,
+  TPAs), updated in April 2026 to replace the 2023 guidelines and to require DPDP compliance. Insurance agents,
+  point-of-sale persons and surveyors are covered through the insurer's minimum security framework.
+requirements:
+  - {ref: "G.1", section: "Governance", title: "Board-approved information and cyber security policy", guidance: "A Board-approved policy and framework, reviewed regularly, that also sets minimum security for agents, point-of-sale persons and surveyors.", controls: [GOV-01, GOV-18]}
+  - {ref: "G.2", section: "Governance", title: "Information Security Risk Management Committee", guidance: "An ISRMC that meets at least quarterly and approves security exceptions from three months to a year (the Board approves longer ones).", controls: [FIN-12, GOV-03]}
+  - {ref: "G.3", section: "Governance", title: "Independent CISO", guidance: "A CISO who does not report to the Head of IT and has no business targets, approves exceptions up to three months, and can engage certified forensic experts.", controls: [FIN-12, GOV-04]}
+  - {ref: "R.1", section: "Risk", title: "Annual risk assessment", guidance: "Assess information and cyber risk at least annually.", controls: [RISK-01, RISK-02]}
+  - {ref: "D.1", section: "Data protection", title: "Information classification with PII flagged", guidance: "Classify all information assets as Public, Internal, Restricted or Confidential, and flag personal data separately.", controls: [AST-03, PRV-01]}
+  - {ref: "D.2", section: "Data protection", title: "Encryption of confidential data", guidance: "Encrypt confidential information sent outside the network and stored on mobile or removable media.", controls: [CRY-01, NET-02, AST-04]}
+  - {ref: "D.3", section: "Data protection", title: "DPDP Act compliance", guidance: "Take technical and organisational measures to comply with the Digital Personal Data Protection Act.", controls: [PRV-14, PRV-01]}
+  - {ref: "T.1", section: "Testing", title: "Grey- or white-box penetration testing every six months", guidance: "External penetration tests at least every six months, grey-box or white-box, by a CERT-In empanelled auditor, with vulnerability management to closure.", controls: [OPS-03, OPS-02]}
+  - {ref: "A.1", section: "Audit", title: "Annual independent audit with auditor rotation", guidance: "An annual audit by an independent assurance team, rotating the auditor every three years.", controls: [FIN-02, GOV-13]}
+  - {ref: "A.2", section: "Audit", title: "Audit report to IRDAI (insurers)", guidance: "Insurers submit the audit report to IRDAI within 90 days of the financial year end or 30 days of audit completion, whichever is earlier.", condition: "!irdai_intermediary", controls: [FIN-02]}
+  - {ref: "A.3", section: "Audit", title: "CERT-In empanelled audit compliance report (intermediaries)", guidance: "Intermediaries submit a compliance report from a CERT-In empanelled auditor within 30 days of completing the audit.", condition: irdai_intermediary, controls: [FIN-02]}
+  - {ref: "I.1", section: "Incidents", title: "Report cyber incidents within 6 hours, copying IRDAI", guidance: "Report cyber incidents to CERT-In within six hours of detection, with copies to IRDAI and other relevant regulators.", controls: [INC-02, INC-06]}
+  - {ref: "I.2", section: "Incidents", title: "Incident response, crisis management and forensics", guidance: "An incident response and cyber crisis management plan, with forensic investigation support.", controls: [INC-01, FIN-01, INC-05]}
+  - {ref: "B.1", section: "Business continuity", title: "BCP and DR tested annually", guidance: "Test business continuity and disaster recovery plans at least annually.", controls: [BCP-01, OPS-06]}
+  - {ref: "V.1", section: "Third parties", title: "Cloud providers empanelled by MeitY", guidance: "Use cloud providers empanelled by MeitY with a valid STQC audit, under NDAs, with contracts requiring data to be wiped from disks and backups on exit.", controls: [VEN-03, VEN-02]}
+  - {ref: "V.2", section: "Third parties", title: "Sub-outsourcing approval and right to audit", guidance: "Service providers need written permission before sub-outsourcing; contracts include a right to audit (a valid ISO 27001 certificate for the scope may replace periodic audits, with self-certification).", controls: [VEN-04, VEN-02, VEN-01]}
+  - {ref: "S.1", section: "Operations", title: "Security monitoring and logging", guidance: "Monitor systems and keep logs for detection and investigation, following CERT-In log rules (180 days in India).", controls: [LOG-01, LOG-02]}
+  - {ref: "S.2", section: "Operations", title: "Access control and MFA", guidance: "Least-privilege access with MFA for privileged, remote and customer-facing access.", controls: [ACC-01, ACC-03, ACC-04]}
+  - {ref: "H.1", section: "People", title: "Security awareness for staff and partners", guidance: "Regular awareness training for employees, agents and partners.", controls: [HR-03]}

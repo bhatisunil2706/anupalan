@@ -24,6 +24,7 @@ from app.models import (
     Vendor,
     VendorDocument,
 )
+from app.regulators import CLOCKS, reminder_lead_hours
 from app.services import incidents, notify, questionnaires
 from app.services.platform_checks import run_feature_checks
 
@@ -65,18 +66,28 @@ def incident_reminders(db: Session, org: Organization, now: datetime) -> None:
         if i.certin_due_at and not i.certin_reported_at:
             if i.certin_due_at <= now:
                 queue(db, org.id, key=f"inc:{i.id}:certin:overdue", event="deadline", broadcast=True, to=to,
-                             title=f"CERT-In report overdue: {label}", link=link,
-                             body="The 6-hour CERT-In reporting deadline has passed.")
+                      title=f"CERT-In report overdue: {label}", link=link,
+                      body="The 6-hour CERT-In reporting deadline has passed.")
             elif i.certin_due_at - now <= timedelta(hours=2):
                 queue(db, org.id, key=f"inc:{i.id}:certin:2h", event="deadline", broadcast=True, to=to,
-                             title=f"CERT-In report due within 2 hours: {label}", link=link)
+                      title=f"CERT-In report due within 2 hours: {label}", link=link)
         if i.dpb_due_at and not i.dpb_detailed_reported_at:
             if i.dpb_due_at <= now:
                 queue(db, org.id, key=f"inc:{i.id}:dpb:overdue", event="deadline", broadcast=True, to=to,
-                             title=f"Data Protection Board report overdue: {label}", link=link)
+                      title=f"Data Protection Board report overdue: {label}", link=link)
             elif i.dpb_due_at - now <= timedelta(hours=24):
                 queue(db, org.id, key=f"inc:{i.id}:dpb:24h", event="deadline", broadcast=True, to=to,
-                             title=f"Board detailed report due within 24 hours: {label}", link=link)
+                      title=f"Board detailed report due within 24 hours: {label}", link=link)
+        for c in i.regulator_clocks:
+            if c["reported_at"] or not c["due_at"]:
+                continue
+            lead = timedelta(hours=reminder_lead_hours(next(x for x in CLOCKS if x.key == c["key"])))
+            if c["due_at"] <= now:
+                queue(db, org.id, key=f"inc:{i.id}:{c['key']}:overdue", event="deadline", broadcast=True, to=to,
+                      title=f"{c['title']} overdue: {label}", link=link, body=f"{c['rule']}.")
+            elif c["due_at"] - now <= lead:
+                queue(db, org.id, key=f"inc:{i.id}:{c['key']}:soon", event="deadline", broadcast=True, to=to,
+                      title=f"{c['title']} due soon: {label}", link=link, body=f"{c['rule']}.")
 
 
 def request_reminders(db: Session, org: Organization, now: datetime) -> None:

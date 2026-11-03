@@ -162,3 +162,57 @@ def test_delivered_email_carries_thread_headers(owner, db, monkeypatch):
     assert {m["Subject"] for m in mails} == {f"[Acme] INC-{inc['number']}: Ransomware note on file server"}
     assert mails[1]["In-Reply-To"] == mails[0]["Message-ID"]
     assert "Isolated the server." in mails[1].get_content()
+
+
+def test_regulator_clocks(owner, db):
+    from datetime import timedelta
+
+    from app.services.reminders import incident_reminders
+
+    # Suggested regulators follow the organisation's frameworks.
+    assert not any(r["suggested"] for r in owner.get("/api/incident-regulators").json())
+    owner.post("/api/frameworks/rbi_pso/enable")
+    owner.post("/api/frameworks/ifsca_cyber/enable")
+    sugg = {r["key"]: r["suggested"] for r in owner.get("/api/incident-regulators").json()}
+    assert sugg == {"rbi": True, "sebi": False, "irdai": False, "ifsca": True}
+
+    detected = datetime.now(timezone.utc) - timedelta(hours=5)
+    inc = report(owner, regulators=["rbi"], detected_at=detected.isoformat())
+    clocks = {c["key"]: c for c in inc["regulator_clocks"]}
+    assert set(clocks) == {"rbi"} and clocks["rbi"]["reported_at"] is None
+    assert abs(datetime.fromisoformat(clocks["rbi"]["due_at"]) - (detected + timedelta(hours=6))) < timedelta(seconds=1)
+    first = thread_mail(db, inc["id"])[0]
+    assert "Report to RBI" in first.body
+
+    path = f"/api/incidents/{inc['id']}"
+    assert owner.patch(path, json={"regulators": ["rbi", "nasa"]}).status_code == 422
+    assert owner.patch(path, json={"regulator_reported": {"rbi": "2026-11-03T10:00:00"}}).status_code == 422
+
+    # Dashboard and reminders know about the clock (due within the hour).
+    dl = owner.get("/api/dashboard").json()["deadlines"]
+    assert any(d["kind"] == "regulator" and "Report to RBI" in d["label"] for d in dl)
+    from app.models import Incident, Organization
+
+    org = db.scalar(select(Organization))
+    incident_reminders(db, org, datetime.now(timezone.utc))
+    db.commit()
+    assert any("Report to RBI due soon" in m.title for m in thread_mail(db, inc["id"]))
+
+    # Add IFSCA: three clocks; record and correct reports.
+    r = owner.patch(path, json={"regulators": ["rbi", "ifsca"]}).json()
+    assert [c["key"] for c in r["regulator_clocks"]] == ["rbi", "ifsca", "ifsca_interim", "ifsca_rca"]
+    now = datetime.now(timezone.utc).replace(microsecond=0)
+    r = owner.patch(path, json={"regulator_reported": {"rbi": now.isoformat()}}).json()
+    assert next(c for c in r["regulator_clocks"] if c["key"] == "rbi")["reported_at"]
+    r = owner.patch(path, json={"regulator_reported": {"ifsca": now.isoformat()}}).json()
+    assert db.get(Incident, inc["id"]) is not None
+    assert all(c["reported_at"] for c in r["regulator_clocks"] if c["key"] in ("rbi", "ifsca"))
+    r = owner.patch(path, json={"regulator_reported": {"rbi": None}}).json()
+    assert not next(c for c in r["regulator_clocks"] if c["key"] == "rbi")["reported_at"]
+
+    msgs = [e["message"] for e in owner.get(path + "/activity").json()["events"]]
+    assert any(m.startswith("Marked as reportable to IFSCA") for m in msgs)
+    assert any(m.startswith("Report to RBI done at") for m in msgs)
+    assert any(m.startswith("Cleared the recorded time for: Report to RBI") for m in msgs)
+    dl = owner.get("/api/dashboard").json()["deadlines"]
+    assert any("Report to RBI" in d["label"] for d in dl) and not any("Initial report to IFSCA" in d["label"] for d in dl)

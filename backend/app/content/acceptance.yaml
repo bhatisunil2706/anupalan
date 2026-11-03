@@ -351,3 +351,55 @@ acceptance:
   AI-06:
     - Rules for staff use of AI tools
     - Assessments of AI suppliers or models used
+  INC-06:
+    - Incident records show when each incident was detected and when the regulator was informed
+    - Reports reached the regulator within its deadline (usually 6 hours), or the plan names the regulator, portal and owner
+    - Follow-up or root-cause reports are on file where the regulator asks for them
+  VEN-04:
+    - A register lists outsourcing arrangements with materiality or criticality and an owner
+    - Sub-contracting by material providers was approved in advance
+    - Material arrangements have a documented exit plan
+  FIN-01:
+    - A Cyber Crisis Management Plan approved by the Board or its committee within the last 12 months
+    - It covers detection, containment, response, recovery and communication for named scenarios
+    - A drill or tabletop exercise was run in the last 12 months with lessons recorded
+  FIN-02:
+    - The audit covers information systems and cyber security and was completed in the last 12 months
+    - The auditor is independent and qualified (CERT-In empanelled where required)
+    - Findings are tracked to closure and the report went to the Board, its committee or the regulator as required
+  FIN-03:
+    - Payments and sensitive changes need multi-factor authentication with a dynamic factor
+    - Accounts lock after repeated failed attempts and sessions time out
+    - Evidence comes from the live configuration or a recent test, not only a policy
+  FIN-04:
+    - Sample alerts for debits and account changes, with account or card numbers masked
+    - Alerts show the merchant name and are sent for every transaction type in scope
+  FIN-05:
+    - Documented fraud monitoring rules and transaction limits that were reviewed in the last 12 months
+    - Evidence that alerts are raised and handled, including outside business hours
+    - Root-cause analysis for frauds or a fraud review
+  FIN-06:
+    - A security test of the customer app in the last 12 months covering tampering, storage and authentication
+    - Device binding, root or remote-access detection and version upgrade controls are switched on
+    - Evidence of monitoring and takedown of rogue apps or phishing sites
+  FIN-07:
+    - An inventory or configuration showing where payment data is stored, all in India
+    - A data localisation audit or compliance confirmation where RBI requires it
+  FIN-08:
+    - A published grievance officer, escalation matrix and complaint route in the app or website
+    - A complaint or dispute register with resolution times
+    - Customers can report fraud directly in the app or website
+  FIN-09:
+    - Daily reconciliation reports with exceptions and how they were resolved
+    - Escrow or nodal account statements or auditor certificates, where funds are held for others
+  FIN-10:
+    - Onboarding records show KYC, background checks and a security assessment
+    - Transactions are monitored against the merchant or partner profile
+  FIN-11:
+    - The app's permission list shows no access to contacts, files, call logs or media
+    - Consent screens and a Key Fact Statement shown before the loan is signed
+    - Borrower data is stored in India and lending service providers are listed with due diligence
+  FIN-12:
+    - Committee charters and minutes show the required membership and meeting frequency
+    - The CISO's appointment shows a reporting line independent of the Head of IT
+    - Quarterly cyber risk reporting to the Board or its committee

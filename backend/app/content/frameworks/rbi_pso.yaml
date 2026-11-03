@@ -1,0 +1,51 @@
+# RBI (Cyber Resilience and Digital Payment Security Controls for non-bank Payment System Operators) Master
+# Directions, 2024. RBI/DPSS/2024-25/123, CO.DPSS.OVRST.No.S447/06-26-002/2024-25, 30 July 2024, under Section 10(2)
+# read with Section 18 of the Payment and Settlement Systems Act, 2007.
+# Phased compliance: large PSOs 1 April 2025, medium 1 April 2026, small 1 April 2028 (para 3).
+# References are the Direction's paragraph numbers. Guidance is written in-house.
+# CONTENT STATUS: draft. Confirm it has not been amended by later DPSS instructions before customer release.
+code: rbi_pso
+name: RBI Cyber Resilience and Digital Payment Security Controls for Non-bank PSOs (2024)
+short_name: RBI PSO Cyber
+version: "2024"
+region: India
+publisher: Reserve Bank of India
+source_url: https://www.rbi.org.in/Scripts/BS_ViewMasDirections.aspx
+content_version: "0.1.0"
+review_status: draft
+description: >
+  For authorised non-bank payment system operators: payment aggregators, prepaid payment instrument (wallet)
+  issuers, card networks, ATM and white-label ATM operators, Bharat Bill Pay operating units, TReDS, cross-border
+  money transfer operators and others. Large PSOs had to comply by 1 April 2025, medium ones by 1 April 2026 and
+  small ones by 1 April 2028. PSOs must also make their payment gateways, technology providers and vendors follow
+  these controls.
+requirements:
+  # ---- Governance ----
+  - {ref: "5", section: "Scope", title: "Extend controls to ecosystem partners", guidance: "Make unregulated entities in your payment chain (payment gateways, technology providers, vendors) follow these Directions through agreements and a Board-approved policy.", controls: [VEN-02, VEN-01]}
+  - {ref: "7", section: "Governance", title: "Board oversight and IT sub-committee", guidance: "The Board oversees information security and cyber risk; it may delegate to a sub-committee headed by a member with security experience, meeting at least quarterly.", controls: [GOV-18, FIN-12]}
+  - {ref: "8", section: "Governance", title: "Board-approved information security policy", guidance: "An information security policy covering roles, risk identification and management and training, reviewed annually.", controls: [GOV-01]}
+  - {ref: "9", section: "Governance", title: "Board-approved Cyber Crisis Management Plan", guidance: "A separate Cyber Crisis Management Plan, referring to CERT-In, NCIIPC and IDRBT guidance.", controls: [FIN-01]}
+  - {ref: "10", section: "Governance", title: "Accountable senior executive (CISO)", guidance: "A senior executive with security expertise, such as a CISO, is accountable for the policy and the cyber resilience framework.", controls: [GOV-04, GOV-17]}
+  - {ref: "11-12", section: "Governance", title: "KRIs, KPIs and reporting of assessments", guidance: "Define key risk and performance indicators monitored by the Board sub-committee, and table audit and VA/PT reports at its next meeting.", controls: [GOV-14, GOV-15]}
+  - {ref: "13", section: "Governance", title: "Cyber risk assessment before launches and major changes", guidance: "Assess cyber risk before launching products or making major changes.", controls: [RISK-04, RISK-01]}
+  # ---- Baseline controls ----
+  - {ref: "14", section: "Baseline controls", title: "Asset inventory, data flows and end-of-life tracking", guidance: "Keep asset registers and data-flow diagrams and track end of support.", controls: [AST-01]}
+  - {ref: "15", section: "Baseline controls", title: "Identity and access management", guidance: "Least privilege, MFA for privileged accounts, default credentials changed before go-live, session timeouts and removable media controls.", controls: [ACC-01, ACC-03, ACC-04, AST-04]}
+  - {ref: "16", section: "Baseline controls", title: "Network security, SOC and SIEM", guidance: "A SOC with SIEM correlation, anti-malware, layered boundary defences, segmentation and device checks before network access.", controls: [NET-01, LOG-02, OPS-01]}
+  - {ref: "17", section: "Baseline controls", title: "Application lifecycle security", guidance: "Secure SDLC, database layer segregated from other tiers, and source code (or escrow) for critical procured applications.", controls: [SDL-01, SDL-06]}
+  - {ref: "18", section: "Baseline controls", title: "Code review, VA and PT at least annually and before deployment", guidance: "Source code review, VA and PT at least annually in authenticated mode, vendor certificates for code you don't own, security audit before any deployment, and recurring findings reported to the sub-committee.", controls: [OPS-02, OPS-03, SDL-02]}
+  - {ref: "19", section: "Baseline controls", title: "Vendor risk and independent assurance", guidance: "Manage vendor risk under the outsourcing framework, protect against infiltration from vendor environments, and get independent assurance for vendors in critical processes.", controls: [VEN-01, VEN-04]}
+  - {ref: "19-20(loc)", section: "Baseline controls", title: "Payment data stored in India", guidance: "Comply with the RBI requirement to store payment system data only in India (circular of 6 April 2018).", controls: [FIN-07]}
+  - {ref: "20", section: "Baseline controls", title: "Data security, PCI DSS and half-yearly restore tests", guidance: "Data leak prevention, an ISMS, encryption in transit and at rest, PCI DSS for stored card data, and backup restore tests at least half-yearly.", controls: [OPS-09, CRY-01, PCI-02, OPS-06]}
+  - {ref: "21", section: "Baseline controls", title: "Patch and change management", guidance: "Apply critical patches immediately and test changes outside production first.", controls: [OPS-02, SDL-05, SDL-04]}
+  - {ref: "22", section: "Incident response", title: "Report incidents to RBI within 6 hours", guidance: "A Board-approved incident response mechanism with forensics; report incidents to RBI in the Annex 1 format within 6 hours of detection, and to CERT-In.", controls: [INC-06, INC-02, INC-05]}
+  - {ref: "23", section: "Business continuity", title: "BCP, DR in another seismic zone, half-yearly drills", guidance: "Scenario-based BCP reviewed annually, RTO/RPO aligned (near-zero RPO aspired), DR site in a different seismic zone, DR drills at least half-yearly.", controls: [BCP-01, OPS-07]}
+  - {ref: "24", section: "Baseline controls", title: "API security", guidance: "Authenticate and authorise API calls, protect message integrity and availability, and detect anomalies.", controls: [NET-02, LOG-02, SDL-03]}
+  - {ref: "25", section: "Baseline controls", title: "Training with minimum scores", guidance: "Periodic training for employees and vendors; restrict access for staff below a benchmark score.", controls: [HR-03]}
+  - {ref: "26", section: "Baseline controls", title: "Cloud policy and annual CSP audit", guidance: "A cloud operation policy, data segregation and annual independent audit of cloud providers.", controls: [VEN-03]}
+  - {ref: "27", section: "Baseline controls", title: "MFA for debits, real-time fraud monitoring, 24x7 desk, 5-year logs", guidance: "MFA for electronic debits unless relaxed, real-time fraud monitoring, a manned 24x7x365 desk for fraud complaints and law enforcement, audit logs kept at least five years, anti-phishing and rogue-app takedown.", controls: [FIN-03, FIN-05, LOG-01, FIN-06]}
+  # ---- Digital payment security ----
+  - {ref: "28-30", section: "Digital payment security", title: "Risk alerts, masked notifications and fraud flagging", guidance: "Online alerts on failed transactions, velocity and geo-location; masked account and card details; merchant name (not the gateway) in messages with the OTP at the end; customers can flag fraud in the app or website.", controls: [FIN-04, FIN-05, FIN-08]}
+  - {ref: "31", section: "Digital payment security", title: "Mobile app controls and 12-hour cooling period", guidance: "Device binding and re-binding after long non-use, inactivity timeout, lockout after failed logins, block while remote-access apps run, and a 12-hour cooling period after a mobile number or email change.", controls: [FIN-06, FIN-04, FIN-03]}
+  - {ref: "32-33", section: "Card payments", title: "Validated terminals, network limits and 24x7 alerts", guidance: "PCI P2PE and PTS validated terminals, network-level transaction limits and 24x7x365 suspicious-activity alerts to issuers.", condition: pso_card_or_atm, controls: [PCI-05, FIN-05]}
+  - {ref: "34-35", section: "Prepaid payment instruments", title: "PPI alerts in local language and load cooling period", guidance: "OTPs and alerts in the customer's language, and a cooling period before transfers or withdrawals after loading.", condition: pso_ppi_issuer, controls: [FIN-04, FIN-05]}

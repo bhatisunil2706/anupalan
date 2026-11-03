@@ -15,6 +15,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.models import Incident, IncidentEvent, Membership, User
+from app.regulators import CLOCKS, clocks_for
 from app.services import notify
 
 SEVERITY_LABEL = {"sev1": "SEV-1", "sev2": "SEV-2", "sev3": "SEV-3"}
@@ -114,6 +115,7 @@ def reported(db: Session, i: Incident, user: User) -> None:
     i.email_subject = f"{label(i)}: {i.title}"[:400]
     clocks = [c for c, on in (("CERT-In report within 6 hours", i.certin_reportable),
                               ("Data Protection Board detailed report within 72 hours", i.personal_data_breach)) if on]
+    clocks += [f"{c.title} {c.rule[0].lower()}{c.rule[1:]}" for c in clocks_for(i.regulators)]
     lines = [f"Reported by {user.full_name}."]
     if i.description:
         lines.append(i.description[:2000])
@@ -157,6 +159,25 @@ def changes(db: Session, i: Incident, user: User, before: dict, data: dict) -> N
     ):
         if flag in data and before[flag] != getattr(i, flag):
             record(db, i, user, "classification", on_msg if getattr(i, flag) else off_msg)
+    if "regulators" in data:
+        added = [r for r in i.regulators or [] if r not in (before["regulators"] or [])]
+        removed = [r for r in before["regulators"] or [] if r not in (i.regulators or [])]
+        for r in added:
+            first = next(c for c in clocks_for([r]))
+            record(db, i, user, "classification",
+                   f"Marked as reportable to {r.upper()}. {first.title}: {first.rule[0].lower()}{first.rule[1:]}.")
+        for r in removed:
+            record(db, i, user, "classification", f"No longer marked as reportable to {r.upper()}.")
+    if "regulator_reported" in data:
+        titles = {c.key: c.title for c in CLOCKS}
+        old = before["regulator_reported"] or {}
+        for key, at in data["regulator_reported"].items():
+            if at is None:
+                if old.get(key):
+                    record(db, i, user, "regulatory", f"Cleared the recorded time for: {titles[key]}.")
+            elif old.get(key) != at.isoformat():
+                verb = "Time corrected: " if old.get(key) else ""
+                record(db, i, user, "regulatory", f"{verb}{titles[key]} done at {_fmt(at)}.")
     for stamp, what in STAMPS.items():
         if stamp in data and getattr(i, stamp) and before[stamp] != getattr(i, stamp):
             verb = "Time corrected: " if before[stamp] else ""

@@ -8,11 +8,11 @@ import { useSession } from "@/components/session";
 import { Badge, Button, ButtonLink, Checkbox, Drawer, Field, FormError, Input, Panel, Select, Textarea, cx, useToast } from "@/components/ui";
 import { api, useApi } from "@/lib/api";
 import { fmtDateTime, localToIso, nowLocal } from "@/lib/format";
-import type { Incident, UserBrief } from "@/lib/types";
+import type { Incident, RegulatorOption, UserBrief } from "@/lib/types";
 
 const EMPTY = {
   title: "", description: "", severity: "sev3", category: "", detected_at: "",
-  certin_reportable: false, personal_data_breach: false, lead_id: "",
+  certin_reportable: false, personal_data_breach: false, lead_id: "", regulators: [] as string[],
 };
 
 /** The "Report an incident" form, used on the dashboard and the Incidents page. Anyone except auditors can report. */
@@ -27,6 +27,7 @@ export function ReportIncidentDrawer({
   onReported?: (i: Incident) => void;
 }) {
   const { isAdmin } = useSession();
+  const { data: regulators } = useApi<RegulatorOption[]>(open ? "/incident-regulators" : null);
   const [form, setForm] = useState(() => ({ ...EMPTY, detected_at: nowLocal() }));
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -116,6 +117,15 @@ export function ReportIncidentDrawer({
         checked={form.certin_reportable}
         onChange={(v) => setForm({ ...form, certin_reportable: v })}
       />
+      {(regulators ?? []).filter((r) => r.suggested).map((r) => (
+        <Checkbox
+          key={r.key}
+          label={r.label}
+          hint={`${r.hint} Tick it for any cyber incident that affects your regulated business.`}
+          checked={form.regulators.includes(r.key)}
+          onChange={(v) => setForm({ ...form, regulators: v ? [...form.regulators, r.key] : form.regulators.filter((k) => k !== r.key) })}
+        />
+      ))}
       {isAdmin && <Field label="Incident lead" hint="Optional. The lead receives every update by email.">{(id) => <MemberSelect id={id} value={form.lead_id} onChange={(v) => setForm({ ...form, lead_id: v })} />}</Field>}
     </Drawer>
   );

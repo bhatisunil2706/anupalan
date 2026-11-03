@@ -1,0 +1,78 @@
+# RBI Cybersecurity, Technology: Risk, Resilience and Assurance Framework Directions, 2026 (31 July 2026).
+# Issued as separate Directions for each entity type, all in force on issue:
+#   Commercial Banks RBI/DoS/2026-27/410; NBFCs RBI/DoS/2026-27/461; Urban Co-operative Banks RBI/DoS/2026-27/437;
+#   All India Financial Institutions RBI/DoS/2026-27/456; and Small Finance Banks, Payments Banks and Credit
+#   Information Companies in their own Directions.
+# They repeal the Master Direction on IT Governance, Risk, Controls and Assurance Practices (2023), the 2016 Cyber
+# Security Framework for banks and related circulars (DoS.CO.PPG.66/11.01.005/2026-27).
+# References are in-house topic codes because paragraph numbers differ between the entity Directions; where known,
+# the NBFC (N) and AIFI (A) paragraph numbers are given in the guidance. Guidance is written in-house.
+# NBFC tiering: Chapter III (baseline) for Base Layer NBFCs below the asset threshold in para 3(2) (published as
+# Rs 2,500 crore) and CICs; Chapter IV for larger Base Layer NBFCs; Chapter V (full) for Middle, Upper, Top Layer.
+# UCBs use four levels based on digital depth; the level-specific scoping is not yet modelled here.
+# CONTENT STATUS: draft. Verify against the entity-specific Direction and review with a banking compliance specialist.
+code: rbi_cyber
+name: RBI Cybersecurity, Technology Risk, Resilience and Assurance Directions (2026)
+short_name: RBI Cyber 2026
+version: "2026"
+region: India
+publisher: Reserve Bank of India
+source_url: https://www.rbi.org.in/Scripts/BS_ViewMasDirections.aspx
+content_version: "0.1.0"
+review_status: draft
+description: >
+  The RBI's cybersecurity and IT governance rules for regulated entities, issued on 31 July 2026 as one Direction
+  per entity type: commercial banks, small finance banks, payments banks, urban co-operative banks, NBFCs, credit
+  information companies and all-India financial institutions. In force immediately, with no transition period.
+  Replaces the 2023 IT Governance Master Direction and the 2016 Cyber Security Framework. Fintechs that serve these
+  entities are asked to meet the same controls through their contracts.
+requirements:
+  # ---- Baseline (applies to every NBFC, including small Base Layer NBFCs and CICs) ----
+  - {ref: "BAS.1", section: "Board and policies", title: "Board-approved IT and information security policy", guidance: "The Board approves IT, information security and cybersecurity policies (with incident response and crisis management) and reviews them at least annually (A para 6-7). Small Base Layer NBFCs need at least an IT/IS policy covering access, roles, maker-checker, security controls, digital signatures, mobile and social media (N para 8).", controls: [GOV-01, GOV-18]}
+  - {ref: "BAS.2", section: "Board and policies", title: "Basic IT systems for core business data", guidance: "Digitise and secure core business databases, and scale IT systems up as operations grow in size and complexity (N para 7, 9).", controls: [AST-01, GOV-06]}
+  - {ref: "BAS.3", section: "Access and controls", title: "Access control, passwords and user roles", guidance: "Role-based access with defined user roles, password rules and maker-checker for critical activities (N para 8).", controls: [ACC-01, ACC-08, GOV-05]}
+  - {ref: "BAS.4", section: "Access and controls", title: "System-generated MIS and regulatory returns", guidance: "Produce system-generated reports for senior management and file RBI returns from the systems; give supervisors read-only access where required (N para 8, 43-46).", controls: [OPS-12, GOV-12]}
+  - {ref: "BAS.5", section: "Business continuity", title: "BCP with annual Board reporting and tested backups", guidance: "A Board-approved business continuity plan reported to the Board at least annually, and regular, periodically tested data backups (N para 8).", controls: [BCP-01, OPS-06]}
+  # ---- IT governance ----
+  - {ref: "GOV.1", section: "IT governance", title: "IT Strategy Committee of the Board", guidance: "At least three directors, chaired by an independent director with at least seven years of substantial IT experience, meeting at least quarterly (A para 15-17; N para 71-72). Larger Base Layer NBFCs: an ITSC chaired by an independent director with the CIO and CTO, meeting at least every six months (N para 15).", condition: "!rbi_nbfc_small", controls: [FIN-12, GOV-18]}
+  - {ref: "GOV.2", section: "IT governance", title: "IT Steering Committee", guidance: "Senior management from IT and business meets at least quarterly to oversee projects, priorities and IT performance (A para 20).", condition: "!rbi_nbfc_small&!rbi_nbfc_bl_large", controls: [FIN-12, GOV-03]}
+  - {ref: "GOV.3", section: "IT governance", title: "Information Security Committee", guidance: "An Information Security Committee under the ITSC's oversight, headed from the risk management function, oversees the security programme (A para 22).", condition: "!rbi_nbfc_small&!rbi_nbfc_bl_large", controls: [FIN-12, GOV-03]}
+  - {ref: "GOV.4", section: "IT governance", title: "Independent CISO", guidance: "Appoint a CISO who does not report to the Head of IT, has no business targets, reports to the executive overseeing risk, runs the SOC and reviews cyber risk with the Board, RMCB or ITSC at least quarterly (A para 26-27; N para 81-82).", condition: "!rbi_nbfc_small&!rbi_nbfc_bl_large", controls: [FIN-12, GOV-04, GOV-17]}
+  - {ref: "GOV.5", section: "IT governance", title: "Senior IT head, IT strategy and training", guidance: "Designate a senior Head of IT, approve the IT strategy, assess IT training needs and make public-facing infrastructure IPv6-capable (N para 18).", condition: "!rbi_nbfc_small", controls: [GOV-04, GOV-06, GOV-17]}
+  - {ref: "GOV.6", section: "IT governance", title: "Technology refresh and end-of-support systems", guidance: "Avoid outdated or unsupported hardware and software and plan replacements before end of support (A para 36-37).", condition: "!rbi_nbfc_small", controls: [AST-01, OPS-02]}
+  # ---- IT and information security risk ----
+  - {ref: "RSK.1", section: "IT and cyber risk", title: "IT and cyber risk in the risk management policy", guidance: "Cover IT and cyber risk in the risk management policy, reviewed at least annually by the Risk Management Committee with the ITSC; rate inherent risk and evaluate controls (A para 38-45). Larger Base Layer NBFCs: an annual IT risk assessment (N para 32).", condition: "!rbi_nbfc_small", controls: [RISK-01, RISK-02]}
+  - {ref: "RSK.2", section: "IT and cyber risk", title: "Cyber preparedness indicators", guidance: "Define metrics for cyber resilience, report them to the Board and test them through independent audit (N para 24).", condition: "!rbi_nbfc_small", controls: [GOV-14]}
+  # ---- Baseline cybersecurity and resilience ----
+  - {ref: "CYB.1", section: "Baseline cybersecurity", title: "Asset inventory and data flows", guidance: "Keep an inventory of IT and information assets with owners, criticality and data flows (A Chapter V-A).", condition: "!rbi_nbfc_small", controls: [AST-01, AST-03]}
+  - {ref: "CYB.2", section: "Baseline cybersecurity", title: "Data leak prevention and secure data migration", guidance: "Prevent leakage of customer and business data in use, in motion and at rest; control data migration with reconciliation and sign-off.", condition: "!rbi_nbfc_small", controls: [OPS-09, OPS-11]}
+  - {ref: "CYB.3", section: "Baseline cybersecurity", title: "Physical security and separate DR site", guidance: "Protect data centres physically and environmentally; keep the DC and DR sites geographically separated (A para 61).", condition: "!rbi_nbfc_small", controls: [PHY-01, PHY-02, OPS-07]}
+  - {ref: "CYB.4", section: "Baseline cybersecurity", title: "Secure configuration and network security", guidance: "Harden systems against secure baselines, segment networks and protect internet-facing services.", condition: "!rbi_nbfc_small", controls: [OPS-04, NET-01]}
+  - {ref: "CYB.5", section: "Baseline cybersecurity", title: "Application security and source code", guidance: "Build security into the application lifecycle; for critical applications obtain the source code or place it in escrow (N para 105).", condition: "!rbi_nbfc_small", controls: [SDL-01, SDL-03, SDL-06]}
+  - {ref: "CYB.6", section: "Baseline cybersecurity", title: "Audit logs", guidance: "Log user, administrator and system activity, protect logs from tampering and keep them for investigation and regulatory needs.", condition: "!rbi_nbfc_small", controls: [LOG-01, LOG-03]}
+  - {ref: "CYB.7", section: "Baseline cybersecurity", title: "Patch, vulnerability and change management", guidance: "Patch on a risk-based schedule, track vulnerabilities to closure and approve and test changes (N para 23, 39-42).", condition: "!rbi_nbfc_small", controls: [OPS-02, SDL-05]}
+  - {ref: "CYB.8", section: "Baseline cybersecurity", title: "User access, privileged access and teleworking", guidance: "Least privilege, MFA for privileged and remote access, periodic access reviews and secure teleworking.", condition: "!rbi_nbfc_small", controls: [ACC-03, ACC-04, ACC-05, HR-06]}
+  - {ref: "CYB.9", section: "Baseline cybersecurity", title: "Customer authentication", guidance: "Authenticate customers strongly for digital channels and transactions in line with the Digital Payment Security Controls Directions.", condition: "!rbi_nbfc_small", controls: [FIN-03]}
+  - {ref: "CYB.10", section: "Baseline cybersecurity", title: "Email security, removable media and anti-malware", guidance: "Protect email (anti-spoofing, filtering), control removable media and run anti-malware and anti-phishing protection.", condition: "!rbi_nbfc_small", controls: [OPS-01, AST-04, OPS-10]}
+  - {ref: "CYB.11", section: "Baseline cybersecurity", title: "Third-party technology arrangements", guidance: "Assess and monitor third parties that are outside the outsourcing Directions, with security and incident-notification clauses, business continuity and exit (A para 125-134).", condition: "!rbi_nbfc_small", controls: [VEN-01, VEN-02, VEN-04]}
+  - {ref: "CYB.12", section: "Baseline cybersecurity", title: "Cryptographic controls and digital signatures", guidance: "Use current, approved cryptography with managed keys; use digital signature certificates for authentication and secure electronic transactions (A para 135; N para 31).", condition: "!rbi_nbfc_small", controls: [CRY-01, NET-02]}
+  - {ref: "CYB.13", section: "Baseline cybersecurity", title: "Mobile financial services and social media", guidance: "Protect mobile apps with encryption and integrity controls, and manage account takeover and impersonation risk on social media (N para 33-34).", condition: "!rbi_nbfc_small", controls: [FIN-06]}
+  - {ref: "CYB.14", section: "Security testing", title: "VA every 6 months and PT every 12 months", guidance: "Vulnerability assessment at least every six months and penetration testing at least every 12 months for critical systems and customer-facing DMZ systems; the ITSC and ISC review findings quarterly (A para 146, 156; N para 121).", condition: "!rbi_nbfc_small&!rbi_nbfc_bl_large", controls: [OPS-02, OPS-03]}
+  - {ref: "CYB.15", section: "Business continuity", title: "Half-yearly DR drills for a full working day", guidance: "DR drills for critical systems at least half-yearly, run from the DR site for at least a full working day, with near-zero RPO for critical systems; fix and re-test major issues before the next cycle (A para 160-166; N para 129).", condition: "!rbi_nbfc_small&!rbi_nbfc_bl_large", controls: [BCP-01, OPS-06, OPS-07]}
+  - {ref: "CYB.16", section: "Business continuity", title: "BCP with business impact analysis", guidance: "A Board-approved BCP based on a business impact analysis, tested at least annually and after significant changes (N para 59).", condition: "rbi_nbfc_bl_large", controls: [BCP-01]}
+  # ---- Incident response ----
+  - {ref: "INC.1", section: "Incident response", title: "Report cyber incidents to RBI within 6 hours", guidance: "Report cyber incidents on the RBI DAKSH platform within six hours of detection and notify CERT-In (A para 177; N para 28, 141). Housing finance companies report to NHB.", condition: "!rbi_nbfc_small", controls: [INC-06, INC-02]}
+  - {ref: "INC.2", section: "Incident response", title: "Cyber Crisis Management Plan", guidance: "A Cyber Crisis Management Plan covering detection, containment, response and recovery, with defences against the threats listed in the Direction (A para 187-188; N para 25-27).", condition: "!rbi_nbfc_small", controls: [FIN-01, INC-01]}
+  - {ref: "INC.3", section: "Incident response", title: "Forensics and post-incident review", guidance: "Preserve evidence, support forensic investigation and record root cause and lessons.", condition: "!rbi_nbfc_small", controls: [INC-04, INC-05]}
+  # ---- Awareness and customers ----
+  - {ref: "AWR.1", section: "Awareness", title: "Staff, senior management and Board awareness", guidance: "Ongoing security training with tracked effectiveness; Board training at least annually (A para 199; N para 29-30, 35-36).", condition: "!rbi_nbfc_small", controls: [HR-03]}
+  - {ref: "AWR.2", section: "Awareness", title: "Customer and vendor awareness", guidance: "Educate customers and vendors on cyber risks such as phishing, vishing and remote-access fraud.", condition: "!rbi_nbfc_small", controls: [FIN-08]}
+  - {ref: "AWR.3", section: "Monitoring", title: "Risk-based transaction monitoring", guidance: "Monitor transactions on a risk basis to detect fraud and anomalies.", condition: "!rbi_nbfc_small&!rbi_nbfc_bl_large", controls: [FIN-05]}
+  # ---- Security operations centre ----
+  - {ref: "SOC.1", section: "Security operations centre", title: "Cyber Security Operations Centre", guidance: "A SOC (CSOC) commensurate with the risk profile, with SIEM-based log correlation, IOC collection, root-cause analysis and forensic tools, briefing the Board (A Chapter VI).", condition: "!rbi_nbfc_small&!rbi_nbfc_bl_large", controls: [LOG-02, LOG-01, RISK-05]}
+  - {ref: "SOC.2", section: "Security operations centre", title: "24x7 SOC staffing", guidance: "Staff the SOC 24x7 with Level 1 to 3 roles, a sourcing model, performance metrics and capacity planning (A para 215-217).", condition: "!rbi_nbfc_small&!rbi_nbfc_bl_large", controls: [LOG-02, GOV-17]}
+  # ---- IS audit ----
+  - {ref: "AUD.1", section: "Information systems audit", title: "IS audit under the Audit Committee", guidance: "The Audit Committee of the Board oversees an IS audit policy and a separate, skilled IS audit function with risk-based planning and continuous auditing of critical systems; IS audit at least once a year (A para 218-223; N para 47-58).", condition: "!rbi_nbfc_small", controls: [FIN-02, GOV-13]}
+  - {ref: "AUD.2", section: "Information systems audit", title: "Findings tracked to closure", guidance: "Track audit, VA/PT and inspection findings to closure and report status to the ITSC or Audit Committee.", condition: "!rbi_nbfc_small", controls: [GOV-15, FIN-02]}
+  # ---- Outsourcing (Base Layer NBFCs 2,500 crore and above) ----
+  - {ref: "OUT.1", section: "IT outsourcing", title: "Risk assessment and contract safeguards for IT outsourcing", guidance: "Assess risks before outsourcing, include oversight, audit and RBI access clauses, and keep the Board accountable (N para 60-64). Other entities follow the IT outsourcing Direction.", condition: "rbi_nbfc_bl_large", controls: [VEN-01, VEN-02, VEN-04]}

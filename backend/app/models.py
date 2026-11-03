@@ -6,7 +6,7 @@ Two scopes:
 - Tenant data carries org_id and must always be queried through an org-scoped filter (see app/deps.py).
 """
 import uuid
-from datetime import date, datetime, timezone
+from datetime import date, datetime, timedelta, timezone
 
 from sqlalchemy import (
     JSON,
@@ -23,6 +23,7 @@ from sqlalchemy import (
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db import Base
+from app.regulators import clocks_for
 
 
 def utcnow() -> datetime:
@@ -496,6 +497,20 @@ class Incident(TimestampMixin, Base):
     reported_by_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("users.id", ondelete="SET NULL"))
     follower_ids: Mapped[list] = mapped_column(JSON, default=list, server_default="[]")
     email_subject: Mapped[str] = mapped_column(String(400), default="", server_default="")
+    # Financial-sector regulators this incident must be reported to (keys in app.regulators), and when each
+    # regulator clock was met: {"rbi": "2026-11-03T10:15:00+05:30", ...}.
+    regulators: Mapped[list] = mapped_column(JSON, default=list, server_default="[]")
+    regulator_reported: Mapped[dict] = mapped_column(JSON, default=dict, server_default="{}")
+
+    @property
+    def regulator_clocks(self) -> list[dict]:
+        out = []
+        for c in clocks_for(self.regulators):
+            done = (self.regulator_reported or {}).get(c.key)
+            out.append({"key": c.key, "regulator": c.regulator, "title": c.title, "rule": c.rule,
+                        "due_at": self.detected_at + timedelta(hours=c.hours) if self.detected_at else None,
+                        "reported_at": datetime.fromisoformat(done) if done else None})
+        return out
 
     lead: Mapped[User | None] = relationship(foreign_keys=[lead_id])
     reported_by: Mapped[User | None] = relationship(foreign_keys=[reported_by_id])

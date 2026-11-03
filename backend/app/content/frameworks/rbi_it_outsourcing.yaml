@@ -1,0 +1,35 @@
+# Reserve Bank of India (Outsourcing of Information Technology Services) Directions, 2023. RBI/2023-24/102,
+# DoS.CO.CSITEG/SEC.1/31.01.015/2023-24, 10 April 2023, effective 1 October 2023.
+# Not named in the 31 July 2026 repeal of cybersecurity and IT governance instructions as far as we could verify;
+# confirm its status on the RBI website before release. References are the Direction's paragraph numbers where known.
+# CONTENT STATUS: draft. Verify status and paragraph numbers before customer release.
+code: rbi_it_outsourcing
+name: RBI Outsourcing of IT Services Directions (2023)
+short_name: RBI IT Outsourcing
+version: "2023"
+region: India
+publisher: Reserve Bank of India
+source_url: https://www.rbi.org.in/scripts/BS_ViewMasDirections.aspx?id=12486
+content_version: "0.1.0"
+review_status: draft
+description: >
+  How banks, larger NBFCs, credit information companies and all-India financial institutions manage IT outsourcing
+  and cloud. Fintechs and SaaS vendors serving them are not regulated directly, but these requirements are passed to
+  them in contracts: due diligence, audit rights for the bank and RBI, data in India, approval of sub-contractors,
+  fast incident notification, business continuity and exit.
+requirements:
+  - {ref: "9-10", section: "Governance", title: "Board-approved IT outsourcing policy and risk framework", guidance: "The Board approves an IT outsourcing policy and a risk management framework, including criteria for material outsourcing.", controls: [VEN-01, GOV-01]}
+  - {ref: "11", section: "Governance", title: "Senior management oversight and BCP testing", guidance: "Senior management implements the policy, reports outsourcing risk and tests business continuity periodically.", controls: [GOV-03, BCP-01]}
+  - {ref: "12", section: "Governance", title: "Central register of outsourcing arrangements", guidance: "Keep a central record of all IT outsourcing arrangements.", controls: [VEN-04]}
+  - {ref: "13-14", section: "Due diligence", title: "Risk-based due diligence on service providers", guidance: "Assess financial, operational, legal, reputational and cyber risk, data segregation and the provider's vetting of staff and sub-contractors, and refresh periodically.", controls: [VEN-01, HR-01]}
+  - {ref: "15-16", section: "Contract", title: "Written agreement with minimum clauses", guidance: "A binding agreement covering scope, service levels, security, confidentiality, data ownership, audit and inspection rights for the entity and RBI, termination and dispute resolution.", controls: [VEN-02]}
+  - {ref: "16(loc)", section: "Contract", title: "Data stored in India, including backups", guidance: "Data is stored only in India, subject to applicable regulations, including backups and DR copies.", controls: [FIN-07, VEN-03]}
+  - {ref: "16(sub)", section: "Contract", title: "Prior consent for sub-contracting", guidance: "Providers need prior consent before using sub-contractors, and the same obligations flow to them.", controls: [VEN-04, VEN-02]}
+  - {ref: "17", section: "Risk management", title: "Need-to-know access to the entity's data", guidance: "Providers and their staff access data only on a need-to-know basis, with controls to segregate the entity's data.", controls: [ACC-06, OPS-09]}
+  - {ref: "17(inc)", section: "Risk management", title: "Prompt incident notification by providers", guidance: "Providers report cyber incidents to the entity without undue delay, in time for it to report to RBI within six hours.", controls: [VEN-02, INC-06]}
+  - {ref: "18", section: "Business continuity", title: "Provider BCP and DR proportionate to the service", guidance: "Business continuity and DR at the provider proportionate to the outsourced activity, with the entity able to isolate and recover its data.", controls: [BCP-01, VEN-01]}
+  - {ref: "19", section: "Monitoring", title: "Monitoring, SLAs and audits (including pooled audits)", guidance: "Monitor providers against SLAs and security, audit them and their sub-contractors regularly (pooled audits allowed); SOC 2 or ISO certificates can be relied on but don't remove responsibility.", controls: [VEN-01, GOV-13]}
+  - {ref: "21", section: "Cross-border", title: "Offshore outsourcing safeguards", guidance: "For providers abroad, ensure audit and RBI inspection rights, governing law, record availability and monitoring of the jurisdiction's legal and political conditions.", controls: [VEN-02, PRV-13]}
+  - {ref: "22", section: "Exit", title: "Exit strategy", guidance: "A documented exit plan: data returned or securely destroyed, full cooperation during transition and no alteration of data during handover.", controls: [VEN-04, AST-04]}
+  - {ref: "App.I", section: "Cloud", title: "Cloud computing controls", guidance: "Cover the data lifecycle, cloud provider selection, identity and access management, security monitoring, DR and a cloud-specific exit strategy.", controls: [VEN-03, ACC-01, LOG-02]}
+  - {ref: "App.II", section: "Security operations", title: "Outsourced SOC safeguards", guidance: "Where the SOC is outsourced, keep ownership of data, logs and incident decisions and ensure the provider meets the entity's monitoring requirements.", controls: [LOG-02, VEN-02]}

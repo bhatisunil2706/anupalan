@@ -7,16 +7,23 @@ import { Button, Checkbox, Field, FormError, Loading, Select, cx } from "@/compo
 import { api } from "@/lib/api";
 import type { FrameworkCatalogItem, Me } from "@/lib/types";
 
-const SECTORS = ["B2B SaaS", "IT services", "Fintech / payments", "NBFC / lending", "Insurance", "Healthtech", "Edtech", "E-commerce", "Other"];
+const SECTORS = [
+  "B2B SaaS", "IT services", "Tech vendor to banks / NBFCs", "Fintech / payments", "NBFC / lending", "Bank",
+  "Stockbroking / investments", "Insurance", "GIFT City (IFSC)", "Healthtech", "Edtech", "E-commerce", "Other",
+];
 const SIZES = ["1-50", "51-200", "201-500", "501-1000", "1000+"];
 const STEPS = ["Company", "Frameworks", "What applies to you"];
 // Suggested starting frameworks by sector; people can change the selection.
 const SUGGEST: Record<string, string[]> = {
   "B2B SaaS": ["dpdp", "certin", "iso27001", "soc2"],
   "IT services": ["dpdp", "certin", "iso27001", "soc2"],
-  "Fintech / payments": ["dpdp", "certin", "iso27001", "pci_dss"],
-  "NBFC / lending": ["dpdp", "certin", "rbi_itgrc", "iso27001"],
-  "Insurance": ["dpdp", "certin", "iso27001"],
+  "Tech vendor to banks / NBFCs": ["dpdp", "certin", "iso27001", "soc2", "rbi_it_outsourcing"],
+  "Fintech / payments": ["dpdp", "certin", "rbi_pso", "rbi_pa", "pci_dss"],
+  "NBFC / lending": ["dpdp", "certin", "rbi_cyber", "rbi_digital_lending", "rbi_it_outsourcing"],
+  "Bank": ["dpdp", "certin", "rbi_cyber", "rbi_dpsc", "rbi_it_outsourcing", "pci_dss"],
+  "Stockbroking / investments": ["dpdp", "certin", "sebi_cscrf", "iso27001"],
+  "Insurance": ["dpdp", "certin", "irdai_cyber", "iso27001"],
+  "GIFT City (IFSC)": ["ifsca_cyber", "certin", "dpdp"],
   "Healthtech": ["dpdp", "certin", "iso27001", "hipaa"],
   "Edtech": ["dpdp", "certin", "iso27001"],
   "E-commerce": ["dpdp", "certin", "pci_dss"],

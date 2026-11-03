@@ -18,11 +18,15 @@ def _get(db, code: str) -> Framework:
 
 # Catalogue grouping: India first, then global standards, then other regions' laws.
 CATALOG = {
-    "dpdp": ("India", 1), "certin": ("India", 2), "rbi_itgrc": ("India: sector regulators", 3),
-    "sebi_cscrf": ("India: sector regulators", 4),
-    "iso27001": ("Global standards", 10), "soc2": ("Global standards", 11),
-    "nist_csf": ("Global standards", 12), "pci_dss": ("Global standards", 13), "iso42001": ("Global standards", 14),
-    "gdpr": ("Other regions", 20), "hipaa": ("Other regions", 21),
+    "dpdp": ("India", 1), "certin": ("India", 2),
+    "rbi_cyber": ("India: financial regulators", 3), "rbi_dpsc": ("India: financial regulators", 4),
+    "rbi_pso": ("India: financial regulators", 5), "rbi_pa": ("India: financial regulators", 6),
+    "rbi_digital_lending": ("India: financial regulators", 7), "rbi_it_outsourcing": ("India: financial regulators", 8),
+    "sebi_cscrf": ("India: financial regulators", 9), "irdai_cyber": ("India: financial regulators", 10),
+    "ifsca_cyber": ("India: financial regulators", 11),
+    "iso27001": ("Global standards", 20), "soc2": ("Global standards", 21),
+    "nist_csf": ("Global standards", 22), "pci_dss": ("Global standards", 23), "iso42001": ("Global standards", 24),
+    "gdpr": ("Other regions", 30), "hipaa": ("Other regions", 31),
 }
 
 

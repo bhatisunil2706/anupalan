@@ -31,6 +31,7 @@ const DEADLINE_KIND: Record<string, string> = {
   certin: "CERT-In 6h",
   dpb: "DPDP 72h",
   principals: "Notify users",
+  regulator: "Regulator",
   request: "Rights request",
   task: "Task",
 };
@@ -101,7 +102,7 @@ export default function DashboardPage() {
                   const cd = d.kind === "principals" ? { text: "Without delay", overdue: true } : countdown(d.due_at);
                   return (
                     <li key={i} className="flex items-center gap-3 border-b border-line px-4 py-3 last:border-0">
-                      <Badge tone={d.kind === "certin" || d.kind === "dpb" ? "fail" : d.kind === "request" ? "ink" : "idle"}>
+                      <Badge tone={d.kind === "certin" || d.kind === "dpb" || d.kind === "regulator" ? "fail" : d.kind === "request" ? "ink" : "idle"}>
                         {DEADLINE_KIND[d.kind] ?? d.kind}
                       </Badge>
                       <Link href={d.link} className="min-w-0 flex-1 truncate text-sm hover:underline">

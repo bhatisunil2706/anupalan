@@ -1,0 +1,31 @@
+# IFSCA Guidelines on Cyber Security and Cyber Resilience for Regulated Entities in IFSCs.
+# Circular IFSCA-CSD0MSC/13/2025-DCS, 10 March 2025, effective 1 April 2025.
+# References are the circular's paragraph numbers. Guidance is written in-house.
+# CONTENT STATUS: draft. Verify against the circular and later IFSCA clarifications before customer release.
+code: ifsca_cyber
+name: IFSCA Cyber Security and Cyber Resilience Guidelines (2025)
+short_name: IFSCA Cyber
+version: "2025"
+region: India
+publisher: International Financial Services Centres Authority
+source_url: https://ifsca.gov.in
+content_version: "0.1.0"
+review_status: draft
+description: >
+  For entities licensed or registered by IFSCA in GIFT City (banks, fund managers, brokers, fintechs, insurers and
+  others), applied in proportion to their size. Branches of regulated entities, entities serving only their group
+  and entities with fewer than 10 employees can rely on their parent's framework for three years, with an annual
+  certificate from the designated officer.
+requirements:
+  - {ref: "3-5", section: "Governance", title: "Oversight body with cyber expertise", guidance: "A governing board, senior management or committee oversees cyber risk, with enough cyber expertise.", controls: [GOV-18, GOV-03]}
+  - {ref: "6", section: "Governance", title: "CISO or designated officer", guidance: "Appoint a CISO or designate a senior person as Designated Officer for cyber security.", controls: [GOV-04, GOV-11]}
+  - {ref: "7-8", section: "Governance", title: "Cyber security policy and framework", guidance: "A documented cyber security and resilience policy, approved by the oversight body and reviewed periodically.", controls: [GOV-01, RISK-01]}
+  - {ref: "9(c)", section: "Protection", title: "Access control", guidance: "Need-to-know and least privilege access, segregation of duties and robust authentication.", controls: [ACC-01, ACC-03, GOV-05]}
+  - {ref: "9(e)", section: "Protection", title: "Annual VAPT of all critical systems", guidance: "Vulnerability assessment and penetration testing at least once a year for critical systems, infrastructure and other IT systems.", controls: [OPS-02, OPS-03]}
+  - {ref: "9(f)", section: "Recovery", title: "Recovery policies for severe disruption", guidance: "Recovery policies and plans to keep services running and limit losses during severe disruption.", controls: [BCP-01, OPS-06]}
+  - {ref: "9(h)", section: "Detection", title: "Audit trails", guidance: "Audit trails that support continuity, legal obligations, forensics and dispute resolution.", controls: [LOG-01, INC-05]}
+  - {ref: "10-13", section: "Third parties", title: "Third-party cyber risk, critical vendors reviewed every six months", guidance: "Assess critical third parties every six months and others on a risk basis; the entity keeps ultimate responsibility.", controls: [VEN-01, VEN-02]}
+  - {ref: "14-15", section: "People", title: "Training and reporting channels", guidance: "Regular training on phishing, social engineering, passwords and incident reporting, with clear channels for staff to report suspicious activity.", controls: [HR-03, HR-07]}
+  - {ref: "16-17", section: "Audit", title: "Annual independent cyber audit within 90 days of year end", guidance: "An annual independent audit by a CERT-In empanelled or suitably certified (CISA, CISM, GSNA, CISSP) auditor without conflicts, submitted within 90 days after the financial year end.", controls: [FIN-02]}
+  - {ref: "19-20", section: "Incident reporting", title: "Report to IFSCA within 6 hours, interim in 3 days, RCA in 30 days", guidance: "Initial report to cyber-incidents@ifsca.gov.in (copying IFSCA's CISO) within 6 hours of detection, interim report within 3 days, mitigation measures within 7 days and detailed root cause analysis within 30 days.", controls: [INC-06, INC-04]}
+  - {ref: "21-22", section: "Exemptions", title: "Exempt entities: parent framework and annual certificate", guidance: "Exempt entities adopt the parent's framework and policy, with the parent's CISO as Designated Officer, and submit a compliance certificate within 90 days after the financial year end.", controls: [GOV-12, GOV-11]}

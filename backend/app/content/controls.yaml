@@ -810,3 +810,88 @@ controls:
     frequency: annual
     description: Set rules for responsible use of AI by staff (approved tools, no confidential data in unapproved tools), assess AI suppliers and models you depend on, and define responsibilities with customers who use your AI.
     evidence_hint: Acceptable AI use rules, AI supplier assessments, customer-facing responsibility terms.
+  # ---------------------------------------------------------------- financial services (RBI, IRDAI, IFSCA, SEBI)
+  - code: INC-06
+    title: Financial regulator incident reporting
+    category: Incident management
+    frequency: continuous
+    description: Report cyber incidents to your financial sector regulator within its deadline (RBI through DAKSH or the PSO format, SEBI, IRDAI or IFSCA, usually within 6 hours of detection), send follow-up and root-cause reports when due, and keep proof of every submission.
+    evidence_hint: Incident records with regulator report timestamps, acknowledgements from the regulator portal or mailbox.
+  - code: VEN-04
+    title: Outsourcing register, sub-contracting and exit plans
+    category: Supplier security
+    frequency: annual
+    description: Keep a register of all outsourcing arrangements with materiality and criticality, approve sub-contracting in advance, and keep a tested exit plan for each material arrangement so data can be returned or destroyed and the service moved without disruption.
+    evidence_hint: Outsourcing register, materiality assessments, sub-contractor approvals, exit plans.
+  - code: FIN-01
+    title: Cyber Crisis Management Plan
+    category: Incident management
+    frequency: annual
+    description: Keep a Board-approved Cyber Crisis Management Plan covering detection, containment, response and recovery for cyber scenarios, aligned with CERT-In guidance, tested through drills or tabletop exercises at least yearly.
+    evidence_hint: Approved Cyber Crisis Management Plan, drill or tabletop report with lessons.
+  - code: FIN-02
+    title: Independent annual IS and cyber security audit
+    category: Governance
+    frequency: annual
+    description: Have qualified, independent auditors (CERT-In empanelled where the regulator requires) audit information systems and cyber security at least yearly, report to the Board or its committee, submit reports to the regulator when required, and track findings to closure.
+    evidence_hint: Audit engagement letter, auditor empanelment or qualifications, audit report, submission acknowledgement, findings tracker.
+  - code: FIN-03
+    title: Customer authentication for payments and sensitive changes
+    category: Payments and customer security
+    frequency: continuous
+    description: Require multi-factor authentication (with at least one dynamic factor) for payments, new beneficiaries, limit changes and changes to contact details, use risk-based or adaptive checks, lock accounts after repeated failures and protect sessions against hijacking.
+    evidence_hint: Authentication design document, screenshots of MFA flows, lockout and session settings, test results.
+  - code: FIN-04
+    title: Customer transaction alerts
+    category: Payments and customer security
+    frequency: continuous
+    description: Alert customers instantly for every debit, credit and sensitive account change, show the actual merchant name, mask account and card numbers, and apply a cooling period after mobile number or email changes.
+    evidence_hint: Sample alerts (masked), alert configuration, cooling period settings.
+  - code: FIN-05
+    title: Transaction fraud monitoring and limits
+    category: Payments and customer security
+    frequency: continuous
+    description: Monitor transactions in real time with documented fraud rules (velocity, geo-location, device, high-risk merchants, failed authentications), set and review transaction limits, staff a 24x7 fraud desk, and analyse the root cause of frauds.
+    evidence_hint: Fraud rule set, limit configuration, monitoring dashboard or alert samples, fraud RCA reports, 24x7 roster.
+  - code: FIN-06
+    title: Mobile and web payment application security
+    category: Payments and customer security
+    frequency: continuous
+    description: Protect customer apps with device binding, detection of rooted or tampered devices and remote-access apps, obfuscation, encrypted local storage, no stored credentials, forced upgrades of old versions, server-side checks for genuine apps, and takedown of rogue apps and phishing sites.
+    evidence_hint: Mobile app security test report, app hardening configuration, rogue app and phishing takedown reports.
+  - code: FIN-07
+    title: Payment system data stored only in India
+    category: Data protection
+    frequency: annual
+    description: Store all payment system data (end-to-end transaction details and customer data collected for payments) only in India, delete any copy processed abroad within the permitted time, and report compliance (with a system audit) as RBI requires.
+    evidence_hint: Data location inventory with hosting regions, cloud region configuration, data localisation audit report.
+  - code: FIN-08
+    title: Customer protection and grievance redressal
+    category: Payments and customer security
+    frequency: continuous
+    description: Give customers secure-usage guidance, an easy in-app and web route to report fraud and raise complaints, a named grievance officer and escalation matrix, online dispute resolution and refund timelines, and disclose risks and charges before they sign up.
+    evidence_hint: Grievance policy, website and app screenshots, complaint register with turnaround times, ODR process.
+  - code: FIN-09
+    title: Payment reconciliation and settlement controls
+    category: Payments and customer security
+    frequency: continuous
+    description: Reconcile transactions with banks, networks and merchants daily (settlement files within 24 hours of receipt), keep customer funds in the designated escrow or nodal account with only permitted credits and debits, and resolve differences on time.
+    evidence_hint: Reconciliation reports, exception logs, escrow account statements and auditor certificates.
+  - code: FIN-10
+    title: Merchant and partner onboarding due diligence
+    category: Payments and customer security
+    frequency: continuous
+    description: Verify merchants and partners before onboarding (KYC, background checks, security assessment of their integration), monitor their transactions against their business profile, and offboard those that breach requirements.
+    evidence_hint: Onboarding checklist, KYC and background check records, security assessment, monitoring alerts.
+  - code: FIN-11
+    title: Digital lending app and lending service provider controls
+    category: Payments and customer security
+    frequency: continuous
+    description: Make digital lending apps collect only needed data with explicit, revocable consent, never access contacts, files, call logs or media, store borrower data only in India, give a Key Fact Statement before signing, support the cooling-off exit, and keep due diligence and a register of lending service providers and apps.
+    evidence_hint: App permission manifest, consent screens, data location evidence, KFS sample, LSP and DLA register.
+  - code: FIN-12
+    title: Regulator-mandated IT governance committees and CISO independence
+    category: Governance
+    frequency: quarterly
+    description: Run the IT Strategy Committee, IT Steering Committee and Information Security Committee at the required frequency and composition, and keep the CISO independent of the Head of IT and free of business targets, reporting cyber risk to the Board or its committee at least quarterly.
+    evidence_hint: Committee charters and membership, meeting minutes, CISO appointment letter and reporting line.

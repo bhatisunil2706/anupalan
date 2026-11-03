@@ -175,12 +175,13 @@ def test_risk_jira_requires_connection_and_writer(owner):
 
 def test_all_frameworks_load_and_are_fully_mapped():
     counts = check_content()
-    assert counts["frameworks"] == 11 and counts["requirements"] >= 600
+    assert counts["frameworks"] == 18 and counts["requirements"] >= 750
 
 
 def test_enable_new_frameworks_provisions_their_controls(owner):
     codes = {f["code"]: f for f in owner.get("/api/frameworks").json()}
-    assert {"gdpr", "nist_csf", "hipaa", "pci_dss", "iso42001", "rbi_itgrc", "sebi_cscrf"} <= set(codes)
+    assert {"gdpr", "nist_csf", "hipaa", "pci_dss", "iso42001", "rbi_cyber", "sebi_cscrf"} <= set(codes)
+    assert "rbi_itgrc" not in codes  # replaced by the 2026 Directions
     assert codes["nist_csf"]["requirement_count"] == 106 and codes["dpdp"]["group"] == "India"
     before = {c["code"] for c in owner.get("/api/controls").json()}
     r = owner.post("/api/frameworks/iso42001/enable").json()

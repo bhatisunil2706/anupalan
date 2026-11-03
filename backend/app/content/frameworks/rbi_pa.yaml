@@ -1,0 +1,46 @@
+# Reserve Bank of India (Regulation of Payment Aggregators) Directions, 2025. RBI/DPSS/2025-26/141,
+# CO.DPSS.POLC.No.S-633/02-14-008/2025-26, 15 September 2025. Covers PA-Online, PA-Physical and PA-Cross Border.
+# References are the Direction's paragraph numbers (Annexure 1 = baseline technology recommendations, mandatory for
+# PAs). Only security, technology, data, merchant and settlement requirements are included; authorisation, net worth
+# and capital requirements are out of scope for this control library.
+# CONTENT STATUS: draft. Verify against the Direction and later amendments before customer release.
+code: rbi_pa
+name: RBI Payment Aggregators Directions (2025)
+short_name: RBI PA 2025
+version: "2025"
+region: India
+publisher: Reserve Bank of India
+source_url: https://www.rbi.org.in/Scripts/BS_ViewMasDirections.aspx
+content_version: "0.1.0"
+review_status: draft
+description: >
+  For banks and non-banks acting as payment aggregators (online, physical point-of-sale and cross-border): the
+  baseline technology recommendations, card data rules, data localisation, annual cyber security audit, merchant due
+  diligence, escrow and dispute handling. Payment gateways are recommended to follow the same technology baseline.
+  Non-bank PAs also follow the RBI cyber resilience Directions for non-bank PSOs.
+requirements:
+  - {ref: "7a", section: "Governance", title: "Fit-and-proper management", guidance: "Professional management, with promoters and directors meeting fit-and-proper criteria.", controls: [GOV-04, HR-01]}
+  - {ref: "8a", section: "Customers and disputes", title: "Dispute mechanism and refund timelines", guidance: "A dispute resolution mechanism with refund timelines, following RBI's turnaround-time rules for failed transactions.", controls: [FIN-08]}
+  - {ref: "8d", section: "Customers and disputes", title: "Grievance officer and escalation matrix on the website", guidance: "Name a grievance redressal officer and publish the escalation matrix.", controls: [FIN-08]}
+  - {ref: "9a", section: "Security", title: "PCI DSS, encryption and fraud prevention", guidance: "Systems that detect and prevent fraud and protect customers; PCI DSS (and PA-DSS) compliance with current encryption standards.", controls: [PCI-01, PCI-02, FIN-05]}
+  - {ref: "9b", section: "Security", title: "Board-approved information security policy and Annexure 1 baseline", guidance: "Adopt a Board-approved information security policy and the baseline technology recommendations in Annexure 1.", controls: [GOV-01, GOV-18]}
+  - {ref: "9c", section: "Data", title: "Payment data stored in India", guidance: "Follow the payment system data storage rules (circular of 6 April 2018): store payment data only in India.", controls: [FIN-07]}
+  - {ref: "9d", section: "Audit", title: "Annual system and cyber security audit by a CERT-In empanelled auditor", guidance: "Submit an annual system audit, including a cyber security audit by a CERT-In empanelled auditor, to the DPSS regional office.", controls: [FIN-02]}
+  - {ref: "9e", section: "Security", title: "Cyber resilience Directions for non-bank PSOs", guidance: "Non-bank PAs also follow the cyber resilience and digital payment security Directions for non-bank PSOs (30 July 2024).", controls: [GOV-12]}
+  - {ref: "10f", section: "Customers and disputes", title: "Refunds to the original payment method", guidance: "Refund to the original payment method unless the payer instructs otherwise.", controls: [FIN-09]}
+  - {ref: "13a-c", section: "Merchants", title: "Merchant due diligence and background checks", guidance: "Customer due diligence on merchants under the KYC Master Direction (with CKYCR retrieval), simplified checks for small merchants, and background checks.", controls: [FIN-10]}
+  - {ref: "13h", section: "Merchants", title: "Monitor merchant transactions against their profile", guidance: "Monitor merchant transactions for consistency with the merchant's business.", controls: [FIN-10, FIN-05]}
+  - {ref: "13i", section: "Merchants", title: "Register with FIU-IND", guidance: "Non-bank PAs register with the Financial Intelligence Unit (FIU-IND).", controls: [GOV-12, GOV-11]}
+  - {ref: "16-18", section: "Settlement", title: "Escrow account with permitted credits and debits", guidance: "Keep collected funds in an escrow account with a scheduled commercial bank in India, with only permitted credits and debits, an exclusive-use clause, and no cash-on-delivery use.", controls: [FIN-09]}
+  - {ref: "Ann.2", section: "Settlement", title: "Quarterly auditor certificate on escrow", guidance: "Get an auditor certificate on escrow balances every quarter, by the 15th of the following month.", controls: [FIN-09, FIN-02]}
+  - {ref: "A1.1", section: "Technology baseline", title: "Security risk assessments reported to the Board", guidance: "Assess security risks and present them and audit reports to the Board.", controls: [RISK-01, GOV-18]}
+  - {ref: "A1.3", section: "Technology baseline", title: "Report security incidents and card data breaches to RBI", guidance: "Report security incidents and card data breaches to RBI in the stipulated time, plus monthly cyber incident reports with root cause and preventive actions.", controls: [INC-06, INC-04]}
+  - {ref: "A1.4", section: "Technology baseline", title: "Security assessment of merchants at onboarding", guidance: "Assess merchants' security during onboarding.", controls: [FIN-10]}
+  - {ref: "A1.5", section: "Technology baseline", title: "Internal audits, external audit, half-yearly VAPT and PCI reports", guidance: "Quarterly internal and annual external audit reports to the IT committee, half-yearly VAPT, and PCI DSS AOC or ROC.", controls: [GOV-13, OPS-03, OPS-02, PCI-04]}
+  - {ref: "A1.6", section: "Technology baseline", title: "Annual review of the information security policy", guidance: "Review the information security policy at least annually.", controls: [GOV-01]}
+  - {ref: "A1.7", section: "Technology baseline", title: "Cyber Crisis Management Plan", guidance: "A Cyber Crisis Management Plan approved by the IT strategy committee.", controls: [FIN-01]}
+  - {ref: "A1.15", section: "Technology baseline", title: "Security event collection and analysis", guidance: "Collect and analyse security events to raise alerts proactively.", controls: [LOG-01, LOG-02]}
+  - {ref: "A1.16", section: "Technology baseline", title: "Data kept out of external jurisdictions", guidance: "Take preventive measures so data is stored in infrastructure that is not in external jurisdictions.", controls: [FIN-07, VEN-03]}
+  - {ref: "A2.1", section: "Technology baseline", title: "No card credentials stored by merchants", guidance: "Card credentials must not be stored in databases or servers that merchants can access; use tokenisation.", controls: [PCI-02]}
+  - {ref: "PA-P", section: "Physical payments", title: "Point-of-sale terminal security", guidance: "For PA-Physical: use PCI-validated terminals and protect them from tampering.", condition: pa_physical, controls: [PCI-05]}
+  - {ref: "PA-CB", section: "Cross-border payments", title: "Cross-border transaction controls", guidance: "For PA-Cross Border: follow the cross-border chapter of the Directions with your AD bank (FEMA rules, transaction limits, screening and records); confirm the specific obligations in the Direction.", condition: pa_cross_border, controls: [FIN-05, GOV-12]}

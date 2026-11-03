@@ -11,7 +11,7 @@ import { Badge, Button, Checkbox, Field, Input, LoadError, Loading, Panel, Selec
 import { api, useApi } from "@/lib/api";
 import { SEVERITY } from "@/lib/constants";
 import { countdown, fmtDateTime, isoToLocal, localToIso } from "@/lib/format";
-import type { Incident } from "@/lib/types";
+import type { Incident, RegulatorOption } from "@/lib/types";
 
 type StampKey = "certin_reported_at" | "dpb_initial_reported_at" | "dpb_detailed_reported_at" | "principals_notified_at";
 
@@ -30,6 +30,7 @@ export default function IncidentPage() {
   const toast = useToast();
   const now = useNow();
   const { data: inc, error, loading, reload } = useApi<Incident>(`/incidents/${id}`);
+  const { data: regulators } = useApi<RegulatorOption[]>("/incident-regulators");
   const [version, setVersion] = useState(0);
   const [form, setForm] = useState({ status: "open", severity: "sev3", lead_id: "", root_cause: "", actions_taken: "", lessons_learned: "", affected: "" });
 
@@ -55,12 +56,18 @@ export default function IncidentPage() {
     }
   }
 
-  const clocks: { key: StampKey; title: string; rule: string; due: string | null; show: boolean }[] = [
-    { key: "certin_reported_at", title: "Report to CERT-In", rule: "Within 6 hours of noticing (CERT-In Directions, para (ii))", due: inc.certin_due_at, show: inc.certin_reportable },
-    { key: "principals_notified_at", title: "Notify affected data principals", rule: "Without delay (DPDP Rules R.7(1))", due: null, show: inc.personal_data_breach },
-    { key: "dpb_initial_reported_at", title: "Initial intimation to the Data Protection Board", rule: "Without delay (DPDP Rules R.7(2))", due: null, show: inc.personal_data_breach },
-    { key: "dpb_detailed_reported_at", title: "Detailed report to the Board", rule: "Within 72 hours of becoming aware (DPDP Rules R.7(2))", due: inc.dpb_due_at, show: inc.personal_data_breach },
+  type ClockRow = { id: string; title: string; rule: string; due: string | null; done: string | null; show: boolean; body: (at: string | null) => Record<string, unknown> };
+  const stamp = (key: StampKey) => (at: string | null) => ({ [key]: at });
+  const reg = (key: string) => (at: string | null) => ({ regulator_reported: { [key]: at } });
+  const clocks: ClockRow[] = [
+    { id: "certin_reported_at", title: "Report to CERT-In", rule: "Within 6 hours of noticing (CERT-In Directions, para (ii))", due: inc.certin_due_at, done: inc.certin_reported_at, show: inc.certin_reportable, body: stamp("certin_reported_at") },
+    ...inc.regulator_clocks.map((c) => ({ id: c.key, title: c.title, rule: c.rule, due: c.due_at, done: c.reported_at, show: true, body: reg(c.key) })),
+    { id: "principals_notified_at", title: "Notify affected data principals", rule: "Without delay (DPDP Rules R.7(1))", due: null, done: inc.principals_notified_at, show: inc.personal_data_breach, body: stamp("principals_notified_at") },
+    { id: "dpb_initial_reported_at", title: "Initial intimation to the Data Protection Board", rule: "Without delay (DPDP Rules R.7(2))", due: null, done: inc.dpb_initial_reported_at, show: inc.personal_data_breach, body: stamp("dpb_initial_reported_at") },
+    { id: "dpb_detailed_reported_at", title: "Detailed report to the Board", rule: "Within 72 hours of becoming aware (DPDP Rules R.7(2))", due: inc.dpb_due_at, done: inc.dpb_detailed_reported_at, show: inc.personal_data_breach, body: stamp("dpb_detailed_reported_at") },
   ];
+  const toggleRegulator = (key: string, on: boolean) =>
+    patch({ regulators: on ? [...inc.regulators, key] : inc.regulators.filter((k) => k !== key) }, "Updated");
 
   return (
     <>
@@ -83,10 +90,10 @@ export default function IncidentPage() {
             {clocks.some((c) => c.show) ? (
               <ul>
                 {clocks.filter((c) => c.show).map((c) => {
-                  const done = inc[c.key];
+                  const done = c.done;
                   const cd = c.due ? countdown(c.due, now) : null;
                   return (
-                    <li key={c.key} className={cx("flex flex-wrap items-center gap-4 border-b border-line px-4 py-4 last:border-0", !done && cd?.overdue && "bg-fail-50/50")}>
+                    <li key={c.id} className={cx("flex flex-wrap items-center gap-4 border-b border-line px-4 py-4 last:border-0", !done && cd?.overdue && "bg-fail-50/50")}>
                       <div className="min-w-0 flex-1">
                         <p className="text-sm font-semibold">{c.title}</p>
                         <p className="text-xs text-muted">{c.rule}</p>
@@ -108,7 +115,7 @@ export default function IncidentPage() {
                               <p className="text-sm font-semibold text-warn">Do this now</p>
                             )}
                           </div>
-                          {canWrite && <Button size="sm" onClick={() => patch({ [c.key]: new Date().toISOString() }, "Recorded")}>Mark done now</Button>}
+                          {canWrite && <Button size="sm" onClick={() => patch(c.body(new Date().toISOString()), "Recorded")}>Mark done now</Button>}
                         </>
                       )}
                     </li>
@@ -116,27 +123,30 @@ export default function IncidentPage() {
                 })}
               </ul>
             ) : (
-              <p className="px-4 py-5 text-sm text-muted">This incident is not marked as CERT-In reportable or as a personal data breach, so no regulator deadline applies.</p>
+              <p className="px-4 py-5 text-sm text-muted">This incident is not marked as reportable to CERT-In or a financial regulator, or as a personal data breach, so no regulator deadline applies.</p>
             )}
             {canWrite && (
               <div className="space-y-3 border-t border-line bg-paper/50 px-4 py-4">
                 <Checkbox label="Reportable to CERT-In" checked={inc.certin_reportable} onChange={(v) => patch({ certin_reportable: v }, "Updated")} />
                 <Checkbox label="Personal data breach (DPDP)" checked={inc.personal_data_breach} onChange={(v) => patch({ personal_data_breach: v }, "Updated")} />
+                {(regulators ?? []).filter((r) => r.suggested || inc.regulators.includes(r.key)).map((r) => (
+                  <Checkbox key={r.key} label={r.label} hint={r.hint} checked={inc.regulators.includes(r.key)} onChange={(v) => toggleRegulator(r.key, v)} />
+                ))}
               </div>
             )}
           </Panel>
 
-          {canWrite && clocks.some((c) => c.show && inc[c.key]) && (
+          {canWrite && clocks.some((c) => c.show && c.done) && (
             <Panel title="Correct a recorded time">
               <div className="grid gap-3 sm:grid-cols-2">
-                {clocks.filter((c) => c.show && inc[c.key]).map((c) => (
-                  <Field key={c.key} label={`${c.title} (IST)`}>
+                {clocks.filter((c) => c.show && c.done).map((c) => (
+                  <Field key={c.id} label={`${c.title} (IST)`}>
                     {(fid) => (
                       <Input
                         id={fid}
                         type="datetime-local"
-                        defaultValue={isoToLocal(inc[c.key])}
-                        onBlur={(e) => e.target.value && patch({ [c.key]: localToIso(e.target.value) }, "Time corrected")}
+                        defaultValue={isoToLocal(c.done)}
+                        onBlur={(e) => e.target.value && patch(c.body(localToIso(e.target.value)), "Time corrected")}
                       />
                     )}
                   </Field>

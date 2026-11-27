@@ -1,6 +1,6 @@
 # Pramaanly
 
-**Open-source compliance automation, built India-first.** One set of controls mapped to India's DPDP Act, CERT-In and the RBI, SEBI, IRDAI and IFSCA cyber rules, plus ISO 27001, SOC 2, NIST CSF, PCI DSS, GDPR and more. Pramaanly collects and checks the evidence, tracks policies, risks, vendors, training and incidents, and gets you audit-ready.
+**Open-source compliance automation.** One set of controls mapped to India's DPDP Act, CERT-In and the RBI, SEBI, IRDAI and IFSCA cyber rules, plus ISO 27001, SOC 2, NIST CSF, PCI DSS, GDPR and more. Pramaanly collects and checks the evidence, tracks policies, risks, vendors, training and incidents, and gets you audit-ready.
 
 [![Licence: Apache-2.0](https://img.shields.io/badge/licence-Apache--2.0-blue.svg)](LICENSE)
 [![CI](https://github.com/bhatisunil2706/pramaanly/actions/workflows/ci.yml/badge.svg)](https://github.com/bhatisunil2706/pramaanly/actions/workflows/ci.yml)

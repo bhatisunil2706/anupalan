@@ -98,7 +98,7 @@ Run inside the migrate container, for example `docker compose run --rm migrate p
 | `load-content` | Load or refresh frameworks, controls, templates, courses and questionnaires |
 | `check-content` | Validate content (every requirement mapped, criteria present, questionnaires valid) and this documentation (every link resolves) |
 | `sync-runtime-role` | Create or update the restricted database role and its row-level security grants |
-| `seed-demo [--reset] [--password …]` | Load the demo companies (Paisa Setu, AarogyaLink, KiranaKart and FinBox (Demo)), adding any that are missing; `--reset` recreates them all and discards changes. Refuses to run in production. |
+| `seed-demo [--reset] [--password …]` | Load the demo companies (Paisa Setu, AarogyaLink and KiranaKart), adding any that are missing; `--reset` recreates them all and discards changes. Refuses to run in production. |
 | `remove-demo` | Delete the demo companies and their users |
 | `verify-audit` | Verify the hash chain of every organisation's audit log |
 

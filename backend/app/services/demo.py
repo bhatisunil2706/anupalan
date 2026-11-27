@@ -145,43 +145,6 @@ COMPANIES = [
                    ("Delivery partner KYC", ["delivery partners"], ["name", "aadhaar", "bank_account", "phone"],
                     "Onboard and pay delivery partners", "legitimate_use", "Duration of engagement + 3 years")],
     },
-    {
-        "name": "FinBox (Demo)", "domain": "finbox-demo.example",
-        "sector": "Fintech (digital lending infrastructure for banks and NBFCs)",
-        "employees": "201-500", "readiness": 0.64,
-        "frameworks": ["dpdp", "certin", "iso27001", "soc2", "rbi_digital_lending", "rbi_it_outsourcing"],
-        "profile": {"uses_consent_manager": True}, "seed": 53,
-        # Sample data for a FinBox demo: people, findings and incidents are invented, not FinBox's real records.
-        "people": [("Ishaan Bhatia", "Co-founder & CEO (sample)", "Leadership", "owner"),
-                   ("Tanvi Deshpande", "Head of Information Security (sample)", "Security", "admin"),
-                   ("Varun Krishnan", "Engineering Manager, Lending Platform (sample)", "Engineering", "member"),
-                   ("Ritu Saxena", "Partner, Aksha Assurance (sample auditor)", "External", "auditor")],
-        "staff": [("Siddharth Rao", "Backend Engineer", "Engineering"), ("Nandini Iyer", "Product Manager, BRE",
-                                                                         "Product"),
-                  ("Kunal Arora", "SRE", "Engineering"), ("Pallavi Menon", "Compliance Manager", "Risk"),
-                  ("Yash Thakur", "Data Scientist, Credit Models", "Data"), ("Ayesha Siddiqui", "Customer Success",
-                                                                             "Operations"),
-                  ("Abhinav Goyal", "Security Engineer", "Security"), ("Riya Chopra", "Finance Manager", "Finance"),
-                  ("Manav Sethi", "Solutions Engineer (lender integrations)", "Engineering")],
-        "leaver": ("Devansh Kapoor", "Data Engineer", "Data"),
-        "vendors": [("Amazon Web Services", "critical", "Cloud hosting (ap-south-1, Mumbai)", True,
-                     ["ISO 27001", "SOC 2"]),
-                    ("Google Workspace", "medium", "Email and documents", True, ["ISO 27001", "SOC 2"]),
-                    ("Freshworks", "high", "Lender and borrower support desk", True, ["ISO 27001", "SOC 2"]),
-                    ("Lendbridge Collections (sample vendor)", "high", "Collections and recovery partner", True, []),
-                    ("Slack", "medium", "Internal chat", False, ["SOC 2"])],
-        "assets": [("Borrower KYC records", ["borrowers"], ["name", "pan", "aadhaar", "phone", "address", "photo"],
-                    "KYC for lender partners under RBI directions", "legitimate_use",
-                    "As instructed by the lender (typically 5 years after loan closure)"),
-                   ("Bank statements and Account Aggregator data", ["borrowers"], ["name", "bank_account", "income"],
-                    "Credit assessment for lender partners", "consent", "Deleted 30 days after the decision"),
-                   ("Credit bureau reports", ["borrowers"], ["name", "pan", "credit_score"],
-                    "Underwriting on behalf of lenders", "consent", "Duration of the loan"),
-                   ("Lender partner contacts", ["lender staff"], ["name", "email", "phone"],
-                    "Run lender integrations and support", "legitimate_use", "Duration of contract + 1 year"),
-                   ("Employee records", ["employees"], ["name", "pan", "bank_account", "address"], "Payroll and HR",
-                    "legitimate_use", "7 years after exit")],
-    },
 ]
 
 
@@ -190,8 +153,21 @@ def _email(name: str, domain: str) -> str:
     return f"{first}@{domain}"
 
 
+# Demo companies that were removed from COMPANIES: deleted wherever they still exist when demo data is seeded.
+RETIRED_DEMO_COMPANIES = {"FinBox (Demo)": "finbox-demo.example"}
+
+
+def _remove_retired(db: Session) -> None:
+    """Delete demo companies that are no longer part of the demo, with their users."""
+    db.execute(delete(Organization).where(Organization.name.in_(list(RETIRED_DEMO_COMPANIES))))
+    for domain in RETIRED_DEMO_COMPANIES.values():
+        db.execute(delete(User).where(User.email.like(f"%@{domain}")))
+    db.flush()
+
+
 def _wipe(db: Session) -> None:
     """Delete demo organisations and users with database-level cascades."""
+    _remove_retired(db)
     db.execute(delete(Organization).where(Organization.name.in_([c["name"] for c in COMPANIES])))
     db.execute(delete(User).where(User.email.like(f"%{DEMO_DOMAIN_SUFFIX}")))
     db.flush()
@@ -300,6 +276,8 @@ def _demo_docx(body: str, modified: str) -> bytes:
 def seed(db: Session, password: str = DEFAULT_PASSWORD, reset: bool = False) -> list[dict]:
     """Create the demo companies. Without `reset`, only companies that don't exist yet are added, so a new demo
     company can be added without discarding changes made to the others."""
+    _remove_retired(db)
+    db.commit()
     existing = set(db.scalars(select(Organization.name).where(Organization.name.in_([c["name"] for c in COMPANIES]))))
     if reset:
         _wipe(db)

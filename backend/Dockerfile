@@ -2,7 +2,9 @@ FROM python:3.13-slim
 ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1 PIP_NO_CACHE_DIR=1 PIP_DISABLE_PIP_VERSION_CHECK=1
 WORKDIR /app
 COPY requirements.txt .
-RUN pip install -r requirements.txt
+# Pick up Debian security fixes released after the base image was built
+RUN apt-get update && apt-get upgrade -y --no-install-recommends && rm -rf /var/lib/apt/lists/*
+RUN pip install --upgrade pip "setuptools>=78.1.1" && pip install -r requirements.txt
 COPY . .
 RUN useradd --uid 1001 --create-home app && mkdir -p /app/storage && chown -R app /app/storage
 USER app

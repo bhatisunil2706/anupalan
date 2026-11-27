@@ -10,7 +10,7 @@
 
 ![Pramaanly dashboard](docs/images/dashboard.png)
 
-🎬 **[Watch the 30-second tour](docs/images/pramaanly-demo.mp4)**: dashboard, frameworks, incident clocks, evidence checks and DPDP consent.
+🎬 **[Watch the 30-second tour](docs/images/pramaanly-demo.mp4)**: dashboard, frameworks, incident deadlines, evidence checks and consent records.
 
 *Pramaanly* comes from **pramaan** (प्रमाण), "proof": compliance you can prove, with evidence an auditor can trust.
 

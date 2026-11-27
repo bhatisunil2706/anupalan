@@ -271,7 +271,14 @@ def test_scanner_agent_api_remasks_examples(owner):
 
 
 def test_connect_reports_unreachable_hosts(owner, monkeypatch):
+    from starlette.testclient import TestClient
+
+    real = httpx.Client.request
+
     def boom(self, *a, **k):
+        # newer Starlette routes TestClient calls through httpx.Client.request too; only fail outbound calls
+        if isinstance(self, TestClient):
+            return real(self, *a, **k)
         raise httpx.ConnectError("nope")
 
     monkeypatch.setattr(httpx.Client, "request", boom)

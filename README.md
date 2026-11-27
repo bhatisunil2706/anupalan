@@ -96,6 +96,23 @@ python -m app.cli check-content
 cd ../frontend && npx tsc --noEmit && npm run build
 ```
 
+## Demo in GitHub Codespaces
+
+Runs the whole app (web, API, worker, PostgreSQL, Redis) in a free GitHub Codespace, with the four demo companies.
+
+1. **Optional but recommended:** set your own demo password. GitHub → your profile → **Settings → Codespaces → Secrets → New secret**: name `DEMO_PASSWORD`, any strong value, and give it access to this repository. Without it, demo logins use the public default password.
+2. On the repository page: **Code → Codespaces → Create codespace on main**.
+3. Wait for the first start (about 5 to 10 minutes: it builds the images and loads the demo data). The terminal ends with `Open: https://<name>-3000.app.github.dev`.
+4. Open that link and sign in, for example `ishaan@finbox-demo.example` (FinBox) or `priya@paisasetu.example` (Paisa Setu), with your `DEMO_PASSWORD`.
+
+Sharing: the link needs a GitHub sign-in until port 3000 is **Public**. With `DEMO_PASSWORD` set, the Codespace makes it public automatically; otherwise, in the **Ports** tab, right-click 3000 → **Port Visibility → Public**. Anyone with a public link can reach the sign-in page, so use only demo data there.
+
+Good to know:
+
+- A Codespace stops after about 30 minutes without activity. Reopen it from **Code → Codespaces** and the app restarts; the link and the demo data stay the same. A new Codespace gets a new link.
+- GitHub Free includes 120 core hours a month (about 60 hours on the standard 2-core machine) and 15 GB of storage. Stop or delete Codespaces you aren't using.
+- `.devcontainer/setup.sh` writes `.env` with this Codespace's address and freshly generated secrets; the app runs in development mode (demo use only, not for real data).
+
 ## Project layout
 
 ```

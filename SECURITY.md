@@ -2,23 +2,17 @@
 
 ## Reporting a vulnerability
 
-Report vulnerabilities privately through GitHub: open the repository's **Security** tab and choose
-**[Report a vulnerability](https://github.com/bhatisunil2706/pramaanly/security/advisories/new)**. Include steps to
-reproduce and the version or commit you tested. Please don't open a public issue or pull request for a security
-problem.
+Please report security problems privately, not in a public issue: open the **Security** tab and choose
+**[Report a vulnerability](https://github.com/bhatisunil2706/pramaanly/security/advisories/new)**. Tell me how to
+reproduce it and which version or commit you tested.
 
-- We acknowledge reports within 2 business days and give a fix timeline within 7.
-- We won't take legal action against good-faith research that avoids privacy violations, data destruction
-  and service disruption, and that gives us reasonable time to fix before disclosure.
-- Out of scope: denial of service, social engineering, findings that need a compromised device, and reports
-  from automated scanners without a demonstrated impact.
-
-Self-hosted installations also publish this contact at `/.well-known/security.txt`.
+Pramaanly is maintained by one person, so fixes are best effort. I'll reply as soon as I can, keep you updated,
+and credit you in the fix if you'd like. Please give me reasonable time to fix the issue before sharing it
+publicly. Good-faith research is welcome.
 
 ## Supported versions
 
-Only the latest release receives security fixes. If you run Pramaanly, update within 14 days of a security release
-(7 days for anything marked critical). Watch the repository's releases to be notified.
+Only the latest release receives security fixes. Watch the repository's releases to hear about them.
 
 ## How Pramaanly protects your data
 

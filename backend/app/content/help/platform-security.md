@@ -70,4 +70,4 @@ We'd rather you heard these from us:
 
 ## Reporting a vulnerability
 
-Report it privately through GitHub: [Report a vulnerability](https://github.com/bhatisunil2706/pramaanly/security/advisories/new) on the project's Security tab. Please don't open a public issue. We acknowledge reports within two business days and won't take action against good-faith research. Self-hosted installations publish this contact at `/.well-known/security.txt`.
+Report it privately through GitHub: [Report a vulnerability](https://github.com/bhatisunil2706/pramaanly/security/advisories/new) on the project's Security tab. Please don't open a public issue. Pramaanly is maintained by one person, so fixes are best effort. Self-hosted installations publish this contact at `/.well-known/security.txt`.

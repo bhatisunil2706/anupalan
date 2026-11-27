@@ -2,13 +2,10 @@
 
 ## Reporting a vulnerability
 
-Please report security problems privately, not in a public issue: open the **Security** tab and choose
-**[Report a vulnerability](https://github.com/bhatisunil2706/pramaanly/security/advisories/new)**. Tell me how to
-reproduce it and which version or commit you tested.
-
-Pramaanly is maintained by one person, so fixes are best effort. I'll reply as soon as I can, keep you updated,
-and credit you in the fix if you'd like. Please give me reasonable time to fix the issue before sharing it
-publicly. Good-faith research is welcome.
+Please report (suspected) security vulnerabilities privately through
+**[GitHub's private reporting](https://github.com/bhatisunil2706/pramaanly/security/advisories/new)**, not in a
+public issue. You will receive a response within 48 hours. If the issue is confirmed, a patch will be released as
+soon as possible, depending on complexity.
 
 ## Supported versions
 

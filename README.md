@@ -1,6 +1,8 @@
 # Anupalan (working name)
 
-India-first compliance automation. One set of controls, mapped to the **DPDP Act 2023 + DPDP Rules 2025**, the **CERT-In Directions (April 2022)**, **RBI IT Governance Directions**, **SEBI CSCRF**, **ISO/IEC 27001:2022**, **SOC 2**, **NIST CSF 2.0**, **PCI DSS v4.0.1**, **ISO/IEC 42001**, **GDPR** and **HIPAA**, with evidence collection, policies, risk, vendors, training and DPDP operations (data inventory, consent records, rights requests, breach clocks).
+**[▶ Live demo](https://bhatisunil2706.github.io/anupalan-demo/)**: click through the app with sample data for a fictional fintech. No sign-up; read-only.
+
+India-first compliance automation. One set of controls, mapped to the **DPDP Act 2023 + DPDP Rules 2025**, the **CERT-In Directions (April 2022)**, the **RBI Cybersecurity Directions 2026** and other RBI rules (digital payments, payment aggregators, digital lending, IT outsourcing), **SEBI CSCRF**, **IRDAI** and **IFSCA** cyber guidelines, **ISO/IEC 27001:2022**, **SOC 2**, **NIST CSF 2.0**, **PCI DSS v4.0.1**, **ISO/IEC 42001**, **GDPR** and **HIPAA**, with evidence collection, policies, risk, vendors, training and DPDP operations (data inventory, consent records, rights requests, breach clocks).
 
 > "Anupalan" (अनुपालन, compliance) is a placeholder. Change it with `NEXT_PUBLIC_APP_NAME` and `APP_NAME`.
 
@@ -112,6 +114,10 @@ Good to know:
 - A Codespace stops after about 30 minutes without activity. Reopen it from **Code → Codespaces** and the app restarts; the link and the demo data stay the same. A new Codespace gets a new link.
 - GitHub Free includes 120 core hours a month (about 60 hours on the standard 2-core machine) and 15 GB of storage. Stop or delete Codespaces you aren't using.
 - `.devcontainer/setup.sh` writes `.env` with this Codespace's address and freshly generated secrets; the app runs in development mode (demo use only, not for real data).
+
+## Live demo site
+
+The public demo at https://bhatisunil2706.github.io/anupalan-demo/ is a static, read-only build of the real interface with recorded sample data. See [demo/README.md](demo/README.md) to update it.
 
 ## Project layout
 

@@ -12,3 +12,6 @@ next-env.d.ts
 
 # Local Redis snapshots
 dump.rdb
+
+# Static demo build workspace
+demo/.build/

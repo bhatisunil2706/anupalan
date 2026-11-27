@@ -5,6 +5,8 @@ COPY requirements.txt .
 # Pick up Debian security fixes released after the base image was built
 RUN apt-get update && apt-get upgrade -y --no-install-recommends && rm -rf /var/lib/apt/lists/*
 RUN pip install --upgrade pip "setuptools>=78.1.1" && pip install -r requirements.txt
+# Remove outdated wheels bundled with Python (ensurepip and test data); the app never uses them
+RUN find /usr/local -name "setuptools-7*" -prune -exec rm -rf {} + && pip list 2>/dev/null | grep -i setuptools
 COPY . .
 RUN useradd --uid 1001 --create-home app && mkdir -p /app/storage && chown -R app /app/storage
 USER app

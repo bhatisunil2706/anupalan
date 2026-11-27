@@ -83,7 +83,7 @@ jobs:
           docker build -t pramaanly-backend backend
           docker build -t pramaanly-web frontend
       - name: Image scan (Trivy)
-        uses: aquasecurity/trivy-action@0.28.0
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
         with:
           scan-type: image
           image-ref: pramaanly-backend
@@ -91,7 +91,7 @@ jobs:
           ignore-unfixed: true
           exit-code: "1"
       - name: Config scan (Trivy)
-        uses: aquasecurity/trivy-action@0.28.0
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
         with:
           scan-type: config
           scan-ref: .

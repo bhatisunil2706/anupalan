@@ -1,0 +1,4 @@
+Contact: https://github.com/bhatisunil2706/pramaanly/security/advisories/new
+Expires: 2027-11-30T00:00:00.000Z
+Preferred-Languages: en
+Policy: https://github.com/bhatisunil2706/pramaanly/security/policy

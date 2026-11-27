@@ -1,6 +1,6 @@
 # Anupalan (working name)
 
-**[▶ Live demo](https://bhatisunil2706.github.io/anupalan-demo/)**: click through the app with sample data for a fictional fintech. No sign-up; read-only.
+**[▶ Live demo](https://bhatisunil2706.github.io/anupalan/)**: click through the app with sample data for a fictional fintech. No sign-up; read-only.
 
 India-first compliance automation. One set of controls, mapped to the **DPDP Act 2023 + DPDP Rules 2025**, the **CERT-In Directions (April 2022)**, the **RBI Cybersecurity Directions 2026** and other RBI rules (digital payments, payment aggregators, digital lending, IT outsourcing), **SEBI CSCRF**, **IRDAI** and **IFSCA** cyber guidelines, **ISO/IEC 27001:2022**, **SOC 2**, **NIST CSF 2.0**, **PCI DSS v4.0.1**, **ISO/IEC 42001**, **GDPR** and **HIPAA**, with evidence collection, policies, risk, vendors, training and DPDP operations (data inventory, consent records, rights requests, breach clocks).
 
@@ -117,7 +117,7 @@ Good to know:
 
 ## Live demo site
 
-The public demo at https://bhatisunil2706.github.io/anupalan-demo/ is a static, read-only build of the real interface with recorded sample data. See [demo/README.md](demo/README.md) to update it.
+The public demo at https://bhatisunil2706.github.io/anupalan/ is a static, read-only build of the real interface with recorded sample data. See [demo/README.md](demo/README.md) to update it.
 
 ## Project layout
 

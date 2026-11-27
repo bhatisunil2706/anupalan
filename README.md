@@ -35,7 +35,7 @@
 | Vendors | Risk tiers, certificates and DPAs, a library of security questionnaires (full, lite, baseline, plus DPDP, GDPR, AI and PCI add-ons) sent by secure link and scored automatically |
 | People and training | HR roster matched to accounts, leaver checks, access reviews, 12 security awareness courses, phishing simulations, certificates |
 | Audits | Auditor role with time-limited access, evidence requests, Statement of Applicability, evidence pack with a SHA-256 manifest, sampling |
-| AI assistant (opt-in) | Policy drafts, gap remediation plans and questionnaire answers from your own policies (Claude API) |
+| AI assistant (opt-in) | Policy drafts, gap remediation plans and questionnaire answers from your own policies (Claude API). Off by default; see [AI features](#optional-ai-features) |
 | Documentation | 36 in-app articles with search and a Help button on every page |
 
 <table>
@@ -95,6 +95,24 @@ docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build
 This adds Caddy with automatic HTTPS, encrypted daily backups and read-only, non-root containers. The app refuses to start with default secrets, without secure cookies or Redis, or with a database role that can bypass row-level security. Back up `ENCRYPTION_KEY` separately from the database: without it, evidence can't be decrypted.
 
 The in-app guide **Installing and running the platform** (Documentation → Administration) covers configuration, email, storage, backups, upgrades and admin commands.
+
+### Optional: AI features
+
+AI is **off by default** and nothing is sent to an AI provider until you turn it on. It is enabled in two steps:
+
+1. **Server:** add an Anthropic API key to `.env` (without it the AI options stay unavailable).
+
+   ```bash
+   ANTHROPIC_API_KEY=sk-ant-...
+   AI_MODEL=claude-sonnet-5-5      # optional
+   AI_DAILY_JOBS_PER_ORG=40        # optional usage cap per company
+   ```
+
+2. **Each company:** an owner opts in under **Settings → Security → AI assistant**, separately for:
+   - **AI assistant:** policy drafts, gap remediation plans and questionnaire answers. Only policy and control text is sent.
+   - **AI evidence checks:** uploaded evidence is reviewed against the control's acceptance criteria. Results are advice for the reviewer and never approve evidence on their own.
+
+One company turning AI on doesn't affect any other company on the same server.
 
 ## Architecture
 

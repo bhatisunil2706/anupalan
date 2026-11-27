@@ -6,11 +6,11 @@ summary: Draft policies, plan remediation from gaps and answer customer security
 routes: /assistant
 ---
 
-The AI assistant uses Claude, Anthropic's AI model, to take the first pass at writing work. It works from your own policies and controls and cites them, and people review everything before it's used.
+The AI assistant uses the AI model your administrator has set up (Anthropic Claude, OpenAI, Azure OpenAI, Google Gemini or a self-hosted model) to take the first pass at writing work. It works from your own policies and controls and cites them, and people review everything before it's used.
 
 ## Turning it on
 
-The assistant is **off by default**. The **owner** turns it on in **Settings → Security → AI assistant**, after confirming that policy and control text may be sent to the AI provider. The server needs an `ANTHROPIC_API_KEY` (see [Self-hosting](/docs/self-hosting)). Each organisation can run up to 40 assistant jobs a day.
+The assistant is **off by default**. The **owner** turns it on in **Settings → Security → AI assistant**, after confirming that policy and control text may be sent to the AI provider. The server needs an AI provider configured (see [Self-hosting](/docs/self-hosting)). Each organisation can run up to 40 assistant jobs a day.
 
 ## What it can do
 

@@ -4,6 +4,8 @@ from pathlib import Path
 from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
+AI_PROVIDERS = ("anthropic", "openai", "azure_openai", "gemini", "openai_compatible")
+
 
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
@@ -72,11 +74,40 @@ class Settings(BaseSettings):
     # Optional ClamAV daemon for malware scanning of uploads, e.g. "clamav:3310".
     clamav_address: str = ""
 
-    # AI assistant (opt-in per organisation). Org data is sent to the Claude API only when an owner enables it.
-    anthropic_api_key: str = ""
-    anthropic_base_url: str = "https://api.anthropic.com"
-    ai_model: str = "claude-sonnet-5-5"
+    # AI assistant (opt-in per organisation). Org data is sent to the AI provider only when an owner enables it.
+    # AI_PROVIDER: anthropic | openai | azure_openai | gemini | openai_compatible (Ollama, vLLM, LM Studio, ...)
+    ai_provider: str = "anthropic"
+    ai_api_key: str = ""
+    ai_base_url: str = ""  # defaults per provider; required for azure_openai and openai_compatible
+    ai_model: str = ""  # defaults to claude-sonnet-5-5 for anthropic; required for the others
+    ai_api_version: str = "2024-10-21"  # Azure OpenAI only
     ai_daily_jobs_per_org: int = 40
+    # Older names, still honoured
+    anthropic_api_key: str = ""
+    anthropic_base_url: str = ""
+
+    @property
+    def ai_key(self) -> str:
+        return self.ai_api_key or (self.anthropic_api_key if self.ai_provider == "anthropic" else "")
+
+    @property
+    def ai_url(self) -> str:
+        defaults = {"anthropic": "https://api.anthropic.com", "openai": "https://api.openai.com/v1",
+                    "gemini": "https://generativelanguage.googleapis.com/v1beta/openai"}
+        url = self.ai_base_url or (self.anthropic_base_url if self.ai_provider == "anthropic" else "")
+        return (url or defaults.get(self.ai_provider, "")).rstrip("/")
+
+    @property
+    def ai_model_name(self) -> str:
+        return self.ai_model or ("claude-sonnet-5-5" if self.ai_provider == "anthropic" else "")
+
+    @property
+    def ai_configured(self) -> bool:
+        """Enough settings to call the provider. Local OpenAI-compatible servers may not need a key."""
+        p = self.ai_provider
+        if p not in AI_PROVIDERS or not self.ai_model_name or not self.ai_url:
+            return False
+        return bool(self.ai_key) or p == "openai_compatible"
 
     @property
     def is_production(self) -> bool:

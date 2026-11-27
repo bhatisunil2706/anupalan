@@ -45,7 +45,7 @@ When you send something back, say exactly what's needed: "Upload this quarter's 
 
 ## AI evidence check
 
-When turned on, Claude (Anthropic's AI model) reads each new piece of evidence (the image, the PDF, or the text of Word, Excel and other documents) and compares it with the control's criteria. It reports:
+When turned on, the configured AI model reads each new piece of evidence (the image, the PDF, or the text of Word, Excel and other documents; providers that can't read PDFs get the PDF's text) and compares it with the control's criteria. It reports:
 
 - a verdict: **Looks right**, **Needs attention** or **Doesn't fit this control**;
 - a short summary;
@@ -57,7 +57,7 @@ The verdict is **advice for the reviewer, never a decision**: it doesn't approve
 
 ### Turning it on
 
-Only the **owner** can turn it on, in **Settings → Security → Evidence checks**, and only after turning on the AI assistant. Because this sends uploaded evidence files to Anthropic's API, the owner must confirm that explicitly. Turning off the AI assistant turns evidence checks off too. The server also needs an `ANTHROPIC_API_KEY` (see [Self-hosting](/docs/self-hosting)).
+Only the **owner** can turn it on, in **Settings → Security → Evidence checks**, and only after turning on the AI assistant. Because this sends uploaded evidence files to the AI provider, the owner must confirm that explicitly. Turning off the AI assistant turns evidence checks off too. The server also needs an AI provider configured (see [Self-hosting](/docs/self-hosting)).
 
 Evidence checks run in the background, usually within a minute, and don't count towards the assistant's daily limit. If a check can't run, the item says so and the reviewer simply reviews it without one.
 

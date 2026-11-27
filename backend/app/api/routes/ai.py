@@ -14,7 +14,7 @@ from app.config import get_settings
 from app.deps import DB, Ctx, WriterCtx, get_owned
 from app.models import AiJob, Policy
 from app.services import audit
-from app.services.ai import MAX_QUESTIONS
+from app.services.ai import MAX_QUESTIONS, provider_label
 
 router = APIRouter(tags=["ai"])
 
@@ -28,7 +28,8 @@ def _used_today(db, org_id) -> int:
 @router.get("/ai/status")
 def ai_status(db: DB, ctx: Ctx):
     s = get_settings()
-    return {"enabled": ctx.org.ai_enabled, "available": bool(s.anthropic_api_key), "model": s.ai_model,
+    return {"enabled": ctx.org.ai_enabled, "available": s.ai_configured, "model": s.ai_model_name,
+            "provider": s.ai_provider, "provider_label": provider_label(),
             "used_24h": _used_today(db, ctx.org_id), "limit_24h": s.ai_daily_jobs_per_org,
             "can_toggle": ctx.role == "owner", "evidence_checks": ctx.org.ai_evidence_checks}
 
@@ -42,7 +43,7 @@ class ToggleIn(BaseModel):
 def toggle(body: ToggleIn, db: DB, ctx: Ctx):
     if ctx.role != "owner":
         raise HTTPException(status.HTTP_403_FORBIDDEN, "Only the owner can turn the AI assistant on or off")
-    if body.enabled and not get_settings().anthropic_api_key:
+    if body.enabled and not get_settings().ai_configured:
         raise HTTPException(status.HTTP_400_BAD_REQUEST, "The AI assistant isn't configured on this server")
     if body.enabled and not body.acknowledge_data_sharing:
         raise HTTPException(status.HTTP_400_BAD_REQUEST,
@@ -115,7 +116,7 @@ def _job_out(j: AiJob, full: bool = True) -> dict:
 @router.post("/ai/jobs", status_code=201)
 def create_job(body: JobIn, db: DB, ctx: WriterCtx):
     s = get_settings()
-    if not (ctx.org.ai_enabled and s.anthropic_api_key):
+    if not (ctx.org.ai_enabled and s.ai_configured):
         raise HTTPException(status.HTTP_400_BAD_REQUEST, "The AI assistant is turned off for your organisation")
     if _used_today(db, ctx.org_id) >= s.ai_daily_jobs_per_org:
         raise HTTPException(status.HTTP_429_TOO_MANY_REQUESTS, "Daily AI limit reached. Try again tomorrow.")

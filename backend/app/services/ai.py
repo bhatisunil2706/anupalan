@@ -36,28 +36,101 @@ class AiError(Exception):
     pass
 
 
-# ---------------------------------------------------------------- Claude API client
+# ---------------------------------------------------------------- AI provider clients
 
 _transport: httpx.BaseTransport | None = None  # tests inject a MockTransport
 
+PROVIDER_LABELS = {"anthropic": "Anthropic Claude", "openai": "OpenAI", "azure_openai": "Azure OpenAI",
+                   "gemini": "Google Gemini", "openai_compatible": "a self-hosted or OpenAI-compatible model"}
+
+
+def provider_label() -> str:
+    return PROVIDER_LABELS.get(get_settings().ai_provider, "the AI provider")
+
+
+def supports_pdf() -> bool:
+    """Whether PDFs can be sent as documents. Other providers get the PDF's extracted text."""
+    return get_settings().ai_provider in ("anthropic", "openai")
+
 
 def complete(system: str, prompt: str | list[dict], max_tokens: int = 4000) -> tuple[str, int, int]:
-    """Call the Messages API. `prompt` is text, or a list of content blocks (text, image, document)."""
+    """Send one request to the configured provider and return (text, input tokens, output tokens).
+
+    `prompt` is text, or a list of content blocks in Anthropic's shape (text, image, document); they are
+    translated for OpenAI-style providers.
+    """
     s = get_settings()
-    if not s.anthropic_api_key:
+    if not s.ai_configured:
         raise AiError("The AI assistant isn't configured on this server")
-    with httpx.Client(base_url=s.anthropic_base_url, timeout=120, transport=_transport) as client:
+    if s.ai_provider == "anthropic":
+        return _anthropic(s, system, prompt, max_tokens)
+    return _openai_style(s, system, prompt, max_tokens)
+
+
+def _anthropic(s, system, prompt, max_tokens):
+    with httpx.Client(base_url=s.ai_url, timeout=120, transport=_transport) as client:
         r = client.post("/v1/messages", headers={
-            "x-api-key": s.anthropic_api_key, "anthropic-version": "2023-06-01", "content-type": "application/json",
-        }, json={"model": s.ai_model, "max_tokens": max_tokens, "system": system,
+            "x-api-key": s.ai_key, "anthropic-version": "2023-06-01", "content-type": "application/json",
+        }, json={"model": s.ai_model_name, "max_tokens": max_tokens, "system": system,
                  "messages": [{"role": "user", "content": prompt}]})
-    if r.status_code != 200:
-        log.warning("claude api error %s: %s", r.status_code, r.text[:300])
-        raise AiError(f"The AI service returned an error ({r.status_code}). Try again later.")
-    body = r.json()
+    body = _check(r)
     text = "".join(b.get("text", "") for b in body.get("content", []) if b.get("type") == "text")
     usage = body.get("usage", {})
     return text, int(usage.get("input_tokens", 0)), int(usage.get("output_tokens", 0))
+
+
+def _to_openai_parts(prompt: str | list[dict]) -> str | list[dict]:
+    if isinstance(prompt, str):
+        return prompt
+    parts = []
+    for b in prompt:
+        src = b.get("source", {})
+        if b.get("type") == "text":
+            parts.append({"type": "text", "text": b["text"]})
+        elif b.get("type") == "image":
+            parts.append({"type": "image_url",
+                          "image_url": {"url": f"data:{src['media_type']};base64,{src['data']}"}})
+        elif b.get("type") == "document":
+            parts.append({"type": "file", "file": {"filename": "evidence.pdf",
+                                                   "file_data": f"data:{src['media_type']};base64,{src['data']}"}})
+    return parts
+
+
+def _openai_style(s, system, prompt, max_tokens):
+    """OpenAI Chat Completions, also spoken by Azure OpenAI, Gemini and OpenAI-compatible servers."""
+    headers = {"content-type": "application/json"}
+    if s.ai_provider == "azure_openai":
+        url = f"{s.ai_url}/openai/deployments/{s.ai_model_name}/chat/completions"
+        params = {"api-version": s.ai_api_version}
+        headers["api-key"] = s.ai_key
+    else:
+        url, params = f"{s.ai_url}/chat/completions", {}
+        if s.ai_key:
+            headers["authorization"] = f"Bearer {s.ai_key}"
+    payload = {"model": s.ai_model_name,
+               "messages": [{"role": "system", "content": system},
+                            {"role": "user", "content": _to_openai_parts(prompt)}]}
+    # Newer OpenAI models only accept max_completion_tokens; other servers expect max_tokens
+    payload["max_completion_tokens" if s.ai_provider in ("openai", "azure_openai") else "max_tokens"] = max_tokens
+    with httpx.Client(timeout=180, transport=_transport) as client:
+        r = client.post(url, params=params, headers=headers, json=payload)
+    body = _check(r)
+    choices = body.get("choices") or [{}]
+    content = (choices[0].get("message") or {}).get("content") or ""
+    if isinstance(content, list):  # some servers return content parts
+        content = "".join(p.get("text", "") for p in content if isinstance(p, dict))
+    usage = body.get("usage") or {}
+    return content, int(usage.get("prompt_tokens", 0)), int(usage.get("completion_tokens", 0))
+
+
+def _check(r: httpx.Response) -> dict:
+    if r.status_code != 200:
+        log.warning("ai provider error %s: %s", r.status_code, r.text[:300])
+        raise AiError(f"The AI service returned an error ({r.status_code}). Try again later.")
+    try:
+        return r.json()
+    except ValueError as e:
+        raise AiError("The AI service returned an unreadable response. Try again later.") from e
 
 
 def parse_json(text: str):

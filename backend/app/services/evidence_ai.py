@@ -1,4 +1,5 @@
-"""AI evidence check: Claude reads an uploaded file and compares it with what the control's evidence must show.
+"""AI evidence check: the configured AI model reads an uploaded file and compares it with what the control's
+evidence must show.
 
 The verdict is advice for the human reviewer: it never approves or rejects evidence. The file is untrusted data
 (it may contain text written to manipulate the check), so it is passed as data, the model must answer in a fixed
@@ -16,7 +17,7 @@ from app.config import get_settings
 from app.models import AiJob, Control, Evidence, Organization
 from app.services import evidence_checks as ec
 from app.services import storage
-from app.services.ai import AiError, _escape, complete, parse_json
+from app.services.ai import AiError, _escape, complete, parse_json, supports_pdf
 
 VERDICTS = ("looks_right", "needs_attention", "wrong_evidence")
 IMAGE_TYPES = {".png": "image/png", ".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".gif": "image/gif",
@@ -55,7 +56,7 @@ def _content(ev: Evidence, data: bytes | None) -> tuple[list[dict], str]:
         return [{"type": "text", "text": header + "The file is the image below.\n</evidence>"},
                 {"type": "image", "source": {"type": "base64", "media_type": IMAGE_TYPES[ext],
                                              "data": base64.b64encode(data).decode()}}], "image"
-    if ext == ".pdf" and len(data) <= MAX_INLINE_BYTES:
+    if ext == ".pdf" and len(data) <= MAX_INLINE_BYTES and supports_pdf():
         return [{"type": "text", "text": header + "The file is the PDF document below.\n</evidence>"},
                 {"type": "document", "source": {"type": "base64", "media_type": "application/pdf",
                                                 "data": base64.b64encode(data).decode()}}], "pdf"
@@ -135,14 +136,14 @@ def check_evidence(db: Session, job: AiJob, org: Organization) -> dict:
                                               and c["code"] not in have]
     ev.ai_check = {"status": "done", "verdict": verdict, "summary": str(raw.get("summary") or "")[:600],
                    "criteria": results, "issues": issues, "document_date": doc_date.isoformat() if doc_date else None,
-                   "organisation": organisation, "sent_as": sent_as, "model": get_settings().ai_model,
+                   "organisation": organisation, "sent_as": sent_as, "model": get_settings().ai_model_name,
                    "checked_at": datetime.now(timezone.utc).isoformat()}
     return {"evidence_id": str(ev.id), "verdict": verdict, "_usage": (tin, tout)}
 
 
 def queue_check(db: Session, org: Organization, ev: Evidence, user_id) -> bool:
     """Queue an AI check for new evidence when the organisation has opted in. Returns True when queued."""
-    if not (org.ai_enabled and org.ai_evidence_checks and get_settings().anthropic_api_key):
+    if not (org.ai_enabled and org.ai_evidence_checks and get_settings().ai_configured):
         return False
     if ev.kind not in ("file", "link", "note"):
         return False

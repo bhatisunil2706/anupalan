@@ -48,7 +48,7 @@ All settings are environment variables in `.env`. The important ones:
 | `STORAGE_BACKEND` | `local` (encrypted files in a Docker volume) or `s3` (plus `S3_BUCKET`, `S3_REGION`, `S3_KMS_KEY_ID`) |
 | `CLAMAV_ADDRESS` | Optional ClamAV daemon (for example `clamav:3310`) to scan uploads for malware |
 | `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASSWORD`, `SMTP_FROM`, `SMTP_STARTTLS` | Email. Without `SMTP_HOST`, emails are written to the worker log. |
-| `ANTHROPIC_API_KEY`, `AI_MODEL` | Optional: enables the AI assistant and AI evidence checks (each organisation's owner must still opt in) |
+| `AI_PROVIDER`, `AI_API_KEY`, `AI_MODEL`, `AI_BASE_URL`, `AI_API_VERSION` | Optional: enables the AI assistant and AI evidence checks (each organisation's owner must still opt in). See *Choosing an AI provider* below |
 | `BACKUP_PASSPHRASE`, `BACKUP_DIR`, `BACKUP_KEEP_DAYS` | Encrypted backups (production) |
 | `LOG_FORMAT`, `METRICS_TOKEN` | JSON logs, and a bearer token for Prometheus scraping of `/metrics` |
 
@@ -107,3 +107,18 @@ Run inside the migrate container, for example `docker compose run --rm migrate p
 - `GET /api/health` returns `{"status": "ok"}` when the backend is up.
 - `GET /metrics` (with `Authorization: Bearer <METRICS_TOKEN>`) exposes Prometheus metrics, including security events such as account lockouts.
 - Logs go to standard output; set `LOG_FORMAT=json` for your log platform.
+
+## Choosing an AI provider
+
+AI is optional and off until both the server and each organisation's owner turn it on. Set `AI_PROVIDER` and the matching values in `.env`, then restart:
+
+| Provider | `AI_PROVIDER` | Also set |
+| --- | --- | --- |
+| Anthropic Claude (default) | `anthropic` | `AI_API_KEY`; `AI_MODEL` is optional (defaults to `claude-sonnet-5-5`) |
+| OpenAI | `openai` | `AI_API_KEY`, `AI_MODEL` |
+| Azure OpenAI | `azure_openai` | `AI_API_KEY`, `AI_BASE_URL` (`https://<resource>.openai.azure.com`), `AI_MODEL` (your deployment name), optionally `AI_API_VERSION` |
+| Google Gemini | `gemini` | `AI_API_KEY`, `AI_MODEL` |
+| Self-hosted or other OpenAI-compatible (Ollama, vLLM, LM Studio, OpenRouter, Groq and others) | `openai_compatible` | `AI_BASE_URL` (for example `http://ollama:11434/v1`), `AI_MODEL`, and `AI_API_KEY` if the server needs one |
+
+A self-hosted model keeps policy text and evidence inside your own network. For AI evidence checks, choose a model that can read images; providers other than Anthropic and OpenAI receive a PDF's extracted text instead of the PDF itself. The older `ANTHROPIC_API_KEY` setting still works.
+

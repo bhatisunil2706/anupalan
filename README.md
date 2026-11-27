@@ -35,7 +35,7 @@
 | Vendors | Risk tiers, certificates and DPAs, a library of security questionnaires (full, lite, baseline, plus DPDP, GDPR, AI and PCI add-ons) sent by secure link and scored automatically |
 | People and training | HR roster matched to accounts, leaver checks, access reviews, 12 security awareness courses, phishing simulations, certificates |
 | Audits | Auditor role with time-limited access, evidence requests, Statement of Applicability, evidence pack with a SHA-256 manifest, sampling |
-| AI assistant (opt-in) | Policy drafts, gap remediation plans and questionnaire answers from your own policies (Claude API). Off by default; see [AI features](#optional-ai-features) |
+| AI assistant (opt-in) | Policy drafts, gap remediation plans and questionnaire answers from your own policies, using Claude, OpenAI, Azure OpenAI, Gemini or a self-hosted model. Off by default; see [AI features](#optional-ai-features) |
 | Documentation | 36 in-app articles with search and a Help button on every page |
 
 <table>
@@ -100,13 +100,17 @@ The in-app guide **Installing and running the platform** (Documentation → Admi
 
 AI is **off by default** and nothing is sent to an AI provider until you turn it on. It is enabled in two steps:
 
-1. **Server:** add an Anthropic API key to `.env` (without it the AI options stay unavailable).
+1. **Server:** choose a provider in `.env`. Without one, the AI options stay unavailable.
 
-   ```bash
-   ANTHROPIC_API_KEY=sk-ant-...
-   AI_MODEL=claude-sonnet-5-5      # optional
-   AI_DAILY_JOBS_PER_ORG=40        # optional usage cap per company
-   ```
+   | Provider | `.env` settings |
+   | --- | --- |
+   | Anthropic Claude | `AI_PROVIDER=anthropic`, `AI_API_KEY` (model defaults to `claude-sonnet-5-5`) |
+   | OpenAI | `AI_PROVIDER=openai`, `AI_API_KEY`, `AI_MODEL` |
+   | Azure OpenAI | `AI_PROVIDER=azure_openai`, `AI_API_KEY`, `AI_BASE_URL=https://<resource>.openai.azure.com`, `AI_MODEL=<deployment>` |
+   | Google Gemini | `AI_PROVIDER=gemini`, `AI_API_KEY`, `AI_MODEL` |
+   | Self-hosted / OpenAI-compatible (Ollama, vLLM, LM Studio, OpenRouter, Groq…) | `AI_PROVIDER=openai_compatible`, `AI_BASE_URL` (e.g. `http://ollama:11434/v1`), `AI_MODEL`, `AI_API_KEY` if needed |
+
+   A self-hosted model keeps all data inside your network. `AI_DAILY_JOBS_PER_ORG` (default 40) caps usage per company.
 
 2. **Each company:** an owner opts in under **Settings → Security → AI assistant**, separately for:
    - **AI assistant:** policy drafts, gap remediation plans and questionnaire answers. Only policy and control text is sent.

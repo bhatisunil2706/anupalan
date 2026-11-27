@@ -341,7 +341,7 @@ function ApiKeys() {
 
 function AiSetting() {
   const toast = useToast();
-  const { data, reload } = useApi<{ enabled: boolean; available: boolean; model: string; used_24h: number; limit_24h: number }>("/ai/status");
+  const { data, reload } = useApi<{ enabled: boolean; available: boolean; model: string; provider_label: string; used_24h: number; limit_24h: number }>("/ai/status");
   const [ack, setAck] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
   if (!data) return null;
@@ -363,7 +363,7 @@ function AiSetting() {
         <FormError error={formError} />
         <p className="text-muted">
           Drafts policies, suggests a remediation plan and answers security questionnaires from your own policies and controls. Text from your
-          policies, controls and the questions you upload is sent to Anthropic&apos;s Claude API ({data.model}). People data and consent records
+          policies, controls and the questions you upload is sent to {data.provider_label ?? "the AI provider"} ({data.model}), the AI provider set up on this server. People data and consent records
           are never sent. Evidence files are sent only if you also turn on AI evidence checks below.
         </p>
         {!data.available ? (
@@ -386,7 +386,7 @@ function EvidenceSettings() {
   const { me } = useSession();
   const toast = useToast();
   const org = useApi<{ require_evidence_review: boolean; ai_evidence_checks: boolean }>("/org");
-  const ai = useApi<{ enabled: boolean; available: boolean; model: string }>("/ai/status");
+  const ai = useApi<{ enabled: boolean; available: boolean; model: string; provider_label: string }>("/ai/status");
   const [ack, setAck] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
   if (!org.data || !ai.data) return null;
@@ -427,9 +427,9 @@ function EvidenceSettings() {
             {org.data.ai_evidence_checks ? <Badge tone="pass">On</Badge> : <Badge>Off</Badge>}
           </div>
           <p className="mt-1 text-muted">
-            Claude reads each new piece of evidence and compares it with what the control needs: right kind of document, current period,
+            The AI model reads each new piece of evidence and compares it with what the control needs: right kind of document, current period,
             your company&apos;s name, completed rather than a blank template. Its verdict is advice for the reviewer and never approves anything.
-            Turning this on sends uploaded evidence files to Anthropic&apos;s Claude API ({ai.data.model}).
+            Turning this on sends uploaded evidence files to {ai.data.provider_label ?? "the AI provider"} ({ai.data.model}).
           </p>
           {!isOwner ? (
             <p className="mt-2 text-xs text-muted">Only the owner can change this.</p>

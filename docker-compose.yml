@@ -22,8 +22,12 @@ x-backend-env: &backend-env
   LOG_FORMAT: ${LOG_FORMAT:-plain}
   CLAMAV_ADDRESS: ${CLAMAV_ADDRESS:-}
   METRICS_TOKEN: ${METRICS_TOKEN:-}
+  AI_PROVIDER: ${AI_PROVIDER:-anthropic}
+  AI_API_KEY: ${AI_API_KEY:-}
+  AI_MODEL: ${AI_MODEL:-}
+  AI_BASE_URL: ${AI_BASE_URL:-}
+  AI_API_VERSION: ${AI_API_VERSION:-2024-10-21}
   ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
-  AI_MODEL: ${AI_MODEL:-claude-sonnet-5-5}
   # Email. Without SMTP_HOST, emails are written to the worker log instead (see also the mailpit service).
   SMTP_HOST: ${SMTP_HOST:-}
   SMTP_PORT: ${SMTP_PORT:-587}

@@ -59,7 +59,7 @@ export default function AssistantPage() {
       {!s.enabled ? (
         <Panel>
           <Empty title={s.available ? "The AI assistant is off" : "The AI assistant isn't available on this server"}>
-            {s.available ? (s.can_toggle ? <>Turn it on in <Link href="/settings" className="underline">Settings &gt; Security</Link>. You&apos;ll see exactly what is shared first.</> : "Ask your workspace owner to turn it on.") : "Your administrator needs to configure an API key."}
+            {s.available ? (s.can_toggle ? <>Turn it on in <Link href="/settings" className="underline">Settings &gt; Security</Link>. You&apos;ll see exactly what is shared first.</> : "Ask your workspace owner to turn it on.") : "Your administrator needs to set up an AI provider."}
           </Empty>
         </Panel>
       ) : (

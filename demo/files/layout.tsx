@@ -7,8 +7,8 @@ import { ToastProvider } from "@/components/ui";
 import { DemoBanner } from "@/demo/shim";
 
 export const metadata: Metadata = {
-  title: { default: "Anupalan demo", template: "%s · Anupalan demo" },
-  description: "Live demo of Anupalan, compliance automation for DPDP, CERT-In, RBI, ISO 27001 and SOC 2, with sample data",
+  title: { default: "Pramaanly demo", template: "%s · Pramaanly demo" },
+  description: "Live demo of Pramaanly, compliance automation for DPDP, CERT-In, RBI, ISO 27001 and SOC 2, with sample data",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

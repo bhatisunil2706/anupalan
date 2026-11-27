@@ -86,8 +86,8 @@ class JiraConnector(Connector):
         for t in [t for t in pending if PRIORITY_ORDER.get(t.priority, 1) >= floor][:MAX_PER_SYNC]:
             fields = {"project": {"key": self.project}, "summary": t.title[:250],
                       "issuetype": {"name": self.config.get("issue_type") or "Task"},
-                      "description": _adf(f"{t.description}\n\nCreated by Anupalan. Task: {t.id}"),
-                      "labels": ["compliance", "anupalan"]}
+                      "description": _adf(f"{t.description}\n\nCreated by Pramaanly. Task: {t.id}"),
+                      "labels": ["compliance", "pramaanly"]}
             if t.due_date:
                 fields["duedate"] = t.due_date.isoformat()
             r = self._req("POST", "/rest/api/3/issue", json={"fields": fields})
@@ -133,9 +133,9 @@ class JiraConnector(Connector):
         ]
         if risk.control_codes:
             lines.append("Controls: " + ", ".join(risk.control_codes))
-        lines.append(f"Managed in Anupalan: {app_url}")
+        lines.append(f"Managed in Pramaanly: {app_url}")
         return {"summary": f"[Risk] {risk.title}"[:250], "description": _adf("\n\n".join(x for x in lines if x)),
-                "labels": ["risk", "anupalan", f"risk-{level}"]}
+                "labels": ["risk", "pramaanly", f"risk-{level}"]}
 
     def create_risk_issue(self, risk, app_url: str) -> None:
         fields = {"project": {"key": self.project},

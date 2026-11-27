@@ -45,8 +45,8 @@ For databases inside your network, run the scanner agent there. It reads data lo
 2. Create an environment file:
 
 ~~~
-ANUPALAN_URL=https://app.yourcompany.com
-ANUPALAN_API_KEY=anp_...
+PRAMAANLY_URL=https://app.yourcompany.com
+PRAMAANLY_API_KEY=prm_...
 SCAN_NAME=orders-db (prod)
 SCAN_KIND=postgres
 SCAN_HOST=10.0.3.12
@@ -59,7 +59,7 @@ SCAN_PASSWORD=...
 3. Run it with Docker:
 
 ~~~
-docker run --rm --env-file scan.env anupalan/backend python -m app.agent
+docker run --rm --env-file scan.env pramaanly/backend python -m app.agent
 ~~~
 
 For S3 use `SCAN_KIND=s3` with `SCAN_BUCKET`, `SCAN_PREFIX`, `SCAN_REGION`, `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY`. Set `SCAN_DRY_RUN=1` to print the report instead of sending it. Schedule it with cron to keep findings current.

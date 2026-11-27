@@ -58,7 +58,7 @@ from app.services.policies import approve_policy, create_policy_from_template
 from app.services.training import ensure_assignments
 
 DEMO_DOMAIN_SUFFIX = ".example"  # RFC 2606: never delivered
-DEFAULT_PASSWORD = "Demo-Anupalan-2026!"  # nosec B105 - demo-only password, refused in production
+DEFAULT_PASSWORD = "Demo-Pramaanly-2026!"  # nosec B105 - demo-only password, refused in production
 NOW = datetime.now(timezone.utc)
 TODAY = date.today()
 

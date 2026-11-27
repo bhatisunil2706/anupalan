@@ -8,7 +8,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
 
-    app_name: str = "Anupalan"
+    app_name: str = "Pramaanly"
     environment: str = "development"  # development | test | production
 
     database_url: str = "postgresql+psycopg://postgres@localhost:5432/app"
@@ -37,7 +37,7 @@ class Settings(BaseSettings):
     smtp_port: int = 587
     smtp_user: str = ""
     smtp_password: str = ""
-    smtp_from: str = "Anupalan <no-reply@localhost>"
+    smtp_from: str = "Pramaanly <no-reply@localhost>"
     smtp_starttls: bool = True
 
     # Personal data scanner: allow connecting to private / loopback addresses.

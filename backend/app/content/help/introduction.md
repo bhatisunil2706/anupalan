@@ -5,7 +5,7 @@ order: 1
 summary: What the platform does, how its parts fit together, and what is automated versus what your team does.
 ---
 
-Anupalan is a compliance automation platform built for Indian companies first. It helps you get and stay compliant with India's **Digital Personal Data Protection (DPDP) Act**, the **CERT-In Directions**, sector rules from **RBI** and **SEBI**, and international standards such as **ISO 27001**, **SOC 2**, **NIST CSF**, **PCI DSS**, **GDPR** and **HIPAA**. It does this from one place, with one set of work.
+Pramaanly is a compliance automation platform built for Indian companies first. It helps you get and stay compliant with India's **Digital Personal Data Protection (DPDP) Act**, the **CERT-In Directions**, sector rules from **RBI** and **SEBI**, and international standards such as **ISO 27001**, **SOC 2**, **NIST CSF**, **PCI DSS**, **GDPR** and **HIPAA**. It does this from one place, with one set of work.
 
 If you have never done compliance before, read this page and [Key concepts](/docs/concepts). They explain the few ideas everything else builds on.
 

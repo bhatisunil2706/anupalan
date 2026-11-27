@@ -410,7 +410,7 @@ def test_domain_cannot_be_claimed_twice(owner, idp):
 
 def test_api_keys_are_hashed_and_scoped(owner, db):
     r = owner.post("/api/org/api-keys", json={"name": "Website", "scopes": ["consent:write"]}).json()
-    assert r["secret"].startswith("anp_") and r["prefix"] == r["secret"][:12]
+    assert r["secret"].startswith("prm_") and r["prefix"] == r["secret"][:12]
     listed = owner.get("/api/org/api-keys").json()["keys"]
     assert "secret" not in json.dumps(listed)
     from app.models import ApiKey

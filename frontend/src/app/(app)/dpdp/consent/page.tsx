@@ -217,7 +217,7 @@ function Notices() {
 function Connect() {
   const origin = typeof window !== "undefined" ? window.location.origin : "https://app.example.com";
   const example = `curl -X POST ${origin}/api/v1/consent/events \\
-  -H "Authorization: Bearer $ANUPALAN_API_KEY" \\
+  -H "Authorization: Bearer $PRAMAANLY_API_KEY" \\
   -H "Content-Type: application/json" \\
   -d '{
     "event_id": "8f2c0b6e-signup-42",

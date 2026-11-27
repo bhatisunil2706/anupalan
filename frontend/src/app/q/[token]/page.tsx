@@ -205,7 +205,7 @@ function Shell({ org, children }: { org?: string; children: React.ReactNode }) {
       <header className="border-b border-line bg-surface">
         <div className="mx-auto flex max-w-3xl items-center justify-between px-4 py-3">
           <p className="font-semibold">{org ?? "Security questionnaire"}</p>
-          <p className="flex items-center gap-1 text-xs text-muted"><Lock size={12} aria-hidden /> Secure link · powered by {process.env.NEXT_PUBLIC_APP_NAME ?? "Anupalan"}</p>
+          <p className="flex items-center gap-1 text-xs text-muted"><Lock size={12} aria-hidden /> Secure link · powered by {process.env.NEXT_PUBLIC_APP_NAME ?? "Pramaanly"}</p>
         </div>
       </header>
       <main className="mx-auto max-w-3xl px-4 py-8">{children}</main>

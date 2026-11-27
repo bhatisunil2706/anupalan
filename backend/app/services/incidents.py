@@ -89,7 +89,7 @@ def record(db: Session, i: Incident, user: User | None, kind: str, message: str,
     db.add(ev)
     db.flush()
     if email:
-        who = user.full_name if user else "Anupalan"
+        who = user.full_name if user else "Pramaanly"
         title = headline or f"{label(i)} · {kind_label(kind)} by {who}"
         notify.queue(db, i.org_id, key=f"inc:{i.id}:ev:{ev.id}", event="incident", title=title,
                      body=message + status_line(i) + _footer(i), link=f"/incidents/{i.id}",

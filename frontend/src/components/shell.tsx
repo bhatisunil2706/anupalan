@@ -38,7 +38,7 @@ import type { Me, Member } from "@/lib/types";
 import { SessionProvider } from "./session";
 import { Loading, cx } from "./ui";
 
-const APP_NAME = process.env.NEXT_PUBLIC_APP_NAME ?? "Anupalan";
+const APP_NAME = process.env.NEXT_PUBLIC_APP_NAME ?? "Pramaanly";
 
 const NAV: { group: string; items: { href: string; label: string; icon: typeof Gauge }[] }[] = [
   {

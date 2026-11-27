@@ -25,7 +25,7 @@ MAX_INLINE_BYTES = 8 * 1024 * 1024
 MAX_TEXT = 40_000
 
 SYSTEM = (
-    "You check evidence for a security and privacy compliance audit inside Anupalan. You are given a control, the "
+    "You check evidence for a security and privacy compliance audit inside Pramaanly. You are given a control, the "
     "points its evidence must show, and one piece of evidence. Decide whether this evidence shows those points for "
     "this organisation in the current review period. Be strict and specific, like an experienced auditor: a policy "
     "is not proof that a setting is enforced, a blank template is not a completed record, and a document for "

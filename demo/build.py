@@ -1,6 +1,6 @@
 """Build the static demo site from a recording made with capture.py.
 
-    python demo/build.py demo/capture.json OUT_DIR [--base-path /anupalan]
+    python demo/build.py demo/capture.json OUT_DIR [--base-path /pramaanly]
 
 Copies the frontend to a temporary folder, swaps in the demo pieces from demo/files (an /api shim that answers from
 recorded data, a static-export config, no server-only code), writes the recorded responses as JSON files and builds
@@ -30,7 +30,7 @@ REMOVE = ["src/proxy.ts", "src/app/(auth)/signup", "src/app/(auth)/forgot-passwo
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("capture"); ap.add_argument("out"); ap.add_argument("--base-path", default="/anupalan")
+    ap.add_argument("capture"); ap.add_argument("out"); ap.add_argument("--base-path", default="/pramaanly")
     a = ap.parse_args()
     cap = json.load(open(a.capture))
     (ROOT / "demo" / ".build").mkdir(exist_ok=True)

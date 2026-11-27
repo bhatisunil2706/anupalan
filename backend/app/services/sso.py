@@ -34,7 +34,8 @@ PUBLIC_EMAIL_DOMAINS = {
     "icloud.com", "me.com", "proton.me", "protonmail.com", "rediffmail.com", "aol.com", "zoho.com", "gmx.com",
     "mail.com", "yandex.com",
 }
-DNS_PREFIX = "anupalan-verification="
+DNS_PREFIX = "pramaanly-verification="
+LEGACY_DNS_PREFIXES = ("anupalan-verification=",)  # records created before the rename keep working
 
 
 class SsoError(Exception):
@@ -81,7 +82,8 @@ def txt_records(domain: str) -> list[str]:
 def verify_domain(db: Session, d: OrgDomain) -> bool:
     if verified_domain(db, d.domain):
         raise SsoError("This domain is already verified by another organisation")
-    if any(t.strip() == f"{DNS_PREFIX}{d.verification_token}" for t in txt_records(d.domain)):
+    expected = {f"{prefix}{d.verification_token}" for prefix in (DNS_PREFIX, *LEGACY_DNS_PREFIXES)}
+    if any(t.strip() in expected for t in txt_records(d.domain)):
         d.verified_at = datetime.now(timezone.utc)
         return True
     return False

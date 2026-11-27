@@ -19,7 +19,7 @@ os.environ["DATABASE_URL"] = make_url(ADMIN_URL).set(username=RUNTIME_ROLE, pass
 os.environ["ENVIRONMENT"] = "test"
 os.environ["LOAD_CONTENT_ON_STARTUP"] = "false"
 os.environ["PASSWORD_BREACH_CHECK"] = "false"
-os.environ.setdefault("STORAGE_DIR", "/tmp/anupalan-test-storage")
+os.environ.setdefault("STORAGE_DIR", "/tmp/pramaanly-test-storage")
 
 import pytest  # noqa: E402
 from fastapi.testclient import TestClient  # noqa: E402

@@ -1,5 +1,5 @@
 {
-  "name": "anupalan-web",
+  "name": "pramaanly-web",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -33,5 +33,6 @@
     "@types/turndown": "5.0.6",
     "tailwindcss": "^4.3.3",
     "typescript": "^5.9"
-  }
+  },
+  "license": "Apache-2.0"
 }

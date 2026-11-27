@@ -6,7 +6,7 @@ import { connection } from "next/server";
 
 import { ToastProvider } from "@/components/ui";
 
-const APP_NAME = process.env.NEXT_PUBLIC_APP_NAME ?? "Anupalan";
+const APP_NAME = process.env.NEXT_PUBLIC_APP_NAME ?? "Pramaanly";
 
 export const metadata: Metadata = {
   title: { default: APP_NAME, template: `%s · ${APP_NAME}` },

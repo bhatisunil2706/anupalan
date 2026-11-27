@@ -305,7 +305,7 @@ function CoveragePanel({ cov, items, canConnect, onConnect, showManual, setShowM
 function EvidenceApi() {
   const origin = typeof window !== "undefined" ? window.location.origin : "";
   const snippet = `curl -X POST ${origin}/api/v1/evidence \\
-  -H "Authorization: Bearer $ANUPALAN_API_KEY" -H "Content-Type: application/json" \\
+  -H "Authorization: Bearer $PRAMAANLY_API_KEY" -H "Content-Type: application/json" \\
   -d '{"check": "backup-restore", "title": "Nightly restore test", "control_codes": ["OPS-06"],
        "status": "pass", "summary": "Restored 42 GB in 18 min", "source": "Jenkins"}'`;
   return (

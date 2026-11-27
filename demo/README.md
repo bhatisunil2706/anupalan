@@ -4,7 +4,7 @@ A clickable, read-only copy of the app with sample data for the fictional demo c
 GitHub Pages. The real interface runs in the browser and answers its `/api` calls from a recording of the real
 backend (`capture.json`), so there is no server and nothing can be saved.
 
-Published at https://bhatisunil2706.github.io/anupalan/ from this repository's `gh-pages` branch, which holds
+Published at https://bhatisunil2706.github.io/pramaanly/ from this repository's `gh-pages` branch, which holds
 only the built site.
 
 ## Updating the demo
@@ -13,7 +13,7 @@ only the built site.
 2. Record it (signs in as the Paisa Setu owner and visits every page, about 15 minutes):
    `python demo/capture.py demo/capture.json`
    To add pages to an existing recording without reseeding: `python demo/capture.py new.json demo/capture.json`.
-3. Build the site: `python demo/build.py demo/capture.json /tmp/site --base-path /anupalan`
+3. Build the site: `python demo/build.py demo/capture.json /tmp/site --base-path /pramaanly`
    (needs `npm ci` in `frontend/` first).
 4. Replace the contents of the `gh-pages` branch with `/tmp/site` and push. GitHub Pages republishes within a
    minute or two.
@@ -26,6 +26,6 @@ month or two.
 
 - `files/shim.tsx` replaces `fetch` for `/api/...`: GET requests are answered from `demo-data/`, and every change
   is refused with "This is a read-only demo".
-- `files/next.config.ts` switches the build to a static export under the base path (`/anupalan`).
+- `files/next.config.ts` switches the build to a static export under the base path (`/pramaanly`).
 - `build.py` copies `frontend/`, removes server-only parts (CSP proxy, sign-up and public token pages), adds
   `generateStaticParams` for each recorded detail page and builds into the output folder.

@@ -14,8 +14,8 @@ docker compose run --rm migrate
 echo "Starting..."
 docker compose up -d
 echo "Loading demo companies (skipped if already there)..."
-# Set DEMO_PASSWORD (for example as a Codespaces secret) to use your own password for new demo logins.
-DEMO_PASSWORD=${DEMO_PASSWORD:-Demo-Anupalan-2026!}
+# Set DEMO_PASSWORD to use your own password for new demo logins.
+DEMO_PASSWORD=${DEMO_PASSWORD:-Demo-Pramaanly-2026!}
 docker compose run --rm migrate python -m app.cli seed-demo --password "$DEMO_PASSWORD" 2>/dev/null | head -1 \
   || echo "Demo data already present."
 for i in $(seq 1 30); do
@@ -24,8 +24,8 @@ for i in $(seq 1 30); do
 done
 echo
 echo "Ready: http://localhost:$PORT"
-if [ "$DEMO_PASSWORD" = "Demo-Anupalan-2026!" ]; then
-  echo "Sign in: priya@paisasetu.example / Demo-Anupalan-2026!"
+if [ "$DEMO_PASSWORD" = "Demo-Pramaanly-2026!" ]; then
+  echo "Sign in: priya@paisasetu.example / Demo-Pramaanly-2026!"
 else
   echo "Sign in: priya@paisasetu.example with your DEMO_PASSWORD"
 fi

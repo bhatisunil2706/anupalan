@@ -126,6 +126,7 @@ def scan_for_malware(data: bytes) -> None:
 @lru_cache
 def _master_key() -> bytes:
     raw = base64.urlsafe_b64decode(get_settings().encryption_key.encode())
+    # The salts keep the product's original name on purpose: changing them would make existing evidence unreadable.
     return HKDF(algorithm=hashes.SHA256(), length=32, salt=b"anupalan-storage-master",
                 info=b"evidence").derive(raw)
 

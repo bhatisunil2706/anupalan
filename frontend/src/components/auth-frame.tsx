@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 
-const APP_NAME = process.env.NEXT_PUBLIC_APP_NAME ?? "Anupalan";
+const APP_NAME = process.env.NEXT_PUBLIC_APP_NAME ?? "Pramaanly";
 
 export function AuthFrame({ title, subtitle, children }: { title: string; subtitle?: ReactNode; children: ReactNode }) {
   return (

@@ -216,7 +216,7 @@ export function IncidentActivity({ incident, version, part }: { incident: Incide
                 <li key={e.id} className="relative">
                   <span className={cx("absolute -left-[25px] top-1.5 h-2.5 w-2.5 rounded-full ring-4 ring-surface", k.dot)} aria-hidden />
                   <p className="text-xs text-muted">
-                    <span className="font-semibold text-text">{e.user?.full_name ?? "Anupalan"}</span> · {k.label} · {fmtDateTime(e.created_at)}
+                    <span className="font-semibold text-text">{e.user?.full_name ?? "Pramaanly"}</span> · {k.label} · {fmtDateTime(e.created_at)}
                   </p>
                   <p className={cx("mt-0.5 whitespace-pre-wrap text-sm", e.kind === "details" && "text-muted")}>{e.message}</p>
                 </li>

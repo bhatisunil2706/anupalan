@@ -52,7 +52,7 @@ with sync_playwright() as p:
     pg = b.new_page(viewport={"width": 1400, "height": 900})
     pg.on("response", on_response)
     pg.goto(BASE + "/login"); pg.fill("input[type=email]", "priya@paisasetu.example")
-    pg.fill("input[type=password]", "Demo-Anupalan-2026!"); pg.keyboard.press("Enter")
+    pg.fill("input[type=password]", "Demo-Pramaanly-2026!"); pg.keyboard.press("Enter")
     pg.wait_for_url("**/dashboard"); pg.wait_for_timeout(1500)
     for start in ["/dashboard", "/tasks", "/frameworks", "/controls", "/evidence/review", "/policies", "/audit",
                   "/training", "/training/manage", "/assistant", "/integrations", "/people", "/access-reviews",

@@ -28,7 +28,7 @@ cp .env.example .env
 ./start.sh
 ~~~
 
-`start.sh` builds the images, upgrades the database, starts everything, loads the demo companies (once) and opens the browser. Sign in as `priya@paisasetu.example` with the password `Demo-Anupalan-2026!`. Run `./start.sh` again after pulling new code.
+`start.sh` builds the images, upgrades the database, starts everything, loads the demo companies (once) and opens the browser. Sign in as `priya@paisasetu.example` with the password `Demo-Pramaanly-2026!`. Run `./start.sh` again after pulling new code.
 
 If port 3000 is taken, set `WEB_PORT` and `PUBLIC_URL` in `.env` (for example 3100 and `http://localhost:3100`).
 

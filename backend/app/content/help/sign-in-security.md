@@ -17,7 +17,7 @@ summary: Require two-step verification, set session timeouts, verify domains, co
 Prove you own your email domain (for example `yourcompany.com`) so single sign-on can apply to it and phishing simulations can reach it:
 
 1. Enter the domain under **Add a domain**.
-2. Add the TXT record shown (`anupalan-verification=…`) to the domain's DNS.
+2. Add the TXT record shown (`pramaanly-verification=…`) to the domain's DNS.
 3. **Verify**. DNS changes can take up to an hour to appear.
 
 ## Single sign-on
@@ -43,7 +43,7 @@ API keys let your own systems talk to the platform: your website sending consent
 | `scanner:write` | Upload findings from the self-hosted personal data scanner |
 | `evidence:write` | Push check results from your own tools as evidence |
 
-The key (starting `anp_`) is shown **once**. Store it in your secrets manager. Only a hash is kept, so a lost key must be replaced. Revoke keys you no longer use; **last used** helps you find them. See the [API reference](/docs/api).
+The key (starting `prm_`) is shown **once**. Store it in your secrets manager. Only a hash is kept, so a lost key must be replaced. Revoke keys you no longer use; **last used** helps you find them. See the [API reference](/docs/api).
 
 ## AI assistant and evidence checks
 

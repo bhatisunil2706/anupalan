@@ -130,7 +130,7 @@ class ApiKeyContext:
 
 
 def api_key_auth(scope: str):
-    """Dependency factory: authenticate `Authorization: Bearer anp_...` and require a scope."""
+    """Dependency factory: authenticate `Authorization: Bearer prm_...` and require a scope."""
 
     def dep(request: Request, db: DB) -> ApiKeyContext:
         auth = request.headers.get("authorization", "")

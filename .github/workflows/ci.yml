@@ -80,13 +80,13 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Build images
         run: |
-          docker build -t anupalan-backend backend
-          docker build -t anupalan-web frontend
+          docker build -t pramaanly-backend backend
+          docker build -t pramaanly-web frontend
       - name: Image scan (Trivy)
         uses: aquasecurity/trivy-action@0.28.0
         with:
           scan-type: image
-          image-ref: anupalan-backend
+          image-ref: pramaanly-backend
           severity: CRITICAL,HIGH
           ignore-unfixed: true
           exit-code: "1"

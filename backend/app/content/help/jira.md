@@ -33,7 +33,7 @@ The account needs permission to create and edit issues in the project.
 
 ## Risks
 
-- **New risks** get a Jira issue as soon as they're saved (when automatic creation is on). The issue contains the summary `[Risk] …`, the description, the score with likelihood and impact, the treatment and plan, linked controls and a link back. Labels `risk`, `anupalan` and `risk-high`, `risk-medium` or `risk-low` are added.
+- **New risks** get a Jira issue as soon as they're saved (when automatic creation is on). The issue contains the summary `[Risk] …`, the description, the score with likelihood and impact, the treatment and plan, linked controls and a link back. Labels `risk`, `pramaanly` and `risk-high`, `risk-medium` or `risk-low` are added.
 - **Edits** to a risk are pushed to its issue.
 - **Status comes back**: when the issue's status category is **Done**, the risk becomes **Treated**; if the issue is reopened, the risk goes back to **Open**. The Jira status name is shown next to the risk.
 - **Import**: issues matching your JQL that aren't already linked are imported as risks (likelihood and impact 3, treatment Mitigate; review and score them), with the assignee as owner where their email matches a member.

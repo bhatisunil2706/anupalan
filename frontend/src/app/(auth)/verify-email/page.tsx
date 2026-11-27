@@ -24,7 +24,7 @@ export default function VerifyEmailPage() {
   return (
     <AuthFrame title={state.ok ? "Email confirmed" : "Couldn't confirm your email"}>
       <p className="text-sm text-muted">{state.message}</p>
-      <p className="mt-6"><Link href="/dashboard" className="font-medium text-ink underline">Continue to {process.env.NEXT_PUBLIC_APP_NAME ?? "Anupalan"}</Link></p>
+      <p className="mt-6"><Link href="/dashboard" className="font-medium text-ink underline">Continue to {process.env.NEXT_PUBLIC_APP_NAME ?? "Pramaanly"}</Link></p>
     </AuthFrame>
   );
 }

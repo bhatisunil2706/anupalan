@@ -56,7 +56,7 @@ def breached_count(password: str) -> int:
     prefix, suffix = digest[:5], digest[5:]
     try:
         r = httpx.get(f"https://api.pwnedpasswords.com/range/{prefix}", timeout=3,
-                      headers={"Add-Padding": "true", "User-Agent": "anupalan-password-check"})
+                      headers={"Add-Padding": "true", "User-Agent": "pramaanly-password-check"})
         r.raise_for_status()
     except httpx.HTTPError:
         log.warning("breached password check unavailable; continuing without it")

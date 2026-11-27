@@ -68,7 +68,7 @@ def test_consent_api_key_scopes_and_auth(owner):
     ev = {"event_id": "x", "principal_id": "p", "notice_key": "signup", "action": "granted", "purposes": ["account"]}
     assert machine.post("/api/v1/consent/events", json=ev).status_code == 401
     assert machine.post("/api/v1/consent/events", json=ev,
-                        headers={"Authorization": "Bearer anp_wrong"}).status_code == 401
+                        headers={"Authorization": "Bearer prm_wrong"}).status_code == 401
     assert machine.post("/api/v1/consent/events", json=ev,
                         headers={"Authorization": f"Bearer {read_only}"}).status_code == 403
 

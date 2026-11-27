@@ -223,7 +223,7 @@ def check_link(url: str) -> dict | None:
     current = url
     try:
         with httpx.Client(timeout=8, follow_redirects=False, transport=_transport,
-                          headers={"User-Agent": "Anupalan evidence link check"}) as client:
+                          headers={"User-Agent": "Pramaanly evidence link check"}) as client:
             for _ in range(4):
                 parsed = urlparse(current)
                 if parsed.scheme not in ("http", "https") or not parsed.hostname:

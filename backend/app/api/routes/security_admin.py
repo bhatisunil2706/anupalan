@@ -220,7 +220,7 @@ def create_api_key(body: ApiKeyIn, db: DB, ctx: AdminCtx):
     unknown = set(body.scopes) - set(API_SCOPES)
     if unknown:
         raise HTTPException(status.HTTP_400_BAD_REQUEST, f"Unknown scopes: {sorted(unknown)}")
-    secret = "anp_" + secrets.token_urlsafe(32)
+    secret = "prm_" + secrets.token_urlsafe(32)  # keys issued before the rename start with anp_ and still work
     k = ApiKey(org_id=ctx.org_id, name=body.name.strip(), prefix=secret[:12], key_hash=hash_token(secret),
                scopes=sorted(set(body.scopes)), created_by_id=ctx.user.id,
                expires_at=datetime.now(timezone.utc) + timedelta(days=body.expires_in_days)

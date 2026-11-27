@@ -1,13 +1,13 @@
 """Self-hosted personal data scanner agent.
 
 Runs inside your network, connects read-only to a database or bucket, samples rows, and sends only categories,
-counts and masked examples to Anupalan. Raw values never leave your network.
+counts and masked examples to Pramaanly. Raw values never leave your network.
 
-    docker run --rm --env-file scan.env anupalan/backend python -m app.agent
+    docker run --rm --env-file scan.env pramaanly/backend python -m app.agent
 
 Environment:
-    ANUPALAN_URL          e.g. https://app.anupalan.in
-    ANUPALAN_API_KEY      an API key with the scanner:write scope
+    PRAMAANLY_URL          e.g. https://compliance.example.com
+    PRAMAANLY_API_KEY      an API key with the scanner:write scope
     SCAN_NAME             a name for this source, e.g. "orders-db (prod)"
     SCAN_KIND             postgres | mysql | s3
     SCAN_HOST, SCAN_PORT, SCAN_DATABASE, SCAN_USERNAME, SCAN_PASSWORD, SCAN_SSLMODE   (databases)
@@ -21,6 +21,13 @@ import sys
 import httpx
 
 VERSION = "1.0"
+
+
+def _env_compat(name: str) -> None:
+    """Accept the variable names used before the product was renamed (ANUPALAN_*)."""
+    old = name.replace("PRAMAANLY_", "ANUPALAN_")
+    if not os.environ.get(name) and os.environ.get(old):
+        os.environ[name] = os.environ[old]
 
 
 def _env(name: str, required: bool = True, default: str = "") -> str:
@@ -56,11 +63,13 @@ def main() -> None:
     if os.environ.get("SCAN_DRY_RUN") == "1":
         print(json.dumps(report, indent=2))
         return
-    url = _env("ANUPALAN_URL").rstrip("/")
-    if not url.startswith("https://") and not os.environ.get("ANUPALAN_ALLOW_HTTP"):
-        sys.exit("ANUPALAN_URL must use https://")
+    for n in ("PRAMAANLY_URL", "PRAMAANLY_API_KEY", "PRAMAANLY_ALLOW_HTTP"):
+        _env_compat(n)
+    url = _env("PRAMAANLY_URL").rstrip("/")
+    if not url.startswith("https://") and not os.environ.get("PRAMAANLY_ALLOW_HTTP"):
+        sys.exit("PRAMAANLY_URL must use https://")
     r = httpx.post(f"{url}/api/v1/scanner/findings", json=report, timeout=60,
-                   headers={"Authorization": f"Bearer {_env('ANUPALAN_API_KEY')}"})
+                   headers={"Authorization": f"Bearer {_env('PRAMAANLY_API_KEY')}"})
     if r.status_code != 200:
         sys.exit(f"Upload failed ({r.status_code}): {r.text[:300]}")
     print(f"Sent {len(report['findings'])} findings for {report['source_name']}")

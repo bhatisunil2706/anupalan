@@ -1,0 +1,23 @@
+name: Framework content correction
+description: Guidance, a mapping or a reference that doesn't match the official source
+labels: [content]
+body:
+  - type: input
+    id: framework
+    attributes:
+      label: Framework and requirement
+      placeholder: e.g. RBI Cyber 2026, INC.1
+    validations:
+      required: true
+  - type: textarea
+    id: issue
+    attributes:
+      label: What's wrong, and what should it say?
+      description: Describe it in your own words; please don't paste text from paid standards.
+    validations:
+      required: true
+  - type: input
+    id: source
+    attributes:
+      label: Official source
+      description: A link to the regulation or circular, with the paragraph number.

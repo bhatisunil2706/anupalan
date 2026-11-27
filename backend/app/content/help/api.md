@@ -16,7 +16,7 @@ All endpoints are under `https://<your address>/api`. Requests and responses are
 Create an API key in **Settings → Security → API keys** (admins), choosing only the scopes the system needs. Send it as a bearer token:
 
 ~~~
-Authorization: Bearer anp_xxxxxxxxxxxxxxxxxxxxxxxx
+Authorization: Bearer prm_xxxxxxxxxxxxxxxxxxxxxxxx
 ~~~
 
 | Scope | Endpoints |
@@ -40,7 +40,7 @@ Record consent from your website, app or call centre, check what a person has co
 
 ~~~
 curl -X POST https://<your address>/api/v1/consent/events \
-  -H "Authorization: Bearer $ANUPALAN_KEY" -H "Content-Type: application/json" \
+  -H "Authorization: Bearer $PRAMAANLY_KEY" -H "Content-Type: application/json" \
   -d '{
     "event_id": "evt_20261017_000123",
     "principal_id": "cust_88412",
@@ -95,7 +95,7 @@ Push the results of checks your own tools run (CI pipelines, backup jobs, script
 
 ~~~
 curl -X POST https://<your address>/api/v1/evidence \
-  -H "Authorization: Bearer $ANUPALAN_KEY" -H "Content-Type: application/json" \
+  -H "Authorization: Bearer $PRAMAANLY_KEY" -H "Content-Type: application/json" \
   -d '{
     "check": "backup-restore-test",
     "title": "Monthly database restore test",

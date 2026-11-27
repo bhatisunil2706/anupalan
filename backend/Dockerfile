@@ -4,9 +4,9 @@ WORKDIR /app
 COPY requirements.txt .
 # Pick up Debian security fixes released after the base image was built
 RUN apt-get update && apt-get upgrade -y --no-install-recommends && rm -rf /var/lib/apt/lists/*
-RUN pip install --upgrade pip "setuptools>=78.1.1" && pip install -r requirements.txt
-# Remove outdated wheels bundled with Python (ensurepip and test data); the app never uses them
-RUN find /usr/local -name "setuptools-7*" -prune -exec rm -rf {} + && pip list 2>/dev/null | grep -i setuptools
+# pip isn't needed at runtime, so remove it once dependencies are installed (smaller attack surface;
+# its vendored copy of setuptools is also flagged by image scanners)
+RUN pip install "setuptools>=78.1.1" && pip install -r requirements.txt && pip uninstall -y pip
 COPY . .
 RUN useradd --uid 1001 --create-home app && mkdir -p /app/storage && chown -R app /app/storage
 USER app
